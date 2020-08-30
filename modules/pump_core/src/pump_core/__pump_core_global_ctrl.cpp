@@ -16,6 +16,8 @@
  */
 
 #include "pump_core/__pump_core_global_ctrl.h"
+#include "pump_core/logger/pump_core_logger.h"
+#include "pump_core/logger/__pump_core_logger_inner.h"
 
 namespace Pump
 {
@@ -29,7 +31,9 @@ __CPumpCoreGlobalCtrl::__CPumpCoreGlobalCtrl()
     : m_bInit(PUMP_FALSE)
     , m_pRecorderMgr(PUMP_NULL)
     , m_pPumpCoreLogRecorder(PUMP_NULL)
+#if defined PUMP_OS_WINDOWS
     , m_pCmdSessionMgr(PUMP_NULL)
+#endif // PUMP_OS_WINDOWS
 {
 }
 
@@ -79,7 +83,7 @@ pump_int32_t __CPumpCoreGlobalCtrl::Init()
             }
         }
     }
-
+#if defined PUMP_OS_WINDOWS
     /** Initialize CMD session manger. */
     if (!__CPumpCoreGlobalCtrl::s_pGlobalCtrl->m_pCmdSessionMgr)
     {
@@ -96,6 +100,7 @@ pump_int32_t __CPumpCoreGlobalCtrl::Init()
             }
         }
     }
+#endif // PUMP_OS_WINDOWS
 
     /** Set init flag. */
     __CPumpCoreGlobalCtrl::s_pGlobalCtrl->m_csInit.Lock();
@@ -110,10 +115,12 @@ pump_int32_t __CPumpCoreGlobalCtrl::Cleanup()
     {
         return PUMP_ERROR;
     }
+#if defined PUMP_OS_WINDOWS
     if (__CPumpCoreGlobalCtrl::s_pGlobalCtrl->m_pCmdSessionMgr)
     {
         delete __CPumpCoreGlobalCtrl::s_pGlobalCtrl->m_pCmdSessionMgr;
     }
+#endif // PUMP_OS_WINDOWS
     if (__CPumpCoreGlobalCtrl::s_pGlobalCtrl->m_pPumpCoreLogRecorder)
     {
         delete __CPumpCoreGlobalCtrl::s_pGlobalCtrl->m_pPumpCoreLogRecorder;
@@ -168,6 +175,7 @@ CLogRecorderMgr * __CPumpCoreGlobalCtrl::GetLoggerMgr()
     return NULL;
 }
 
+#if defined PUMP_OS_WINDOWS
 ::Pump::Core::Cmder::CCmdSessionMgr * __CPumpCoreGlobalCtrl::GetCmdSessionMgr()
 {
     if (__CPumpCoreGlobalCtrl::GetGlobalCtrl())
@@ -176,14 +184,15 @@ CLogRecorderMgr * __CPumpCoreGlobalCtrl::GetLoggerMgr()
     }
     return NULL;
 }
+#endif // PUMP_OS_WINDOWS
 
-pump_int32_t __CPumpCoreGlobalCtrl::SetLogger(const PUMP_CORE_LOG_CONF & struConf)
+pump_int32_t __CPumpCoreGlobalCtrl::SetLogger(const PUMP_CORE_LOG_CONF * struConf)
 {
-    if (__CPumpCoreGlobalCtrl::GetGlobalCtrl())
+    if (!struConf || !__CPumpCoreGlobalCtrl::GetGlobalCtrl())
     {
-        return __CPumpCoreGlobalCtrl::s_pGlobalCtrl->m_pPumpCoreLogRecorder->Set(struConf);
+        return PUMP_ERROR;
     }
-    return PUMP_ERROR;
+    return __CPumpCoreGlobalCtrl::s_pGlobalCtrl->m_pPumpCoreLogRecorder->Set(*struConf);
 }
 
 }

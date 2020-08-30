@@ -156,7 +156,7 @@ int main(int argc, char** argv)
 {
     test_init();
     //test_logger();
-    __PUMP_CORE_Test_new_logger();
+    //__PUMP_CORE_Test_new_logger();
     /*test_mutex();
     test_atomicOp();*/
     //test_cmd_parse();

@@ -15,7 +15,7 @@
  * </table>
  */
 
-#include "pump_core/logger/__pump_core_logger_inner.h"
+#include "pump_macro/pump_pre.h"
 #include "pump_core/logger/pump_core_logger.h"
 #include "glog/logging.h"
 
@@ -188,7 +188,7 @@ public:
         {
             m_pLogMessage = new(std::nothrow) google::LogMessage(szFile, nLine, google::GLOG_INFO);
         }
-       
+
         return this;
     }
     virtual void End()
@@ -219,7 +219,7 @@ public:
     {
         __GLOG_OUTPUT(val);
     }
-    virtual   CLogRecorderBase*operator<< (unsigned int val)
+    virtual CLogRecorderBase*operator<< (unsigned int val)
     {
         __GLOG_OUTPUT(val);
     }
@@ -257,16 +257,19 @@ public:
     }
 private:
     google::LogMessage * m_pLogMessage;
+#undef __GLOG_OUTPUT
 };
 
 CLogRecorderMgr::CLogRecorderMgr()
 {
 
 }
+
 CLogRecorderMgr::~CLogRecorderMgr()
 {
 
 }
+
 CLogRecorderBase * CLogRecorderMgr::Create(PUMP_LOG_RECORED_TYPE emType)
 {
     switch (emType)
@@ -434,7 +437,8 @@ NULL :
      new(std::nothrow) google::LogMessage(szFile, nLine, google::GLOG_WARNING) :
      ((emLogLevel == PUMP_LOG_ERROR) ?
      new(std::nothrow) google::LogMessage(szFile, nLine, google::GLOG_ERROR) :
-     new(std::nothrow) google::LogMessage(szFile, nLine, google::GLOG_INFO))))) {}
+     new(std::nothrow) google::LogMessage(szFile, nLine, google::GLOG_INFO)))))
+{}
 
 CLogger::~CLogger()
 {
@@ -512,18 +516,9 @@ CLogger &CLogger::operator<<(const std::string &val)
     PUMP_CORE_LOG_OUTPUT(val);
 }
 
+#undef ISLOGGERINIT
+#undef PUMP_CORE_LOG_OUTPUT
 }
-}
-
-PUMP_CORE_API void PUMP_CALLBACK  __PUMP_CORE_Test_new_logger()
-{
-    PUMP_CORE_LOG_CONF struLogCong;
-    memset(&struLogCong, 0, sizeof(struLogCong));
-    struLogCong.szFilePath = "";
-    struLogCong.emLogLevel = PUMP_LOG_INFO;
-    ::Pump::Core::__CPumpCoreGlobalCtrl::SetLogger(struLogCong);
-    // FIXME [紧急] 20200702 gLog打印不出来，应该是没配置好
-    __PUMP_CORE_INFO << "-------test begin-------";
 }
 
 PUMP_CORE_API void PUMP_CALLBACK PUMP_CORE_InitLogger(LPPUMP_CORE_LOG_CONF pConf)
@@ -531,22 +526,26 @@ PUMP_CORE_API void PUMP_CALLBACK PUMP_CORE_InitLogger(LPPUMP_CORE_LOG_CONF pConf
     ::Pump::Core::CLoggerManagment::CreateLoggerManagment(pConf);
 }
 
+#include "pump_core/__pump_core_global_ctrl.h"
+
 PUMP_CORE_API pump_handle_t PUMP_CALLBACK PUMP_CORE_CreateLogger(PUMP_LOG_RECORED_TYPE emType)
 {
-    return ::Pump::Core::__CPumpCoreGlobalCtrl::GetLoggerMgr()
-        ? ::Pump::Core::__CPumpCoreGlobalCtrl::GetLoggerMgr()->Create(emType)
+    return ::Pump::Core::__CPumpCoreGlobalCtrl::GetLoggerMgr() \
+        ? ::Pump::Core::__CPumpCoreGlobalCtrl::GetLoggerMgr()->Create(emType) \
         : PUMP_NULL;
 }
+
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_DestroyLogger(pump_handle_t hLog)
 {
-    if (PUMP_INVALID_HANLDE == hLog || PUMP_NULL == hLog)
+    if (PUMP_INVALID_HANDLE == hLog || PUMP_NULL == hLog)
     {
         return PUMP_ERROR;
     }
-    return ::Pump::Core::__CPumpCoreGlobalCtrl::GetLoggerMgr() ?
-        ::Pump::Core::__CPumpCoreGlobalCtrl::GetLoggerMgr()->Destroy((::Pump::Core::CLogRecorderBase *)hLog)
+    return ::Pump::Core::__CPumpCoreGlobalCtrl::GetLoggerMgr() ? \
+        ::Pump::Core::__CPumpCoreGlobalCtrl::GetLoggerMgr()->Destroy((::Pump::Core::CLogRecorderBase *)hLog) \
         : PUMP_ERROR;
 }
+
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_SetLogger(pump_handle_t hLog, const LPPUMP_CORE_LOG_CONF pConf)
 {
     if (!pConf)
@@ -554,4 +553,17 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_SetLogger(pump_handle_t hLog,
         return PUMP_ERROR;
     }
     return ((::Pump::Core::CLogRecorderBase *)hLog)->Set(*pConf);
+}
+
+#include "pump_core/logger/__pump_core_logger_inner.h"
+
+PUMP_CORE_API void PUMP_CALLBACK  __PUMP_CORE_Test_new_logger()
+{
+    PUMP_CORE_LOG_CONF struLogCong;
+    memset(&struLogCong, 0, sizeof(struLogCong));
+    struLogCong.szFilePath = "";
+    struLogCong.emLogLevel = PUMP_LOG_INFO;
+    ::Pump::Core::__CPumpCoreGlobalCtrl::SetLogger(&struLogCong);
+    // FIXME [紧急] 20200702 gLog打印不出来，应该是没配置好
+    __PUMP_CORE_INFO << "-------test begin-------";
 }

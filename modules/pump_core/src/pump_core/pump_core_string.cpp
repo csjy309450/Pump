@@ -16,6 +16,8 @@
  */
 
 #include <stdarg.h>
+#include <stdio.h>
+#include <string.h>
 #include "pump_core/pump_core_string.h"
 
 void PUMP_CORE_Inner_PrintNum(unsigned long num, int base); ///< general number print 
@@ -48,7 +50,7 @@ PUMP_CORE_API pump_void_t PUMP_CALLBACK PUMP_CORE_Printf(const char* szFormate, 
             break;
         case 'x': PUMP_CORE_Inner_PrintHex(va_arg(va_ptr, unsigned int));
             break;
-        case 'c': ::putchar(va_arg(va_ptr, int));
+        case 'c': putchar(va_arg(va_ptr, int));
             break;
         case 'p': PUMP_CORE_Inner_PrintAddr(va_arg(va_ptr, unsigned long));
             break;
@@ -74,20 +76,20 @@ void PUMP_CORE_Inner_PrintNum(unsigned long num, int base)
 
     PUMP_CORE_Inner_PrintNum(num / base, base);
 
-    ::putchar("0123456789abcdef"[num%base]);
+    putchar("0123456789abcdef"[num%base]);
 }
 
 void PUMP_CORE_Inner_PrintDeci(int dec)
 {
     if (dec < 0)
     {
-        ::putchar('-');
+        putchar('-');
         dec = -dec;  	   // FIXME exist overflow risk, minimum number have no corresponding positive number.
     }
 
     if (dec == 0)
     {
-        ::putchar('0');
+        putchar('0');
         return;
     }
     else
@@ -100,7 +102,7 @@ void PUMP_CORE_Inner_PrintOct(unsigned oct)
 {
     if (oct == 0)
     {
-        ::putchar('0');
+        putchar('0');
         return;
     }
     else
@@ -113,7 +115,7 @@ void PUMP_CORE_Inner_PrintHex(unsigned hex)
 {
     if (hex == 0)
     {
-        ::putchar('0');
+        putchar('0');
         return;
     }
     else
@@ -125,8 +127,8 @@ void PUMP_CORE_Inner_PrintHex(unsigned hex)
 void PUMP_CORE_Inner_PrintAddr(unsigned long addr)
 {
     /* print "0x" */
-    ::putchar('0');
-    ::putchar('x');
+    putchar('0');
+    putchar('x');
     PUMP_CORE_Inner_PrintNum(addr, 16);
 }
 
@@ -136,7 +138,7 @@ void PUMP_CORE_Inner_PrintStr(char *str)
 
     while (str[i] != '\0')
     {
-        ::putchar(str[i++]);
+        putchar(str[i++]);
     }
 }
 
@@ -147,7 +149,7 @@ void PUMP_CORE_Inner_PrintFloat(double f)
     // print integer part
     temp = (int)f;
     PUMP_CORE_Inner_PrintNum(temp, 10);
-    ::putchar('.');
+    putchar('.');
     // print float part
     f -= temp;
     if (f == 0)
@@ -155,7 +157,7 @@ void PUMP_CORE_Inner_PrintFloat(double f)
         /* six precision */
         for (temp = 0; temp < 6; temp++)
         {
-            ::putchar('0');
+            putchar('0');
         }
         return;
     }
@@ -182,7 +184,8 @@ PUMP_CORE_CXXAPI std::string PUMP_CALLBACK PUMP_CORE_StringTrim(const std::strin
             || (*it) == '\r'
             || (*it) == '\t')
         {
-            strBuff.pop_back();
+            //strBuff.pop_back();
+            strBuff.erase(strBuff.end());
         }
         else
         {

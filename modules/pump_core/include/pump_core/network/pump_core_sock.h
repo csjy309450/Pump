@@ -18,11 +18,27 @@
 #ifndef PUMP_CORE_SOCK_H
 #define PUMP_CORE_SOCK_H
 #include "pump_macro/pump_pre.h"
+#ifdef PUMP_OS_POSIX
+#include <sys/socket.h>
+#include <unistd.h>
+#endif // PUMP_OS_POSIX
 #include "pump_core/pump_core_config.h"
 #include "pump_core/pump_core_types.h"
 #include "pump_core/pump_core_handle.h"
 #include "pump_core/network/pump_core_addr.h"
-#include "pump_core/pumnp_core_statemachine.h"
+#include "pump_core/pump_core_statemachine.h"
+
+#ifdef PUMP_OS_WINDOWS
+#   define PUMP_SHUT_RW SD_BOTH
+#   define PUMP_SHUT_RD SD_RECEIVE
+#   define PUMP_SHUT_WR SD_SEND
+#elif (defined PUMP_OS_POSIX)
+#   define PUMP_SHUT_RW SHUT_RDWR
+#   define PUMP_SHUT_RD SHUT_RD
+#   define PUMP_SHUT_WR SHUT_WR
+#else 
+#   error os not support.
+#endif
 
 // ÍøÂçÄ£¿é³õÊ¼»¯
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_InitNetwork();
@@ -73,18 +89,6 @@ namespace Core
 {
 namespace Net
 {
-#ifdef PUMP_OS_WINDOWS
-#   define PUMP_SHUT_RW SD_BOTH
-#   define PUMP_SHUT_RD SD_RECEIVE
-#   define PUMP_SHUT_WR SD_SEND
-#elif (defined PUMP_OS_POSIX)
-#   define PUMP_SHUT_RW SHUT_REWD
-#   define PUMP_SHUT_RD SHUT_RD
-#   define PUMP_SHUT_WR SHUT_WR
-#else 
-#   error os not support.
-#endif
-
 class CAddr;
 class CSockHandle;
 

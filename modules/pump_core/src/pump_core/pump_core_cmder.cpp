@@ -30,7 +30,7 @@ namespace Core
 {
 namespace Cmder
 {
-
+#if defined PUMP_OS_WINDOWS
 const char* kCmdNamePipeIn = "\\\\.\\Pipe\\WinTermIn"; ///< Pipe name add uuid suffix for supporting multi terminal.
 const char* kCmdNamePipeOut = "\\\\.\\Pipe\\WinTermOut";
 const char* kWinCmdx64 = "C:\\Windows\\SysWOW64\\cmd.exe";
@@ -509,6 +509,7 @@ void CCmderServer::__ProcRecvedData(const char* szBuf, DWORD dwSize)
         
     }
 }
+#endif // PUMP_OS_WINDOWS
 
 }
 }

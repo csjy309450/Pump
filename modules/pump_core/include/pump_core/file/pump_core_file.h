@@ -114,7 +114,6 @@ typedef struct tagPUMP_FINFO
     pump_time_t iWriteTime;		///< utc time. last change time.
 } PUMP_FINFO;
 
-
 typedef struct tagFILEFIND_INFO
 {
     char sFileName[PUMP_MAX_FILEPATH];   ///< file name

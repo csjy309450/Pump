@@ -19,7 +19,6 @@
 #define PUMP_DRONE_GLOBAL_CTRL_H
 
 #include "pump_core/pump_core_noncopyable.h"
-#include "pump_core/logger/pump_core_logger.h"
 
 namespace Pump
 {

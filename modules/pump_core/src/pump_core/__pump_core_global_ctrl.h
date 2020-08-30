@@ -20,15 +20,18 @@
 #include "pump_macro/pump_pre.h"
 #include "pump_core/pump_core_types.h"
 #include "pump_core/pump_core_global_mgr.h"
-#include "pump_core/logger/pump_core_logger.h"
 #include "pump_core/pump_core_cmder.h"
 #include "pump_core/thread/pump_core_mutex.h"
-#include "pump_core/logger/__pump_core_logger_inner.h"
+
+typedef struct tagPUMP_CORE_LOG_CONF PUMP_CORE_LOG_CONF;
 
 namespace Pump
 {
 namespace Core
 {
+
+class CLogRecorderBase;
+class CLogRecorderMgr;
 
 /**
  * @brief The global resource control interface in pump_core,
@@ -52,7 +55,7 @@ public:
     static __CPumpCoreGlobalCtrl * GetGlobalCtrl();
 
     /** Configure pump_core private logger. */
-    static pump_int32_t SetLogger(const PUMP_CORE_LOG_CONF & struConf);
+    static pump_int32_t SetLogger(const PUMP_CORE_LOG_CONF * struConf);
 
     /** Get pump_core private logger. */
     static CLogRecorderBase * GetLogger();
@@ -60,8 +63,10 @@ public:
     /** Get logger manager. */
     static CLogRecorderMgr * GetLoggerMgr();
 
+#if defined PUMP_OS_WINDOWS
     /** Get CMD session manager. */
     static ::Pump::Core::Cmder::CCmdSessionMgr * GetCmdSessionMgr();
+#endif // PUMP_OS_WINDOWS
 private:
     __CPumpCoreGlobalCtrl();
     virtual ~__CPumpCoreGlobalCtrl();
@@ -75,8 +80,10 @@ private:
     CLogRecorderBase * m_pPumpCoreLogRecorder; ///< pump_core private log recorder.
     ::Pump::Core::Thread::CMutex m_csPumpCoreLogRecorder;
 
+#if defined PUMP_OS_WINDOWS
     ::Pump::Core::Cmder::CCmdSessionMgr * m_pCmdSessionMgr; ///< CMD session manager.
     ::Pump::Core::Thread::CMutex m_csCmdSessionMgr;
+#endif // PUMP_OS_WINDOWS
 private:
     static __CPumpCoreGlobalCtrl * s_pGlobalCtrl; ///< Global resource instance.
     static ::Pump::Core::Thread::CMutex s_csGlobalCtrl; ///< Global resource instance locker.
@@ -86,5 +93,3 @@ private:
 }
 
 #endif // __PUMP_CORE_GLOBAL_CTRL_H
-
-

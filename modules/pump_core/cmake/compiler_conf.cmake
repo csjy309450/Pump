@@ -28,6 +28,7 @@ if(${CMAKE_GENERATOR} STREQUAL "Unix Makefiles")
             -fPIC)
     if(${pump_core_BUILD_FLAG} MATCHES "shared")
         set(pump_core_INNER_COMPILE_FLAG ${pump_core_INNER_COMPILE_FLAG}
+            -DGLOG_NO_ABBREVIATED_SEVERITIES
             -DPUMP_CORE_BUILD_DLL)
     endif()
     set(pump_core_INNER_LINK_FLAG ${pump_core_INNER_LINK_FLAG}

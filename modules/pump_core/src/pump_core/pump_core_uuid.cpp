@@ -18,7 +18,7 @@
 #include "pump_macro/pump_pre.h"
 #include <stdio.h>
 #include <stdint.h>
-#include <string>
+#include <string.h>
 #if defined(PUMP_OS_WINDOWS)
 #include <objbase.h>
 #elif defined(PUMP_OS_POSIX)
@@ -67,7 +67,7 @@ CUUID::CUUID(char chSplit)
         index += len;
     }
 #endif // defined(PUMP_OS_WINDOWS)
-    ::memcpy(m_szUUID, szBuff, sizeof(m_szUUID));
+    memcpy(m_szUUID, szBuff, sizeof(m_szUUID));
 }
 
 

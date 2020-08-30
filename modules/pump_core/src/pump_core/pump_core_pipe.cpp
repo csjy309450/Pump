@@ -23,7 +23,7 @@ namespace Pump
 {
 namespace Core
 {
-
+#ifdef PUMP_OS_WINDOWS
 CPipeHandle* CPipeHandle::CreatePipeHandle()
 {
     CPipeHandle* pHPipe = new (std::nothrow)CPipeHandle();
@@ -458,6 +458,7 @@ LPOVERLAPPED CPipeHandle::GetOverLapped()
 {
     return &m_struOverlapped;
 }
+#endif // PUMP_OS_WINDOWS
 #endif // PUMP_OS_WINDOWS
 
 }

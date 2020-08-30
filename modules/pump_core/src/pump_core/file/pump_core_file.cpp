@@ -30,11 +30,14 @@
 #elif (defined PUMP_OS_POSIX)
 #include <fcntl.h>
 #include <sys/mman.h>
+#include <sys/stat.h>
 #include <dirent.h>
-#ifdef PUMP_OS_APPLE
+#include <unistd.h>
+#include <errno.h>
+#   ifdef PUMP_OS_APPLE
 #include <mach-o/dyld.h>
 #include <sys/param.h>
-#endif
+#   endif
 #endif // PUMP_OS_WINDOWS
 #include "pump_core/logger/pump_core_logger.h"
 #include "pump_core/pump_core_api.h"
@@ -47,7 +50,7 @@ typedef struct tagPUMP_DIR_INFO
 #if (defined PUMP_OS_WINDOWS)
     pump_handle_t hFindHandle;
     char   *szDirName;
-#   if!(defined PUMP_OS_WINCE) && !(defined PUMP_OS_WINPHONE)
+#   if !(defined PUMP_OS_WINCE) && !(defined PUMP_OS_WINPHONE)
     WIN32_FIND_DATAA struFindData;
 #   else
     WIN32_FIND_DATAW struFindData;
@@ -55,7 +58,7 @@ typedef struct tagPUMP_DIR_INFO
     bool   bFirst;
 #elif (defined PUMP_OS_POSIX)
     DIR  *pDirStru;
-    char *pDirName;
+    char *szDirName;
     struct dirent struEntry;
 #endif // (defined PUMP_OS_WINDOWS)
 } PUMP_DIR_INFO;
@@ -84,9 +87,9 @@ void PUMP_CORE_Inner_FreeDirInfo(PUMP_DIR_INFO* szDirInfo)
     {
         if (szDirInfo->szDirName != PUMP_NULL)
         {
-            ::free(szDirInfo->szDirName);
+            free(szDirInfo->szDirName);
         }
-        ::free(szDirInfo);
+        free(szDirInfo);
     }
 }
 
@@ -118,22 +121,116 @@ ret_alloc:
     return PUMP_NULL;
 }
 
+#if (defined PUMP_OS_POSIX)
+int PUMP_CORE_GetFileTypeByMode(mode_t mode)
+{
+    if (S_ISREG(mode))
+    {
+        return PUMP_TYPE_REG;
+    }
+    else if (S_ISDIR(mode))
+    {
+        return PUMP_TYPE_DIR;
+    }
+    else if (S_ISCHR(mode))
+    {
+        return PUMP_TYPE_CHAR;
+    }
+    else if (S_ISBLK(mode))
+    {
+        return PUMP_TYPE_BLK;
+    }
+    else if (S_ISFIFO(mode))
+    {
+        return PUMP_TYPE_FIFO;
+    }
+    else if (S_ISLNK(mode))
+    {
+        return PUMP_TYPE_LINK;
+    }
+    else if (S_ISSOCK(mode))
+    {
+        return PUMP_TYPE_SOCK;
+    }
+    else
+    {
+        return PUMP_TYPE_UNKNOWN;
+    }
+}
+
+pump_uint32_t PUMP_CORE_GetPermByMode(mode_t mode)
+{
+    pump_uint32_t perms = 0;
+
+    if (mode & S_ISUID)
+    {
+        perms |= PUMP_USETID;
+    }
+    if (mode & S_IRUSR)
+    {
+        perms |= PUMP_UREAD;
+    }
+
+    if (mode & S_IWUSR)
+    {
+        perms |= PUMP_UWRITE;
+    }
+    if (mode & S_IXUSR)
+    {
+        perms |= PUMP_UEXECUTE;
+    }
+
+    if (mode & S_ISGID)
+    {
+        perms |= PUMP_GSETID;
+    }
+    if (mode & S_IRGRP)
+    {
+        perms |= PUMP_GREAD;
+    }
+    if (mode & S_IWGRP)
+    {
+        perms |= PUMP_GWRITE;
+    }
+    if (mode & S_IXGRP)
+    {
+        perms |= PUMP_GEXECUTE;
+    }
+
+    if (mode & S_IROTH)
+    {
+        perms |= PUMP_WREAD;
+    }
+    if (mode & S_IWOTH)
+    {
+        perms |= PUMP_WWRITE;
+    }
+    if (mode & S_IXOTH)
+    {
+        perms |= PUMP_WEXECUTE;
+    }
+
+    return perms;
+}
+#endif // (defined PUMP_OS_POSIX)
+
 /**
 * @brief Get file info from WIN32_FIND_DATA
 * @param (IN) WIN32_FIND_DATA *pFindData
 * @param (OUT) FILE_FIND_INFO *pFileInfo
 */
-#if !(defined PUMP_OS_WINCE) && !(defined PUMP_OS_WINPHONE)
+#if (defined PUMP_OS_WINDOWS)
+#   if !(defined PUMP_OS_WINCE) && !(defined PUMP_OS_WINPHONE)
 void PUMP_CORE_Inner_FillFileInfo(WIN32_FIND_DATAA *pFindData, PUMP_FILEFIND_INFO *pFileInfo)
 {
     ZeroMemory(pFileInfo, sizeof(*pFileInfo));
     ::memcpy(pFileInfo->sFileName, pFindData->cFileName, sizeof(pFileInfo->sFileName));
-#else
+#   else
 void PUMP_CORE_Inner_FillFileInfo(WIN32_FIND_DATAW *pFindData, PUMP_FILEFIND_INFO *pFileInfo)
 {
     ZeroMemory(pFileInfo, sizeof(*pFileInfo));
     WideCharToMultiByte(CP_ACP, 0, pFindData->cFileName, ::wcslen(pFindData->cFileName), pFileInfo->sFileName, sizeof(pFileInfo->sFileName), PUMP_NULL, PUMP_NULL);
-#endif  // !(defined PUMP_OS_WINCE) && !(defined PUMP_OS_WINPHONE)
+#   endif  // !(defined PUMP_OS_WINCE) && !(defined PUMP_OS_WINPHONE)
     //File type
     if (pFindData->dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)
     {
@@ -175,6 +272,179 @@ void PUMP_CORE_Inner_FillFileInfo(WIN32_FIND_DATAW *pFindData, PUMP_FILEFIND_INF
     PUMP_CORE_Inner_FileTimeToTime(&pFindData->ftLastAccessTime, &pFileInfo->FileInfo.iAccessTime);
     PUMP_CORE_Inner_FileTimeToTime(&pFindData->ftLastWriteTime, &pFileInfo->FileInfo.iWriteTime);
 }
+
+void PUMP_CORE_Inner_Convert2DOWRDTOINT64(DWORD dwLow, DWORD dwHigh, INT64* iDst)
+{
+    *iDst = (Int64ShllMod32(dwHigh,32) | dwLow);
+}
+#elif (defined PUMP_OS_POSIX)
+void PUMP_CORE_Inner_FillFileInfo(char *pDirName, struct dirent *pEntry, PUMP_FILEFIND_INFO *pFileInfo)
+{
+    memset(pFileInfo, 0, sizeof(*pFileInfo));
+    memcpy(pFileInfo->sFileName, pEntry->d_name, strlen(pEntry->d_name));
+
+    // file path
+    int iDirLen = strlen(pDirName);
+    int iNameLen = strlen(pEntry->d_name);
+    char *pFilePath = (char*)malloc(iDirLen + iNameLen + 1);
+    if (NULL == pFilePath)
+    {
+        return;
+    }
+
+    memcpy(pFilePath, pDirName, iDirLen);
+    memcpy(pFilePath + iDirLen, pEntry->d_name, iNameLen);
+    pFilePath[iDirLen + iNameLen] = '\0';
+
+    // Get file property
+    struct stat st;
+    int iRet = stat(pFilePath, &st);
+    if (iRet)
+    {
+        free(pFilePath);
+        //printf("Get file stat failed! err:%d\n", errno);
+        return;
+    }
+
+    pFileInfo->FileInfo.nFileType = PUMP_CORE_GetFileTypeByMode(st.st_mode);
+    pFileInfo->FileInfo.nProtection = PUMP_CORE_GetPermByMode(st.st_mode);
+    pFileInfo->FileInfo.vUID = st.st_uid;
+    pFileInfo->FileInfo.vGID = st.st_gid;
+    pFileInfo->FileInfo.nSize = st.st_size;
+    pFileInfo->FileInfo.iINode = st.st_ino;
+    pFileInfo->FileInfo.nHardLink = st.st_nlink;
+    pFileInfo->FileInfo.nDeviceID = st.st_rdev;
+    pFileInfo->FileInfo.iAccessTime = ((pump_time_t)st.st_atime) * PUMP_USEC_PER_SEC;
+    pFileInfo->FileInfo.iCreateTime = ((pump_time_t)st.st_ctime) * PUMP_USEC_PER_SEC;
+    pFileInfo->FileInfo.iWriteTime = ((pump_time_t)st.st_mtime) * PUMP_USEC_PER_SEC;
+
+    free(pFilePath);
+}
+
+int PUMP_CORE_GetOFlagByFlag(pump_uint32_t nFlag)
+{
+    int iOFlag = 0;
+
+    if ((nFlag & PUMP_READ) && (nFlag & PUMP_WRITE))
+    {
+        iOFlag |= O_RDWR;
+    }
+    else if ((nFlag & PUMP_READ))
+    {
+        iOFlag |= O_RDONLY;
+    }
+    else if ((nFlag & PUMP_WRITE))
+    {
+        iOFlag |= O_WRONLY;
+    }
+    else
+    {
+        return -1;
+    }
+
+    if (nFlag & PUMP_CREATE)
+    {
+        iOFlag |= O_CREAT;
+        if (nFlag & PUMP_EXCL)
+        {
+            iOFlag |= O_EXCL;
+        }
+    }
+
+    //if ( (iOFlag & O_CREAT) && !(iOFlag & O_EXCL) )
+    //{
+    //	return -1;
+    //}
+
+    if (nFlag & PUMP_APPEND)
+    {
+        iOFlag |= O_APPEND;
+    }
+    if (nFlag & PUMP_TRUNCATE)
+    {
+        iOFlag |= O_TRUNC;
+    }
+
+#if defined (__linux__)
+    if (nFlag & PUMP_DIRECT)
+    {
+        iOFlag |= O_DIRECT;
+    }
+#endif
+
+    return iOFlag;
+}
+
+mode_t PUMP_CORE_GetModeByPerm(pump_uint32_t perms)
+{
+    if (perms & PUMP_ATTR_READONLY)
+    {
+        return S_IRUSR;
+    }
+
+    mode_t mode = S_IRUSR;
+
+    if (perms & PUMP_ATTR_WRITE)
+    {
+        perms &= (~PUMP_ATTR_WRITE);
+        mode |= S_IWUSR;
+    }
+    if (perms & PUMP_ATTR_EXECUTABLE)
+    {
+        perms &= (~PUMP_ATTR_EXECUTABLE);
+        mode |= S_IXUSR;
+    }
+
+    if (perms & PUMP_USETID)
+    {
+        mode |= S_ISUID;
+    }
+    if (perms & PUMP_UREAD)
+    {
+        mode |= S_IRUSR;
+    }
+    if (perms & PUMP_UWRITE)
+    {
+        mode |= S_IWUSR;
+    }
+    if (perms & PUMP_UEXECUTE)
+    {
+        mode |= S_IXUSR;
+    }
+
+    if (perms & PUMP_GSETID)
+    {
+        mode |= S_ISGID;
+    }
+    if (perms & PUMP_GREAD)
+    {
+        mode |= S_IRGRP;
+    }
+    if (perms & PUMP_GWRITE)
+    {
+        mode |= S_IWGRP;
+    }
+    if (perms & PUMP_GEXECUTE)
+    {
+        mode |= S_IXGRP;
+    }
+
+    if (perms & PUMP_WREAD)
+    {
+        mode |= S_IROTH;
+    }
+    if (perms & PUMP_WWRITE)
+    {
+        mode |= S_IWOTH;
+    }
+    if (perms & PUMP_WEXECUTE)
+    {
+        mode |= S_IXOTH;
+    }
+
+    return mode;
+}
+#endif // (defined PUMP_OS_WINDOWS)
 
 /**
 * @brief To determine whether there is directory.
@@ -253,68 +523,90 @@ PUMP_CORE_API pump_handle_t PUMP_CALLBACK PUMP_CORE_DirOpen(const char *szDirNam
 {
     if (PUMP_NULL == szDirName)
     {
-        return PUMP_INVALID_HANLDE;
+        return PUMP_INVALID_HANDLE;
     }
 
+#if (defined PUMP_OS_WINDOWS)
     int iDirLen = (int)::strlen(szDirName);
-    PUMP_DIR_INFO *szDirInfo = PUMP_CORE_Inner_AllocDirInfo(iDirLen + 3);
-    if (PUMP_NULL == szDirInfo)
+    PUMP_DIR_INFO *pDirInfo = PUMP_CORE_Inner_AllocDirInfo(iDirLen + 3);
+    if (PUMP_NULL == pDirInfo)
     {
-        return PUMP_INVALID_HANLDE;
+        return PUMP_INVALID_HANDLE;
     }
 
-    szDirInfo->hFindHandle = INVALID_HANDLE_VALUE;
-    szDirInfo->bFirst = false;
+    pDirInfo->hFindHandle = INVALID_HANDLE_VALUE;
+    pDirInfo->bFirst = false;
 
-    ::memcpy(szDirInfo->szDirName, szDirName, iDirLen);
-    if (szDirInfo->szDirName[iDirLen - 1] != '/' && szDirInfo->szDirName[iDirLen - 1] != '\\')
+    ::memcpy(pDirInfo->szDirName, szDirName, iDirLen);
+    if (pDirInfo->szDirName[iDirLen - 1] != '/' && pDirInfo->szDirName[iDirLen - 1] != '\\')
     {
-        szDirInfo->szDirName[iDirLen] = '/';
-        szDirInfo->szDirName[iDirLen + 1] = '*';
+        pDirInfo->szDirName[iDirLen] = '/';
+        pDirInfo->szDirName[iDirLen + 1] = '*';
     }
     else
     {
-        szDirInfo->szDirName[iDirLen] = '*';
+        pDirInfo->szDirName[iDirLen] = '*';
     }
 
-    if (PUMP_CORE_DirFindFile((pump_handle_t)szDirInfo, PUMP_NULL) != PUMP_OK)
+    if (PUMP_CORE_DirFindFile((pump_handle_t)pDirInfo, PUMP_NULL) != PUMP_OK)
     {
-        PUMP_CORE_Inner_FreeDirInfo(szDirInfo);
-        return PUMP_INVALID_HANLDE;
+        PUMP_CORE_Inner_FreeDirInfo(pDirInfo);
+        return PUMP_INVALID_HANDLE;
+    }
+#elif (defined PUMP_OS_POSIX)
+    DIR *pDir = opendir(szDirName);
+    if (NULL == pDir)
+    {
+        return PUMP_INVALID_HANDLE;
     }
 
-    return (pump_handle_t)szDirInfo;
+    int iDirLen = strlen(szDirName);
+    PUMP_DIR_INFO *pDirInfo = PUMP_CORE_Inner_AllocDirInfo(iDirLen + 2);
+    if (NULL == pDirInfo)
+    {
+        return PUMP_INVALID_HANDLE;
+    }
+
+    pDirInfo->pDirStru = pDir;
+    memcpy(pDirInfo->szDirName, szDirName, iDirLen);
+    if (pDirInfo->szDirName[iDirLen - 1] != '/')
+    {
+        pDirInfo->szDirName[iDirLen] = '/';
+    }
+#endif // (defined PUMP_OS_WINDOWS)
+
+    return (pump_handle_t)pDirInfo;
 }
 
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_DirFindFile(pump_handle_t hDir, PUMP_FILEFIND_INFO *pFileInfo)
 {
-    if (PUMP_INVALID_HANLDE == hDir)
+    if (PUMP_INVALID_HANDLE == hDir)
     {
         return PUMP_ERROR;
     }
 
-    PUMP_DIR_INFO *szDirInfo = (PUMP_DIR_INFO *)hDir;
-
-    if (INVALID_HANDLE_VALUE == szDirInfo->hFindHandle)
+    PUMP_DIR_INFO *pDirInfo = (PUMP_DIR_INFO *)hDir;
+#if (defined PUMP_OS_WINDOWS)
+    if (INVALID_HANDLE_VALUE == pDirInfo->hFindHandle)
     {
-#if !defined(PUMP_OS_WINCE) && !defined PUMP_OS_WINPHONE
-        HANDLE hFindHandle = ::FindFirstFile(szDirInfo->szDirName, (LPWIN32_FIND_DATAA)&szDirInfo->struFindData);
-#else
+#   if !defined(PUMP_OS_WINCE) && !defined PUMP_OS_WINPHONE
+        HANDLE hFindHandle = ::FindFirstFile(pDirInfo->szDirName, (LPWIN32_FIND_DATAA)&pDirInfo->struFindData);
+#   else
         wchar_t dirname[MAX_PATH] = { 0 };
-        ::MultiByteToWideChar(CP_ACP, 0, szDirInfo->szDirName, ::strlen(szDirInfo->szDirName), dirname, sizeof(dirname));
-#if (defined PUMP_OS_WINCE)
-        HANDLE hFindHandle = ::FindFirstFileW(dirname, &szDirInfo->struFindData);
-#else
-        HANDLE hFindHandle = ::FindFirstFileExW(dirname, FindExInfoStandard, &szDirInfo->struFindData\
+        ::MultiByteToWideChar(CP_ACP, 0, pDirInfo->szDirName, ::strlen(pDirInfo->szDirName), dirname, sizeof(dirname));
+#       if (defined PUMP_OS_WINCE)
+        HANDLE hFindHandle = ::FindFirstFileW(dirname, &pDirInfo->struFindData);
+#       else
+        HANDLE hFindHandle = ::FindFirstFileExW(dirname, FindExInfoStandard, &pDirInfo->struFindData\
             , FindExSearchNameMatch, PUMP_NULL, FIND_FIRST_EX_CASE_SENSITIVE);
-#endif // (defined PUMP_OS_WINCE)
-#endif
+#       endif // (defined PUMP_OS_WINCE)
+#   endif
         if (INVALID_HANDLE_VALUE == hFindHandle)
         {
             return PUMP_ERROR;
         }
-        szDirInfo->hFindHandle = hFindHandle;
-        szDirInfo->bFirst = true;
+        pDirInfo->hFindHandle = hFindHandle;
+        pDirInfo->bFirst = true;
         return PUMP_OK;
     }
 
@@ -325,19 +617,19 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_DirFindFile(pump_handle_t hDi
     }
 
     //first file was found when called OpenDir
-    if (szDirInfo->bFirst)
+    if (pDirInfo->bFirst)
     {
-        PUMP_CORE_Inner_FillFileInfo(&szDirInfo->struFindData, pFileInfo);
-        szDirInfo->bFirst = false;
+        PUMP_CORE_Inner_FillFileInfo(&pDirInfo->struFindData, pFileInfo);
+        pDirInfo->bFirst = false;
         return PUMP_OK;
     }
 
     // find next file
-#if !defined(PUMP_OS_WINCE) && !defined PUMP_OS_WINPHONE
-    if (!::FindNextFileA(szDirInfo->hFindHandle, &szDirInfo->struFindData))
-#else
-    if (!::FindNextFileW(szDirInfo->hFindHandle, &szDirInfo->struFindData))
-#endif
+#   if !defined(PUMP_OS_WINCE) && !defined PUMP_OS_WINPHONE
+    if (!::FindNextFileA(pDirInfo->hFindHandle, &pDirInfo->struFindData))
+#   else
+    if (!::FindNextFileW(pDirInfo->hFindHandle, &pDirInfo->struFindData))
+#   endif
     {
         if (ERROR_NO_MORE_FILES == PUMP_CORE_GetSystemError())
         {
@@ -345,8 +637,16 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_DirFindFile(pump_handle_t hDi
         }
         return PUMP_ERROR;
     }
-
-    PUMP_CORE_Inner_FillFileInfo(&szDirInfo->struFindData, pFileInfo);
+    PUMP_CORE_Inner_FillFileInfo(&pDirInfo->struFindData, pFileInfo);
+#elif (defined PUMP_OS_POSIX)
+    struct dirent *pRetent = NULL;
+    int iRet = readdir_r(pDirInfo->pDirStru, &pDirInfo->struEntry, &pRetent);
+    if (iRet != 0 || NULL == pRetent)
+    {
+        return PUMP_ERROR;
+    }
+    PUMP_CORE_Inner_FillFileInfo(pDirInfo->szDirName, &pDirInfo->struEntry, pFileInfo);
+#endif // (defined PUMP_OS_WINDOWS)
     return PUMP_OK;
 }
 
@@ -357,14 +657,19 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_DirFindFile(pump_handle_t hDi
 */
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_DirClose(pump_handle_t hDir)
 {
-    if (PUMP_INVALID_HANLDE == hDir)
+    if (PUMP_INVALID_HANDLE == hDir)
     {
         return PUMP_ERROR;
     }
 
-    PUMP_DIR_INFO *szDirInfo = (PUMP_DIR_INFO*)hDir;
-    FindClose(szDirInfo->hFindHandle);
-    PUMP_CORE_Inner_FreeDirInfo(szDirInfo);
+    PUMP_DIR_INFO *pDirInfo = (PUMP_DIR_INFO*)hDir;
+#if (defined PUMP_OS_WINDOWS)
+    FindClose(pDirInfo->hFindHandle);
+#elif (defined PUMP_OS_POSIX)
+    closedir(pDirInfo->pDirStru);
+    pDirInfo->pDirStru = NULL;
+#endif // (defined PUMP_OS_WINDOWS)
+    PUMP_CORE_Inner_FreeDirInfo(pDirInfo);
 
     return PUMP_OK;
 }
@@ -375,13 +680,14 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_DirClose(pump_handle_t hDir)
 * Function:	PUMP_CORE_FileOpen
 * Desc:		open file in user asked mode.
 * Input:		@param pFileName: file name, abs name | relative name.
-@param nFlag: open flag, can be composed by (|) operation
+@param nFlag: open flag, can be composed by "|" operation
 @param nFileAttr: file attr, if file exist, this param will be ignored.
 * Output:
 * Return:		if success return PUMP_FILE_HANDLE, otherwise return PUMP_FILE_INVALID_HANDLE.
 * */
 PUMP_CORE_API pump_handle_t PUMP_CALLBACK PUMP_CORE_FileOpen(const char* pFileName, pump_uint32_t nFlag, pump_uint32_t nFileAttr)
 {
+#if (defined PUMP_OS_WINDOWS)
     HANDLE hFile = INVALID_HANDLE_VALUE;
     DWORD dwDesiredAccess = 0;
     DWORD dwShareMode = FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE;
@@ -463,34 +769,55 @@ PUMP_CORE_API pump_handle_t PUMP_CALLBACK PUMP_CORE_FileOpen(const char* pFileNa
         dwFlagAttr |= FILE_FLAG_NO_BUFFERING;
     }
 
-#if defined PUMP_OS_WINCE || defined PUMP_OS_WINPHONE
+#   if (defined PUMP_OS_WINCE) || (defined PUMP_OS_WINPHONE)
     wchar_t wFileName[260] = { 0 };
     ::MultiByteToWideChar(CP_ACP, 0, pFileName, ::strlen(pFileName), wFileName, sizeof(wFileName));
-#if defined PUMP_OS_WINCE
+#       if (defined PUMP_OS_WINCE)
     hFile = CreateFile(wFileName, dwDesiredAccess, dwShareMode, PUMP_NULL, \
         dwCreateFlag, dwFlagAttr, 0);
-#else
+#       else
     CREATEFILE2_EXTENDED_PARAMETERS cep = { 0 };
     cep.dwSize = sizeof(cep);
     cep.dwFileAttributes = dwFlagAttr;
     hFile = CreateFile2(wFileName, dwDesiredAccess, dwShareMode, dwCreateFlag, &cep);
-#endif
-#else
+#       endif // (defined PUMP_OS_WINCE)
+#   else
     hFile = CreateFile((LPCSTR)pFileName, dwDesiredAccess, dwShareMode, PUMP_NULL, \
         dwCreateFlag, dwFlagAttr, 0);
-#endif
+#   endif // (defined PUMP_OS_WINCE) || (defined PUMP_OS_WINPHONE)
 
     if (nFlag & PUMP_APPEND && hFile != PUMP_INVALID_FILE)
     {
-#if defined PUMP_OS_WINPHONE
+#   if (defined PUMP_OS_WINPHONE)
         LARGE_INTEGER li = { 0 };
         ::SetFilePointerEx(hFile, li, PUMP_NULL, FILE_END);
-#else
+#   else
         ::SetFilePointer(hFile, 0, PUMP_NULL, FILE_END);
-#endif
+#   endif // (defined PUMP_OS_WINPHONE)
+    }
+#elif (defined PUMP_OS_POSIX)
+    int hFile = (int)(long)PUMP_INVALID_FILE;
+    int flag = 0;
+    mode_t mode;
+
+    if (!pFileName)
+    {
+        return (pump_handle_t)PUMP_ERROR;
     }
 
-    return hFile;
+    //flag
+    flag = PUMP_CORE_GetOFlagByFlag(nFlag);
+    if (flag < 0)
+    {
+        return (pump_handle_t)hFile;
+    }
+
+    //mode
+    mode = PUMP_CORE_GetModeByPerm(nFileAttr);
+
+    hFile = open(pFileName, flag, mode);
+#endif // (defined PUMP_OS_WINDOWS)
+    return (pump_handle_t)hFile;
 }
 
 /**
@@ -507,12 +834,15 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_FileClose(pump_handle_t hFile
         return PUMP_ERROR;
     }
 
+#if (defined PUMP_OS_WINDOWS)
     if (::CloseHandle(hFile))
     {
         return PUMP_OK;
     }
-
     return PUMP_ERROR;
+#elif (defined PUMP_OS_POSIX)
+    return close((int)(long)hFile);
+#endif // (defined PUMP_OS_WINDOWS)
 }
 
 /**
@@ -529,13 +859,17 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_FileDelete(const char* pFileN
         return PUMP_ERROR;
     }
 
-#if defined PUMP_OS_WINCE || defined PUMP_OS_WINPHONE
+#if (defined PUMP_OS_WINDOWS)
+#   if (defined PUMP_OS_WINCE) || (defined PUMP_OS_WINPHONE)
     wchar_t wFileName[260] = { 0 };
     ::MultiByteToWideChar(CP_ACP, 0, pFileName, ::strlen(pFileName), wFileName, sizeof(wFileName));
     return (::DeleteFileW(wFileName)) ? PUMP_OK : PUMP_ERROR;
-#else
+#   else
     return (::DeleteFile((LPCSTR)pFileName)) ? PUMP_OK : PUMP_ERROR;
-#endif
+#   endif
+#elif (defined PUMP_OS_POSIX)
+    return remove(pFileName);
+#endif // (defined PUMP_OS_WINDOWS)
 }
 
 /**
@@ -549,6 +883,7 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_FileDelete(const char* pFileN
 * */
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_FileRead(pump_handle_t hFile, pump_pvoid_t pBuf, pump_uint32_t nNumberOfBytesToRead, pump_uint32_t* pNumberOfBytesRead)
 {
+#if (defined PUMP_OS_WINDOWS)
     DWORD dwNumberOfBytesRead = 0;
 
     if ((hFile != PUMP_INVALID_FILE) && (::ReadFile(hFile, pBuf, nNumberOfBytesToRead, (LPDWORD)&dwNumberOfBytesRead, PUMP_NULL)))
@@ -565,7 +900,25 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_FileRead(pump_handle_t hFile,
     {
         *pNumberOfBytesRead = 0;
     }
-
+#elif (defined PUMP_OS_POSIX)
+    if ((PUMP_INVALID_FILE != hFile) && (pBuf))
+    {
+        if (pNumberOfBytesRead)
+        {
+            if (-1 != (pump_int32_t)(*pNumberOfBytesRead = read((int)(long)hFile, pBuf, nNumberOfBytesToRead)))
+            {
+                return PUMP_OK;
+            }
+        }
+        else
+        {
+            if (-1 != read((int)(long)hFile, pBuf, nNumberOfBytesToRead))
+            {
+                return PUMP_OK;
+            }
+        }
+    }
+#endif // (defined PUMP_OS_WINDOWS)
     return PUMP_ERROR;
 }
 
@@ -580,6 +933,7 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_FileRead(pump_handle_t hFile,
 * */
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_FileWrite(pump_handle_t hFile, const pump_pvoid_t pBuf, pump_uint32_t nNumberOfBytesToWrite, pump_uint32_t* pNumberOfBytesWrite)
 {
+#if (defined PUMP_OS_WINDOWS)
     DWORD dwNumberOfBytesRead = 0;
 
     if ((hFile != PUMP_INVALID_FILE) && (::WriteFile(hFile, pBuf, nNumberOfBytesToWrite, (LPDWORD)&dwNumberOfBytesRead, PUMP_NULL)))
@@ -596,7 +950,25 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_FileWrite(pump_handle_t hFile
     {
         *pNumberOfBytesWrite = 0;
     }
-
+#elif (defined PUMP_OS_POSIX)
+    if ((PUMP_INVALID_FILE != hFile) && (pBuf))
+    {
+        if (pNumberOfBytesWrite)
+        {
+            if (-1 != (pump_int32_t)(*pNumberOfBytesWrite = write((int)(long)hFile, pBuf, nNumberOfBytesToWrite)))
+            {
+                return PUMP_OK;
+            }
+        }
+        else
+        {
+            if (-1 != write((int)(long)hFile, pBuf, nNumberOfBytesToWrite))
+            {
+                return PUMP_OK;
+            }
+        }
+    }
+#endif // (defined PUMP_OS_WINDOWS)
     return PUMP_ERROR;
 }
 
@@ -611,6 +983,7 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_FileWrite(pump_handle_t hFile
 * */
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_FileSeek(pump_handle_t hFile, pump_int64_t iOffset, pump_uint32_t nWhence, pump_int64_t* iCurOffset)
 {
+#if (defined PUMP_OS_WINDOWS)
     LARGE_INTEGER lInt;
 
     lInt.QuadPart = iOffset;
@@ -631,7 +1004,33 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_FileSeek(pump_handle_t hFile,
     {
         *iCurOffset = lInt.QuadPart;
     }
-
+#elif (defined PUMP_OS_POSIX)
+    if (iCurOffset)
+    {
+#   if defined (__linux__)
+        *iCurOffset = lseek64((int)(long)hFile, iOffset, nWhence);
+#   elif defined (PUMP_OS_APPLE)
+        *iCurOffset = lseek((int)(long)hFile, iOffset, nWhence);
+#   endif
+        if (-1 == *iCurOffset)
+        {
+            //printf("last error = %d\n", errno);
+            return PUMP_ERROR;
+        }
+    }
+    else
+    {
+#   if defined (__linux__)
+        if (-1 == lseek64((int)(long)hFile, iOffset, nWhence))
+#   elif defined (PUMP_OS_APPLE)
+        if (-1 == lseek((int)(long)hFile, iOffset, nWhence))
+#   endif
+        {
+            //printf("last error = %d\n", errno);
+            return PUMP_ERROR;
+        }
+    }
+#endif // (defined PUMP_OS_WINDOWS)
     return PUMP_OK;
 }
 
@@ -644,13 +1043,15 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_FileSeek(pump_handle_t hFile,
 * */
 PUMP_CORE_API pump_bool_t PUMP_CALLBACK PUMP_CORE_FileIsEOF(pump_handle_t hFile)
 {
-    //是否有同步问题
+#if (defined PUMP_OS_WINDOWS)
     if (hFile != PUMP_INVALID_FILE)
     {
         return (ERROR_HANDLE_EOF == PUMP_CORE_GetSystemError()) ? PUMP_TRUE : PUMP_FALSE;
     }
-
     return PUMP_FALSE;
+#elif (defined PUMP_OS_POSIX)
+    return PUMP_TRUE;
+#endif // (defined PUMP_OS_WINDOWS)
 }
 
 /**
@@ -662,6 +1063,7 @@ PUMP_CORE_API pump_bool_t PUMP_CALLBACK PUMP_CORE_FileIsEOF(pump_handle_t hFile)
 * */
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_FileStat(pump_handle_t hFile, PUMP_FINFO* pFInfo)
 {
+#if (defined PUMP_OS_WINDOWS)
     pump_int32_t iRet1 = PUMP_ERROR;
     pump_int32_t iRet2 = PUMP_ERROR;
 
@@ -672,7 +1074,7 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_FileStat(pump_handle_t hFile,
 
     ZeroMemory(pFInfo, sizeof(PUMP_FINFO));
 
-#ifdef PUMP_OS_WINPHONE
+#   if (defined PUMP_OS_WINPHONE)
     FILE_STANDARD_INFO fsi = { 0 };
     FILE_ID_EXTD_DIR_INFO fiedi = { 0 };
     FILE_ID_INFO fii = { 0 };
@@ -711,10 +1113,10 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_FileStat(pump_handle_t hFile,
     pFInfo->iINode = fiedi.FileIndex;
 
     return PUMP_OK;
-#else
+#   else
     BY_HANDLE_FILE_INFORMATION struFileInfo = { 0 };
 
-#if !defined PUMP_OS_WINCE
+#       if !(defined PUMP_OS_WINCE)
     DWORD dwFileType;
     //WinCE have no ::GetFileType function
     if (FILE_TYPE_UNKNOWN == (dwFileType = ::GetFileType(hFile)))
@@ -736,7 +1138,7 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_FileStat(pump_handle_t hFile,
         pFInfo->nFileType = PUMP_TYPE_UNKNOWN;
         break;
     }
-#endif
+#       endif // !(defined PUMP_OS_WINCE)
     if (::GetFileInformationByHandle(hFile, &struFileInfo))
     {
         if (struFileInfo.dwFileAttributes & FILE_ATTRIBUTE_READONLY)
@@ -763,7 +1165,7 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_FileStat(pump_handle_t hFile,
 
         iRet1 = PUMP_OK;
     }
-#if !defined PUMP_OS_WINCE
+#       if !(defined PUMP_OS_WINCE)
     //WinCE have no ::GetSecurityInfo function
     SECURITY_INFORMATION struSinInfo = 0;
     PSECURITY_DESCRIPTOR pDesc = PUMP_NULL;
@@ -781,15 +1183,49 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_FileStat(pump_handle_t hFile,
 
         iRet2 = PUMP_OK;
     }
-#endif
-
+#       endif // !(defined PUMP_OS_WINCE)
     if ((PUMP_OK == iRet1) && (PUMP_OK == iRet2))
     {
         return PUMP_OK;
     }
+    return PUMP_ERROR;
+#   endif // (defined PUMP_OS_WINPHONE)
+#elif (defined PUMP_OS_POSIX)
+    int iRet = 0;
+#   if defined(PUMP_OS_APPLE)
+    struct stat st = { 0 };
+#   else
+    struct stat64 st = { 0 };
+#   endif // defined(PUMP_OS_APPLE)
+
+    if ((!pFInfo) || (PUMP_INVALID_FILE == hFile))
+    {
+        return PUMP_ERROR;
+    }
+
+#   if defined(PUMP_OS_APPLE)
+    iRet = fstat((int)(long)hFile, &st);
+#   else
+    iRet = fstat64((int)(long)hFile, &st);
+#   endif // defined(PUMP_OS_APPLE)
+    if (!iRet)
+    {
+        pFInfo->nFileType = PUMP_CORE_GetFileTypeByMode(st.st_mode);
+        pFInfo->nProtection = PUMP_CORE_GetPermByMode(st.st_mode);
+        pFInfo->vUID = st.st_uid;
+        pFInfo->vGID = st.st_gid;
+        pFInfo->nSize = st.st_size;
+        pFInfo->iINode = st.st_ino;
+        pFInfo->nHardLink = st.st_nlink;
+        pFInfo->nDeviceID = st.st_rdev;
+        pFInfo->iAccessTime = st.st_atime;
+        pFInfo->iCreateTime = st.st_ctime;
+        pFInfo->iWriteTime = st.st_mtime;
+        return PUMP_OK;
+    }
 
     return PUMP_ERROR;
-#endif
+#endif // (defined PUMP_OS_WINDOWS)
 }
 
 /**
@@ -801,14 +1237,23 @@ Return:		0-succ, -1-fail
 */
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_FileFlush(pump_handle_t hFile)
 {
+#if (defined PUMP_OS_WINDOWS)
     return ::FlushFileBuffers(hFile) ? PUMP_OK : PUMP_ERROR;
+#elif (defined PUMP_OS_POSIX)
+    if (PUMP_INVALID_FILE == hFile)
+    {
+        return PUMP_ERROR;
+    }
+    return fsync((int)(long)hFile);
+#endif // (defined PUMP_OS_WINDOWS)
 }
 
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_GetWorkDir(char* buf, pump_int32_t size)
 {
-#ifdef PUMP_OS_WINPHONE
+#if (defined PUMP_OS_WINDOWS)
+#   if (defined PUMP_OS_WINPHONE)
     return PUMP_ERROR;
-#else
+#   else
     TCHAR path[PUMP_MAX_FILEPATH] = { 0 };
     int retVal = ::GetModuleFileName(PUMP_NULL, path, PUMP_MAX_FILEPATH);
     if (retVal == 0)
@@ -817,11 +1262,11 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_GetWorkDir(char* buf, pump_in
     }
 
     int i = 0;
-#if defined PUMP_OS_WINCE
+#       if (defined PUMP_OS_WINCE)
     int len = (int)::wcslen(path);
-#else
+#       else
     int len = (int)::strlen(path);
-#endif
+#       endif // (defined PUMP_OS_WINCE)
     while (path[i++] != '\0')
     {
         if (path[i] == '\\' && path[i + 1] == '\\')
@@ -833,11 +1278,11 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_GetWorkDir(char* buf, pump_in
         }
     }
 
-#if defined PUMP_OS_WINCE
+#   if (defined PUMP_OS_WINCE)
     len = (int)::wcslen(path);
-#else
+#   else
     len = (int)::strlen(path);
-#endif
+#   endif // (defined PUMP_OS_WINCE)
 
     if (len > size)
     {
@@ -846,35 +1291,86 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_GetWorkDir(char* buf, pump_in
 
     ::memcpy(buf, path, len + 1);
     return PUMP_OK;
-#endif
+#   endif // (defined PUMP_OS_WINPHONE)
+#elif (defined PUMP_OS_POSIX)
+    if (buf == NULL)
+    {
+        errno = EINVAL;
+        return PUMP_ERROR;
+    }
+
+#   if defined (PUMP_OS_APPLE)
+    char name_buf[PUMP_MAX_FILEPATH] = { 0 };//PUMP_MAX_FILEPATH=1024
+    PUMP_UINT32 nLength = sizeof(name_buf);
+
+    if (_NSGetExecutablePath(name_buf, &nLength) != 0)
+    {
+        return PUMP_ERROR;
+    }
+
+    char name_resolve[PUMP_MAX_FILEPATH] = { 0 };
+    if (realpath(name_buf, name_resolve) == NULL)
+    {
+        return PUMP_ERROR;
+    }
+
+    nLength = strlen(name_resolve);
+    if (size < nLength + 1)
+    {
+        errno = ENOMEM;
+        return PUMP_ERROR;
+    }
+
+    memcpy(buf, name_resolve, nLength + 1);
+#   else
+    char path[PUMP_MAX_FILEPATH] = { 0 };
+    int count = readlink("/proc/self/exe", path, PUMP_MAX_FILEPATH);
+    if (size < count)
+    {
+        errno = ENOMEM;
+        return PUMP_ERROR;
+    }
+
+    memcpy(buf, path, count);
+#   endif // defined (PUMP_OS_APPLE)
+    return PUMP_OK;
+#endif // (defined PUMP_OS_WINDOWS)
 }
 
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_FileAccess(const char *path, int mode)
 {
+#if (defined PUMP_OS_WINDOWS)
     if (mode & PUMP_X_OK)
     {
         return PUMP_ERROR;
     }
-#if !defined PUMP_OS_WINCE && !defined PUMP_OS_WINPHONE
+#   if !(defined PUMP_OS_WINCE) && !(defined PUMP_OS_WINPHONE)
     //WinCE have no ::_access()
-    return ::_access(path, mode);
-#else
+    return _access(path, mode);
+#   else
     return PUMP_ERROR;
-#endif
+#   endif // !(defined PUMP_OS_WINCE) && !(defined PUMP_OS_WINPHONE)
+#elif (defined PUMP_OS_POSIX)
+    return access(path, mode);
+#endif // (defined PUMP_OS_WINDOWS)
 }
 
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_FileAttributes(const char *szPath)
 {
-#if !defined PUMP_OS_WINCE && !defined PUMP_OS_WINPHONE
+#if (defined PUMP_OS_WINDOWS)
+#   if !defined PUMP_OS_WINCE && !defined PUMP_OS_WINPHONE
     //WinCE have no ::_access()
     DWORD dwAttrib = ::GetFileAttributesA(szPath);
     return dwAttrib;
-#else
+#   else
     return PUMP_ERROR;
-#endif
+#   endif // !defined PUMP_OS_WINCE && !defined PUMP_OS_WINPHONE
+#elif (defined PUMP_OS_POSIX)
+    return PUMP_ERROR;
+#endif // (defined PUMP_OS_WINDOWS)
 }
 
-#ifdef PUMP_OS_WINDOWS
+#if  (defined PUMP_OS_WINDOWS)
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_FileProperties(const char * szPath, const char* szProperties, char* szOut, pump_uint32_t dwOut)
 {
     DWORD dwSize;
@@ -944,20 +1440,25 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_FileProperties(const char * s
 
 PUMP_CORE_API pump_bool_t PUMP_CALLBACK PUMP_CORE_FileIsExist(const char *szPath)
 {
+#if (defined PUMP_OS_WINDOWS)
     DWORD dwAttrib = PUMP_CORE_FileAttributes(szPath);
     return (INVALID_FILE_ATTRIBUTES != dwAttrib && 0 == (dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
+#elif (defined PUMP_OS_POSIX)
+    return PUMP_FALSE;
+#endif // (defined PUMP_OS_WINDOWS)
 }
 
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_FileCopy(const char* src, const char* dst, pump_bool_t bFailIfExists)
 {
-#if defined PUMP_OS_WINCE || defined PUMP_OS_WINPHONE
+#if (defined PUMP_OS_WINDOWS)
+#   if defined PUMP_OS_WINCE || defined PUMP_OS_WINPHONE
     wchar_t wsrc[260] = { 0 };
     wchar_t wdst[260] = { 0 };
     ::MultiByteToWideChar(CP_ACP, 0, src, ::strlen(src), wsrc, sizeof(wsrc));
     ::MultiByteToWideChar(CP_ACP, 0, dst, ::strlen(dst), wdst, sizeof(wdst));
-#if defined PUMP_OS_WINCE
+#       if defined PUMP_OS_WINCE
     return ::CopyFile(wsrc, wdst, bFailIfExists) == TRUE ? PUMP_OK : PUMP_ERROR;
-#else
+#       else
     COPYFILE2_EXTENDED_PARAMETERS cep = { 0 };
     cep.dwSize = sizeof(cep);
     if (bFailIfExists)
@@ -965,10 +1466,91 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_FileCopy(const char* src, con
         cep.dwCopyFlags |= COPY_FILE_FAIL_IF_EXISTS;
     }
     return ::CopyFile2(wsrc, wdst, &cep) == S_OK ? PUMP_OK : PUMP_ERROR;
-#endif
-#else
+#       endif // defined PUMP_OS_WINCE
+#   else
     return ::CopyFile(src, dst, bFailIfExists) ? PUMP_OK : PUMP_ERROR;
-#endif
+#   endif // defined PUMP_OS_WINCE || defined PUMP_OS_WINPHONE
+#elif (defined PUMP_OS_POSIX)
+    int fdin = -1;
+    int fdout = -1;
+    void* pSrc, *pDst;
+    struct stat statbuf;
+    int retVal = -1;
+
+    int extFile = access(dst, F_OK);
+    if (bFailIfExists && extFile == 0)
+    {
+        return -1;
+    }
+
+    if ((fdin = open(src, O_RDONLY)) < 0)
+    {
+        goto ret_copy;
+    }
+
+    /* need size of input file */
+    if (fstat(fdin, &statbuf) < 0)
+    {
+        goto ret_copy;
+    }
+
+    if ((fdout = open(dst, O_RDWR | O_CREAT | O_TRUNC, statbuf.st_mode)) < 0)
+    {
+        goto ret_copy;
+    }
+
+    /* set size of output file */
+    if (lseek(fdout, statbuf.st_size - 1, SEEK_SET) == -1)
+    {
+        goto ret_copy;
+    }
+
+    if (write(fdout, "", 1) != 1)
+    {
+        goto ret_copy;
+    }
+
+    if ((pSrc = mmap(0, statbuf.st_size, PROT_READ, MAP_SHARED, fdin, 0)) == MAP_FAILED)
+    {
+        goto ret_copy;
+    }
+
+    if ((pDst = mmap(0, statbuf.st_size, PROT_READ | PROT_WRITE, MAP_SHARED, fdout, 0)) == MAP_FAILED)
+    {
+        goto ret_copy;
+    }
+
+    /* does the file copy */
+    memcpy(pDst, pSrc, statbuf.st_size);
+    return true;
+
+ret_copy:
+    if (fdin != -1)
+    {
+        close(fdin);
+        fdin = -1;
+    }
+
+    if (fdout != -1)
+    {
+        close(fdout);
+        fdout = -1;
+    }
+
+    if (src)
+    {
+        munmap(pSrc, statbuf.st_size);
+        src = NULL;
+    }
+
+    if (dst)
+    {
+        munmap(pDst, statbuf.st_size);
+        src = NULL;
+    }
+
+    return retVal;
+#endif // (defined PUMP_OS_WINDOWS)
 }
 
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_FileRename(const char* oldName, const char* newName)
@@ -977,19 +1559,23 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_FileRename(const char* oldNam
     {
         return PUMP_ERROR;
     }
-#if defined PUMP_OS_WINCE || defined PUMP_OS_WINPHONE
+#if (defined PUMP_OS_WINDOWS)
+#   if defined PUMP_OS_WINCE || defined PUMP_OS_WINPHONE
     wchar_t wsrc[260] = { 0 };
     wchar_t wdst[260] = { 0 };
     ::MultiByteToWideChar(CP_ACP, 0, oldName, ::strlen(oldName), wsrc, sizeof(wsrc));
     ::MultiByteToWideChar(CP_ACP, 0, newName, ::strlen(newName), wdst, sizeof(wdst));
-#if defined PUMP_OS_WINPHONE
+#       if defined PUMP_OS_WINPHONE
     return ::MoveFileExW(wsrc, wdst, MOVEFILE_COPY_ALLOWED) ? PUMP_OK : PUMP_ERROR;
-#else
+#       else
     return ::MoveFile(wsrc, wdst) ? PUMP_OK : PUMP_ERROR;
-#endif
-#else
+#       endif // defined PUMP_OS_WINPHONE
+#   else
     return ::MoveFile(oldName, newName) ? PUMP_OK : PUMP_ERROR;
-#endif
+#   endif // defined PUMP_OS_WINCE || defined PUMP_OS_WINPHONE
+#elif (defined PUMP_OS_POSIX)
+    return rename(oldName, newName);
+#endif // (defined PUMP_OS_WINDOWS)
 }
 
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_GetBinaryFileArch(const char* szPath)

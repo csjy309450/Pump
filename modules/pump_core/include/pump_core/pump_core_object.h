@@ -17,6 +17,7 @@
 
 #ifndef PUMP_CORE_OBJCET_H
 #define PUMP_CORE_OBJCET_H
+#include <string.h>
 #include "pump_core/pump_core_config.h"
 #include "pump_core/pump_core_types.h"
 #include "pump_core/pump_core_noncopyable.h"
@@ -48,7 +49,7 @@ public:
     }
     pump_bool_t operator==(CPumpObjectBase& other)
     {
-        return (::strcmp(other.m_szName, m_szName) == 0);
+        return (strcmp(other.m_szName, m_szName) == 0);
     }
 private:
    const  char *m_szName;

@@ -27,7 +27,7 @@
 #   pragma comment(lib,"ws2_32.lib") 
 #elif (defined PUMP_OS_POSIX)
 #   include <sys/socket.h>
-#   include <arpa/ioctl.h>
+#   include <sys/ioctl.h>
 #   include <arpa/inet.h>
 #   include <netinet/in.h>
 #   include <net/if.h>
@@ -84,7 +84,7 @@ typedef SOCKET pump_sock_t;
 #define PUMP_INVALID_SOCKET ((pump_handle_t)INVALID_SOCKET)
 #elif (defined PUMP_OS_POSIX)
 typedef pump_fd_t pump_sock_t;
-#define PUMP_INVALID_SOCKET ((pump_handle_t)INVALID_SOCKET)
+#define PUMP_INVALID_SOCKET ((pump_handle_t)(-1))
 #endif // (defined PUMP_OS_WINDOWS)
 
 typedef struct tagPUMP_ADDR
@@ -110,16 +110,22 @@ typedef struct tagPUMP_ADDR_EXP
     pump_uint16_t reserved_; /* reserved */
 } PUMP_ADDR_EXP;
 
-#if(_WIN32_WINNT >= 0x0600)
+#if (defined PUMP_OS_WINDOWS)
+typedef struct fd_set PUMP_FDSET, *LPPUMP_FDSET;
+#   if(_WIN32_WINNT >= 0x0600)
 typedef struct pollfd PUMP_POLLFD, *LPPUMP_POLLFD;
-#else
+#   else
 typedef struct tagPUMP_POLLFD {
     pump_sock_t  fd;
     pump_int16_t   events;
     pump_int16_t   revents;
 } PUMP_POLLFD, *LPPUMP_POLLFD;
-#endif // (_WIN32_WINNT >= 0x0600)
-typedef struct fd_set PUMP_FDSET, *LPPUMP_FDSET;
+#   endif // (_WIN32_WINNT >= 0x0600)
+#elif (defined PUMP_OS_POSIX)
+typedef fd_set PUMP_FDSET, *LPPUMP_FDSET;
+typedef struct pollfd PUMP_POLLFD, *LPPUMP_POLLFD;
+#else
+#endif // (defined PUMP_OS_WINDOWS)
 
 #define PUMP_INADDR_ANY INADDR_ANY
 #define PUMP_AF_INET AF_INET

@@ -15,6 +15,7 @@
  * </table>
  */
 
+#include <string.h>
 #include "pump_core/network/pump_core_addr.h"
 
 namespace Pump

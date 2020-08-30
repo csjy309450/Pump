@@ -18,6 +18,7 @@
 #ifndef PUMP_CORE_STRING_H
 #define PUMP_CORE_STRING_H
 #include "pump_macro/pump_pre.h"
+#include <stdarg.h>
 #ifdef PUMP_COMPILER_CXX
 #include <sstream>
 #include <string>

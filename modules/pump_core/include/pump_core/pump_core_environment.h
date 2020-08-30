@@ -18,6 +18,7 @@
 #ifndef PUMP_CORE_ENVIRONMENT_H
 #define PUMP_CORE_ENVIRONMENT_H
 #include "pump_macro/pump_pre.h"
+#include <string>
 #include <map>
 #include <set>
 #include "pump_core/pump_core_config.h"
@@ -117,9 +118,14 @@ public:
         return m_envContainer.begin();
     }
 
+
     ConstIteratorType CBegin() const
     {
+#if (defined PUMP_HAS_CPP11)
         return m_envContainer.cbegin();
+#else 
+        return m_envContainer.begin();
+#endif  // (defined PUMP_HAS_CPP11)
     }
 
     IteratorType End()
@@ -129,7 +135,11 @@ public:
 
     ConstIteratorType CEnd() const
     {
+#if (defined PUMP_HAS_CPP11)
         return m_envContainer.cend();
+#else 
+        return m_envContainer.end();
+#endif  // (defined PUMP_HAS_CPP11)
     }
 
     EnvVarContainerType::size_type Size() const
@@ -141,10 +151,10 @@ public:
     {
         ConstIteratorType envItem = m_envContainer.find(strKey);
         std::string strOut;
-        for (EnvVarItemType::const_iterator it = envItem->second.cbegin();;)
+        for (EnvVarItemType::const_iterator it = envItem->second.begin();;)
         {
             strOut += (*it);
-            if ((++it) != envItem->second.cend())
+            if ((++it) != envItem->second.end())
             {
                 strOut += ";";
             }

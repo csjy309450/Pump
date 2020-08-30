@@ -23,7 +23,7 @@
 #include "pump_core/pump_core_pipe.h"
 #include "pump_core/thread/pump_core_thread.h"
 #include "pump_core/thread/pump_core_mutex.h"
-#include "pump_core/pumnp_core_statemachine.h"
+#include "pump_core/pump_core_statemachine.h"
 #include "pump_core/pump_core_global_mgr.h"
 #include "pump_core/pump_core_uuid.h"
 
@@ -33,7 +33,7 @@ namespace Core
 {
 namespace Cmder
 {
-
+#if defined PUMP_OS_WINDOWS
 class CCmdSessionMgr : public ::Pump::Core::CGlobalManagement
 {
 public:
@@ -185,6 +185,7 @@ private:
     __CInnerCmdService m_innerCmdService;
     //CThxRead m_thxRead;
 };
+#endif // PUMP_OS_WINDOWS
 
 }
 }

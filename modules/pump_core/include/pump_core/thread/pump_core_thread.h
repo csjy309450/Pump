@@ -50,7 +50,7 @@ public:
 public:
     CThread();
     CThread(pump_void_t * pData);
-    explicit CThread(PUMP_THREAD_TYPE emType, pump_void_t * pData);
+    CThread(PUMP_THREAD_TYPE emType, pump_void_t * pData);
     virtual ~CThread();
     virtual pump_int32_t Start();
     virtual pump_int32_t Stop();

@@ -20,13 +20,13 @@
 #include "pump_macro/pump_pre.h"
 //#include <stdlib.h>
 //#include <ctype.h>
-#include <ostream>
+//#include <ostream>
 #include <string>
 #include <cassert>
 #include "pump_core/pump_core_config.h"
+#include "pump_core/pump_core_types.h"
 #include "pump_core/pump_core_noncopyable.h"
 #include "pump_core/thread/pump_core_mutex.h"
-#include "pump_core/pump_core_types.h"
 
 enum PUMP_CORE_LOG_LEVEL
 {

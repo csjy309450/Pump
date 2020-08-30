@@ -16,5 +16,3 @@
  */
 
 #include "pump_core/logger/__pump_core_logger_inner.h"
-
-const char * kBBB = NULL;

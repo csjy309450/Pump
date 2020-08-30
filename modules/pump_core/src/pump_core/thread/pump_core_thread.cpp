@@ -131,7 +131,7 @@ CThread::CThread()
     __CThreadPrimitive * pPrimitive = static_cast<__CThreadPrimitive*>(m_pPrimitive);
     if (pPrimitive)
     {
-        pPrimitive->Bind(CThread::__ThreadCallbackCore, this);
+        pPrimitive->Bind((void*)CThread::__ThreadCallbackCore, this);
     }
 }
 
@@ -148,7 +148,7 @@ CThread::CThread(pump_void_t * pData)
     __CThreadPrimitive * pPrimitive = static_cast<__CThreadPrimitive*>(m_pPrimitive);
     if (pPrimitive)
     {
-        pPrimitive->Bind(CThread::__ThreadCallbackCore, this);
+        pPrimitive->Bind((void*)CThread::__ThreadCallbackCore, this);
     }
 }
 
@@ -165,7 +165,7 @@ CThread::CThread(PUMP_THREAD_TYPE emType, pump_void_t * pData)
         __CBoostThreadPrimitive * pPrimitive = new (std::nothrow)__CBoostThreadPrimitive();
         if (pPrimitive)
         {
-            pPrimitive->Bind(CThread::__ThreadCallbackCore, pData);
+            pPrimitive->Bind((void*)CThread::__ThreadCallbackCore, pData);
         }
     } break;
 #endif // PUMP_CORE_HAVE_BOOST

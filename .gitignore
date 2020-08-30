@@ -36,4 +36,6 @@
 /vs*/
 /vs2013_*/
 /vs2015_*/
+/gcc_*/
 /modules/pump_core/dependence/include/win/boost
+/modules/pump_core/dependence/include/linux/boost

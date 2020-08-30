@@ -16,6 +16,9 @@
  */
 
 #include "pump_macro/pump_pre.h"
+#if (defined PUMP_OS_POSIX)
+#include <poll.h>
+#endif // efined PUMP_OS_POSIX)
 #include "pump_core/logger/pump_core_logger.h"
 #include "pump_core/pump_core_api.h"
 #include "pump_core/network/pump_core_sock.h"
@@ -45,7 +48,7 @@ pump_int32_t PUMP_CORE_Poll(LPPUMP_POLLFD pFds, pump_int32_t iFds, pump_int32_t 
     return PUMP_ERROR;
 #endif // (_WIN32_WINNT >= 0x0600)
 #elif (defined PUMP_OS_POSIX)
-    return ::poll(pFds, iFds, iTimeOut);
+    return poll(pFds, iFds, iTimeOut);
 #endif // PUMP_OS_WINDOWS
 }
 

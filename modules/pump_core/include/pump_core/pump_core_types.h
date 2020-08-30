@@ -66,7 +66,7 @@ typedef HANDLE pump_fd_t;
 typedef int pump_fd_t;
 #endif // (defined PUMP_OS_WINDOWS)
 
-#define PUMP_INVALID_HANLDE ((pump_handle_t)-1)
+#define PUMP_INVALID_HANDLE ((pump_handle_t)-1)
 
 #define PUMP_ABSTRACT  ///< sign abstract class
 #define PUMP_INTERFACE  ///< sign interface class

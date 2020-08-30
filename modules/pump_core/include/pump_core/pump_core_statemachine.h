@@ -1,5 +1,5 @@
 /**
- * @file pumnp_core_statemachine.h
+ * @file pump_core_statemachine.h
  * @brief Library Header.
  * @details Declaration of state machine interface.
  *

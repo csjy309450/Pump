@@ -21,11 +21,11 @@
 #include "pump_core/pump_core_types.h"
 #include "pump_core/pump_core_handle.h"
 
+#ifdef PUMP_OS_WINDOWS
 namespace Pump
 {
 namespace Core
 {
-
 #define PUMP_PIPE_DEFAULT_BUFFER_SIZE 1024
 
 class PUMP_CORE_CLASS CPipeHandle
@@ -106,6 +106,7 @@ protected:
 
 void* PUMP_CORE_CreateNamedPipe();
 pump_int32_t PUMP_CORE_DestroyNamedPipe(void* pHPipe);
+#endif // PUMP_OS_WINDOWS
 
 #endif // PUMP_CORE_PIPE_H
 

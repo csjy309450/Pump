@@ -17,6 +17,7 @@
 
 #include "pump_core/pump_core_environment.h"
 #include <stdlib.h>
+#include <string.h>
 #ifdef PUMP_OS_POSIX
 #include <unistd.h>
 extern char ** environ;
@@ -79,9 +80,9 @@ pump_bool_t CEnvironment::SetEnvVariable(const pump_char_t * pName, const pump_c
     return ::SetEnvironmentVariableA(pName, pValue);
 #elif (defined PUMP_OS_POSIX)
     std::string strEnvVal = pName;
-    strEnvVal +="=";
-    strEnvVal += +pValue;
-    return (::putenv(strEnvVal.c_str()) == 0?PUMP_TRUE:PUMP_FALSE);
+    strEnvVal += "=";
+    strEnvVal += pValue;
+    return (::putenv((pump_char_t*)strEnvVal.c_str()) == 0?PUMP_TRUE:PUMP_FALSE);
 #endif // PUMP_OS_WINDOWS
 }
 
