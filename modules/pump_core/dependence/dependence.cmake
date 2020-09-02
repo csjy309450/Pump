@@ -13,16 +13,16 @@ message("<pump::pump_core> /modules/pump_core/dependence/dependence.cmake in")
 # #</find Boost>
 
 # TODO unzip boost.zip
-# if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-#         # Scan all files in directory.
-#         execute_process(COMMAND find ${in_dir} -type d
-#                 RESULT_VARIABLE ret
-#                 OUTPUT_VARIABLE dir_dirs)
-# elseif(${CMAKE_SYSTEM_NAME}  MATCHES "Windows")
-#         message("<pump::pump_core> expand ${pump_core_INNER_PROJECT_ROOT_DIR}/dependence/include/win/boost.zip")
-#         execute_process(COMMAND expand ${pump_core_INNER_PROJECT_ROOT_DIR}/dependence/include/win/boost.zip
-#                 RESULT_VARIABLE ret)
-# endif(${CMAKE_SYSTEM_NAME}  MATCHES "Linux")
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+        # execute_process(COMMAND find ${in_dir} -type d
+        #         RESULT_VARIABLE ret
+        #         OUTPUT_VARIABLE dir_dirs)
+elseif(${CMAKE_SYSTEM_NAME}  MATCHES "Windows")
+        message("<pump::pump_core> expand ${pump_core_INNER_PROJECT_ROOT_DIR}/dependence/include/win/boost.zip")
+        execute_process(COMMAND unzip ${pump_core_INNER_PROJECT_ROOT_DIR}/dependence/include/win/boost.zip 
+                -d ${pump_core_INNER_PROJECT_ROOT_DIR}/dependence/include/win/ -n
+                RESULT_VARIABLE ret)
+endif(${CMAKE_SYSTEM_NAME}  MATCHES "Linux")
 
 # containing header dir to project
 set(pump_core_INNER_DEP_INC_DIRS
