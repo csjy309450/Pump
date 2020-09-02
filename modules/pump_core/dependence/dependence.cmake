@@ -19,8 +19,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
         #         OUTPUT_VARIABLE dir_dirs)
 elseif(${CMAKE_SYSTEM_NAME}  MATCHES "Windows")
         message("<pump::pump_core> expand ${pump_core_INNER_PROJECT_ROOT_DIR}/dependence/include/win/boost.zip")
-        execute_process(COMMAND unzip ${pump_core_INNER_PROJECT_ROOT_DIR}/dependence/include/win/boost.zip 
-                -d ${pump_core_INNER_PROJECT_ROOT_DIR}/dependence/include/win/ -n
+        execute_process(COMMAND unzip -n ${pump_core_INNER_PROJECT_ROOT_DIR}/dependence/include/win/boost.zip -d ${pump_core_INNER_PROJECT_ROOT_DIR}/dependence/include/win/
                 RESULT_VARIABLE ret)
 endif(${CMAKE_SYSTEM_NAME}  MATCHES "Linux")
 
