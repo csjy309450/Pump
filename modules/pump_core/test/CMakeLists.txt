@@ -67,6 +67,12 @@ target_link_libraries(pump_core_test_fixture_file pump_core_dll ${pump_core_INNE
 target_compile_options(pump_core_test_fixture_file PRIVATE ${pump_core_INNER_TEST_COMPILE_FLAG})
 set_target_properties(pump_core_test_fixture_file PROPERTIES FOLDER "pump_core/test")
 
+add_executable(pump_core_test_coroutine ${pump_core_INNER_PROJECT_ROOT_DIR}/test/pump_core_test_coroutine.cpp)
+target_include_directories(pump_core_test_coroutine PRIVATE ${pump_core_INNER_TEST_DEP_INC_DIRS})
+target_link_libraries(pump_core_test_coroutine pump_core_dll ${pump_core_INNER_TEST_DEP_LIBS} ${pump_core_INNER_TEST_LINK_FLAG})
+target_compile_options(pump_core_test_coroutine PRIVATE ${pump_core_INNER_TEST_COMPILE_FLAG})
+set_target_properties(pump_core_test_coroutine PROPERTIES FOLDER "pump_core/test")
+
 # add_executable(pump_core_test_fixture_reg ${pump_core_INNER_PROJECT_ROOT_DIR}/test/pump_core_test_fixture_reg.cpp)
 # target_include_directories(pump_core_test_fixture_reg PRIVATE ${pump_core_INNER_TEST_DEP_INC_DIRS})
 # target_link_libraries(pump_core_test_fixture_reg pump_core_dll ${pump_core_INNER_TEST_DEP_LIBS} ${pump_core_INNER_TEST_LINK_FLAG})

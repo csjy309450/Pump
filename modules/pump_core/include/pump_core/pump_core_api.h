@@ -15,8 +15,8 @@
  * </table>
  */
 
-#ifndef PUMP_CORE_INNER_API_H
-#define PUMP_CORE_INNER_API_H
+#ifndef PUMP_CORE_API_H
+#define PUMP_CORE_API_H
 #include "pump_macro/pump_pre.h"
 #include "pump_core/pump_core_config.h"
 #include "pump_core/pump_core_types.h"
@@ -35,5 +35,6 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_Cleanup();
 PUMP_CORE_API pump_void_t PUMP_CALLBACK PUMP_CORE_SetSystemError(pump_int32_t iError);
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_GetSystemError();
 PUMP_CORE_API pump_void_t PUMP_CALLBACK PUMP_CORE_Sleep(pump_int32_t iMilliseconds);
+PUMP_CORE_API pump_void_t PUMP_CALLBACK PUMP_CORE_Assert();
 
-#endif // PUMP_CORE_INNER_API_H
+#endif // PUMP_CORE_API_H

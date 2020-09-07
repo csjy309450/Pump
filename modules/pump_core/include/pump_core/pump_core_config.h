@@ -108,6 +108,10 @@
 #   error must be one of {PUMP_CORE_BUILD_DLL, PUMP_CORE_USING_DLL, PUMP_CORE_BUILD_SLL, PUMP_CORE_USING_SLL}
 #endif // PUMP_CORE_BUILD_DLL
 
+#if (defined PUMP_OS_WINDOWS)
+#define PUMP_INLINE __inline
+#endif // (defined PUMP_OS_WINDOWS)
+
 //#define PUMP_TEMP_EXP(class_,temp_arg_) template class PUMP_CORE_CLASS class_ temp_arg_;
 
 #endif // PUMP_CORE_CONFIG_H

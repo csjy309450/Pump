@@ -60,3 +60,9 @@ PUMP_CORE_API pump_void_t PUMP_CALLBACK PUMP_CORE_Sleep(pump_int32_t iMillisecon
     ::usleep(iMilliseconds);
 #endif // PUMP_OS_WINDOWS
 }
+
+PUMP_CORE_API pump_void_t PUMP_CALLBACK PUMP_CORE_Assert()
+{
+    char * p = NULL;
+    *p = 1;
+}
