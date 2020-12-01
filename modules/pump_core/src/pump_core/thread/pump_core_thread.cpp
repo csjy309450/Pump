@@ -347,15 +347,6 @@ pump_void_t * CThread::__ThreadCallbackCore(pump_void_t * pData)
 #define TLS_OUT_OF_INDEXES ((DWORD)0xFFFFFFFF)
 #endif
 
-/*************************************************
-函数名称 : PUMP_CORE_Thread_Create
-函数功能 : 创建线程
-输入参数说明 : StartAddress为线程执行体例程；Params为
-传入线程执行体的参数；StackSize为线程堆栈的大小；
-IsSuspend表示创建的线程是否挂起；Priority为线程优先级；
-SchedPolicy为调度策略
-函数返回值的说明 : 成功返回线程句柄，失败返回PUMP_INVALID_HANDLE
-*************************************************/
 PUMP_CORE_API pump_handle_t PUMP_CALLBACK PUMP_CORE_Thread_Create(pump_pvoid_t(PUMP_CALLBACK *StartAddress)(pump_pvoid_t), pump_void_t* Params, pump_uint32_t StackSize, \
     pump_bool_t IsSuspend, pump_int32_t Priority, pump_int32_t SchedPolicy)
 {
@@ -439,13 +430,6 @@ PUMP_CORE_API pump_handle_t PUMP_CALLBACK PUMP_CORE_Thread_Create(pump_pvoid_t(P
 #endif // (defined PUMP_OS_WINDOWS)
 }
 
-/*************************************************
-函数名称 : PUMP_CORE_Thread_Create
-函数功能 : 创建可分离线程
-输入参数说明 : StartAddress为线程执行体例程；Params为
-传入线程执行体的参数；StackSize为线程堆栈的大小；
-函数返回值的说明 : 成功返回线程句柄，失败返回PUMP_INVALID_HANDLE
-*************************************************/
 PUMP_CORE_API pump_bool_t PUMP_CALLBACK PUMP_CORE_ThreadDetached_Create(pump_pvoid_t(PUMP_CALLBACK *StartAddress)(pump_pvoid_t), pump_void_t* Params, pump_uint32_t StackSize)
 {
 #if (defined PUMP_OS_WINDOWS)
@@ -517,10 +501,6 @@ PUMP_CORE_API pump_bool_t PUMP_CALLBACK PUMP_CORE_ThreadDetached_Create(pump_pvo
 #endif // defined PUMP_OS_POSIX
 }
 
-/**
-函数名称 : PUMP_CORE_Thread_Exit（windows无效）
-函数功能 : 退出线程
-*/
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_Thread_Exit()
 {
 #if (defined PUMP_OS_WINDOWS)
@@ -532,12 +512,7 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_Thread_Exit()
     pthread_exit(0);
 #endif // (defined PUMP_OS_WINDOWS)
 }
-/*************************************************
-函数名称 : PUMP_CORE_Thread_Wait
-函数功能 : 等待线程线程的退出并关闭相应的句柄
-输入参数说明 : ThreadHandle为线程句柄
-函数返回值的说明 : 成功返回PUMP_OK，失败返回PUMP_ERROR
-*************************************************/
+
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_Thread_Wait(pump_handle_t ThreadHandle)
 {
 #if (defined PUMP_OS_WINDOWS)
@@ -579,12 +554,6 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_Thread_Wait(pump_handle_t Thr
 #endif // defined PUMP_OS_WINDOWS
 }
 
-/*************************************************
-函数名称 : PUMP_CORE_Thread_Suspend
-函数功能 : 挂起线程
-输入参数说明 : ThreadHandle为线程句柄
-函数返回值的说明 : 成功返回PUMP_OK，失败返回PUMP_ERROR
-*************************************************/
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_Thread_Suspend(pump_handle_t ThreadHandle)
 {
 #if (defined PUMP_OS_WINDOWS)
@@ -610,12 +579,6 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_Thread_Suspend(pump_handle_t 
 #endif // (defined PUMP_OS_WINDOWS)
 }
 
-/*************************************************
-函数名称 : PUMP_CORE_Thread_Resume
-函数功能 : 恢复挂起的线程
-输入参数说明 : ThreadHandle为线程句柄
-函数返回值的说明 : 成功返回PUMP_OK，失败返回PUMP_ERROR
-*************************************************/
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_Thread_Resume(pump_handle_t ThreadHandle)
 {
 #if (defined PUMP_OS_WINDOWS)
@@ -641,12 +604,6 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_Thread_Resume(pump_handle_t T
 #endif // (defined PUMP_OS_WINDOWS)
 }
 
-/*************************************************
-函数名称 : PUMP_CORE_Thread_SetPriority
-函数功能 : 设置线程的优先级
-输入参数说明 : ThreadHandle为线程句柄；Priority为线程优先级
-函数返回值的说明 : 成功返回PUMP_OK，失败返回PUMP_ERROR
-*************************************************/
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_Thread_SetPriority(pump_handle_t ThreadHandle, pump_int32_t Priority)
 {
 #if (defined PUMP_OS_WINDOWS)
@@ -701,12 +658,6 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_Thread_SetPriority(pump_handl
 #endif // (defined PUMP_OS_WINDOWS)
 }
 
-/*************************************************
-函数名称 : PUMP_CORE_Thread_SetSchedPolicy
-函数功能 : 设置调度策略
-输入参数说明 : ThreadHandle为线程句柄；SchedPolicy为调度策略
-函数返回值的说明 : 成功返回PUMP_OK，失败返回PUMP_ERROR
-*************************************************/
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_Thread_SetSchedPolicy(pump_handle_t ThreadHandle, pump_int32_t SchedPolicy)
 {
     if (ThreadHandle == (pump_handle_t)PUMP_INVALID_THREAD)
@@ -729,12 +680,6 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_Thread_SetSchedPolicy(pump_ha
 #endif
 }
 
-/**
-* PUMP_CORE_Thread_GetId
-* @param void
-* @return 线程ID
-* @sa
-*/
 PUMP_CORE_API pump_thread_id PUMP_CALLBACK PUMP_CORE_Thread_GetSelfId()
 {
 #if (defined PUMP_OS_WINDOWS)
@@ -745,7 +690,8 @@ PUMP_CORE_API pump_thread_id PUMP_CALLBACK PUMP_CORE_Thread_GetSelfId()
 }
 
 //////////////////////////////////////////////////////////////////////////
-
+// Thread Local Storage API.
+//////////////////////////////////////////////////////////////////////////
 PUMP_CORE_API pump_handle_t PUMP_CALLBACK PUMP_CORE_ThreadTls_Create()
 {
 #if (defined PUMP_OS_WINDOWS)

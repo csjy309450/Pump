@@ -74,7 +74,7 @@ private:
 };
 
 /* TODO 20200626 Need add "ctrl+c" cmd than interrupting running process.
-*/
+ */
 class PUMP_CORE_CLASS CCmderClient
 {
 public:

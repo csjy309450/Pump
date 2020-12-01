@@ -15,13 +15,14 @@
  * </table>
  */
 
-#include "pump_core\__pump_core_global_ctrl.h"
+#include "pump_macro/pump_pre.h"
+#include "pump_core/__pump_core_global_ctrl.h"
 #include "pump_core/pump_core_api.h"
 #include "pump_core/network/pump_core_addr.h"
 #ifdef PUMP_OS_WINDOWS
 #include <synchapi.h>
 #elif (defined PUMP_OS_POSIX)
-##include <unistd.h>
+#include <unistd.h>
 #endif // PUMP_OS_WINDOWS
 
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_Init()

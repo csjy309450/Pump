@@ -20,17 +20,17 @@
 #include "pump_macro/pump_pre.h"
 #include <string>
 #if (defined _WIN32)
-#   include <WinSock2.h>
-#   include <ws2ipdef.h>
-#   include <ws2tcpip.h>
-#   pragma warning(disable: 4102)
-#   pragma comment(lib,"ws2_32.lib") 
+#include <WinSock2.h>
+#include <ws2ipdef.h>
+#include <ws2tcpip.h>
+#pragma warning(disable: 4102)
+#pragma comment(lib,"ws2_32.lib") 
 #elif (defined PUMP_OS_POSIX)
-#   include <sys/socket.h>
-#   include <arpa/ioctl.h>
-#   include <arpa/inet.h>
-#   include <netinet/in.h>
-#   include <net/if.h>
+#include <sys/socket.h>
+#include <arpa/ioctl.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <net/if.h>
 #endif // (defined _WIN32)
 #include "pump_core/pump_core_config.h"
 #include "pump_core/pump_core_types.h"
@@ -46,18 +46,18 @@ struct in6_addr
         pump_uint16_t Word[8];
     } u;
 };
-#           define in_addr6 in6_addr
+#define in_addr6 in6_addr
 /*
  * Defines to matching RFC 2553.
  */
-#           define _S6_un   u
-#           define _S6_u8   Byte
-#           define s6_addr _S6_un._S6_u8
+#define _S6_un   u
+#define _S6_u8   Byte
+#define s6_addr _S6_un._S6_u8
 /*
  * Defines for us.
  */
-#           define s6_bytes u.Byte
-#           define s6_words u.Word
+#define s6_bytes u.Byte
+#define s6_words u.Word
 #       endif // s6_addr
 typedef struct
 {
@@ -76,7 +76,7 @@ typedef sockaddr_in6 pump_sockaddr_in6;
 typedef sockaddr_in pump_sockaddr_in;
 typedef sockaddr_in6 pump_sockaddr_in6;
 #else
-#   error OS Not Support!
+#   error os not supported.
 #endif // (defined PUMP_OS_WINDOWS)
 
 #if (defined PUMP_OS_WINDOWS)
@@ -128,7 +128,6 @@ typedef struct fd_set PUMP_FDSET, *LPPUMP_FDSET;
 #if (defined PUMP_OS_POSIX) | (PUMP_MSC_VER >= 1700)
 #define PUMP_AF_UNIX AF_UNIX
 #endif // PUMP_OS_POSIX) | (PUMP_MSC_VER >= 1700)
-
 
 #if (defined PUMP_OS_SUPPORT_IPV6)
 #define PUMP_AF_INET6 AF_INET6

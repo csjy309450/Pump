@@ -47,8 +47,8 @@ typedef enum tagPUMP_IOEV_TYPE
 } PUMP_IOEV_TYPE;
 
 /**
-* @brief describe IoFd changing type.
-*/
+ * @brief describe IoFd changing type.
+ */
 typedef enum tagPUMP_FDCTRL_TYPE
 {
     PUMP_FDCTL_DEFAULT = 0, ///< default type

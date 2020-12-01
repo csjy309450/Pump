@@ -17,7 +17,6 @@
 
 #include "pump_core/network/pump_core_sock.h"
 #ifdef PUMP_OS_WINDOWS
-
 #elif (defined PUMP_OS_POSIX)
 #include <netinet/tcp.h>
 #include <fcntl.h>
@@ -28,7 +27,7 @@
 
 #if defined(PUMP_OS_WINDOWS)
 #define PUMP_SOCKET_ERROR() WSAGetLastError()
-#define PUMP_SET_SOCKET_ERROR(errcode)	\
+#define PUMP_SET_SOCKET_ERROR(errcode)    \
     do { WSASetLastError(errcode); } while (0)
 #elif defined(PUMP_OS_POSIX)
 #include <netinet/tcp.h>

@@ -23,14 +23,6 @@
 #include <boost/atomic.hpp>
 #include <boost/shared_ptr.hpp>
 
-/**
-* Function:	PUMP_CORE_MutexCreate
-* Desc:		create mutex
-* Input:
-* Output:		@param pMutex: point to store mutex.
-* Return:		if success return PUMP_OK, otherwise return PUMP_ERROR.
-* Return:		if return failed only if no memory in system when raise an exception.
-* */
 PUMP_CORE_API pump_int32_t PUMP_CORE_MutexCreate(pump_mutex_t* pMutex, pump_int32_t nFlag)
 {
 #if (defined PUMP_OS_WINDOWS)
@@ -74,13 +66,6 @@ PUMP_CORE_API pump_int32_t PUMP_CORE_MutexCreate(pump_mutex_t* pMutex, pump_int3
 #endif // (defined PUMP_OS_POSIX)
 }
 
-/**
-* Function:	PUMP_CORE_MutexDestroy
-* Desc:		destroy mutex
-* Input:		@param pMutex: mutex to destroy.
-* Output:
-* Return:
-* */
 PUMP_CORE_API pump_int32_t PUMP_CORE_MutexDestroy(pump_mutex_t* pMutex)
 {
 #if (defined PUMP_OS_WINDOWS)
@@ -101,13 +86,6 @@ PUMP_CORE_API pump_int32_t PUMP_CORE_MutexDestroy(pump_mutex_t* pMutex)
 #endif // (defined PUMP_OS_POSIX)
 }
 
-/**
-* Function:	PUMP_CORE_MutexLock
-* Desc:		lock the mutex
-* Input:		@param pMutex: mutex to lock
-* Output:
-* Return:
-* */
 PUMP_CORE_API pump_int32_t PUMP_CORE_MutexLock(pump_mutex_t* pMutex)
 {
 #if (defined PUMP_OS_WINDOWS)
@@ -128,13 +106,6 @@ PUMP_CORE_API pump_int32_t PUMP_CORE_MutexLock(pump_mutex_t* pMutex)
 #endif // (defined PUMP_OS_POSIX)
 }
 
-/**
-* Function:	PUMP_CORE_MutexTryLock
-* Desc:		try to lock the mutex. if cannot lock, return immediately.
-* Input:		@param pMutex: mutex try to lock
-* Output:
-* Return:		if success return PUMP_OK, otherwise return PUMP_ERROR.
-* */
 PUMP_CORE_API pump_int32_t PUMP_CORE_MutexTryLock(pump_mutex_t* pMutex)
 {
 #if (defined PUMP_OS_WINDOWS)
@@ -159,13 +130,6 @@ PUMP_CORE_API pump_int32_t PUMP_CORE_MutexTryLock(pump_mutex_t* pMutex)
 #endif // (defined PUMP_OS_POSIX)
 }
 
-/**
-* Function:	PUMP_CORE_MutexUnlock
-* Desc:		unlock the mutex
-* Input:		@param pMutex: mutex to unlock
-* Output:
-* Return:
-* */
 PUMP_CORE_API pump_int32_t PUMP_CORE_MutexUnlock(pump_mutex_t* pMutex)
 {
 #if (defined PUMP_OS_WINDOWS)

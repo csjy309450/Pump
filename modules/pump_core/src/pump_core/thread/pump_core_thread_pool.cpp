@@ -1,3 +1,20 @@
+/**
+ * @file pump_core_thread_pool.cpp
+ * @brief Library Implementation.
+ * @details Implementation of thread pool control interface.
+ *
+ * @author yangzheng [263693992@qq.com]
+ * @date 2020-12-01
+ * @version v0.9.0
+ * @copyright Copyright (c) 2020 yangzheng
+ *
+ * @par Change History
+ * <table>
+ * <tr><th>Date<th>Version<th>Author<th>Description
+ * <tr><td>2020-12-01<td>v0.9.0<td>yangzheng<td>create file.
+ * </table>
+ */
+
 #include "pump_core/thread/pump_core_mutex.h"
 #include "pump_core/thread/pump_core_semaphore.h"
 #include "pump_core/thread/pump_core_thread.h"
@@ -123,8 +140,8 @@ static pump_void_t PUMP_CORE_MoveToIdleThreadPool_Local(__PUMP_THREAD_POOL_T* pT
 //////////////////////////////////////////////////////////////////
 //
 /**
-* 互斥需要在上层保护原因是动态增加线程的时候也需要这个函数.
-*/
+ *互斥需要在上层保护原因是动态增加线程的时候也需要这个函数.
+ */
 static pump_int32_t PUMP_CORE_CreateThread_Local(__PUMP_THREAD_POOL_T* pThreadPool)
 {
     pump_handle_t hThreadId = (pump_handle_t)PUMP_INVALID_THREAD;
@@ -371,7 +388,7 @@ static pump_pvoid_t PUMP_CALLBACK f_Thread_Svc(pump_pvoid_t pParam)
 #elif defined(PUMP_OS_POSIX)
                     pthread_detach((pthread_t)hThreadId);
 #else
-#error OS Not Implement Yet.
+#error os not supported.
 #endif
                     return NULL;
                 }

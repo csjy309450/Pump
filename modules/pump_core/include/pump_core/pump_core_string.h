@@ -33,10 +33,10 @@ PUMP_CORE_API int PUMP_CALLBACK PUMP_CORE_CharIsSpace(pump_char_t c);
 
 #ifdef PUMP_COMPILER_CXX
 /**
-* @fn  template<typename T> bool PUMP_CORE_Str2Other(std::string & str,T & t)
-* @brief string -> other type
-* @return true or false
-*/
+ * @fn  template<typename T> bool PUMP_CORE_Str2Other(std::string & str,T & t)
+ * @brief string -> other type
+ * @return true or false
+ */
 template<typename T>
 pump_bool_t PUMP_CORE_Str2Other(std::string & str, T & t)
 {
@@ -50,10 +50,11 @@ pump_bool_t PUMP_CORE_Str2Other(std::string & str, T & t)
     return PUMP_TRUE;
 }
 
-/** @fn  template<typename T> std::string other2str(T & t)
-* @brief other type -> string
-* @return outout string
-*/
+/** 
+ * @fn  template<typename T> std::string other2str(T & t)
+ * @brief other type -> string
+ * @return outout string
+ */
 template<typename T>
 std::string PUMP_CORE_Other2Str(T & t)
 {

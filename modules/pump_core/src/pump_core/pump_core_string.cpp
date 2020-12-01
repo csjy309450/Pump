@@ -19,12 +19,12 @@
 #include "pump_core/pump_core_string.h"
 
 void PUMP_CORE_Inner_PrintNum(unsigned long num, int base); ///< general number print 
-void PUMP_CORE_Inner_PrintDeci(int dec);					///< print decimal number
-void PUMP_CORE_Inner_PrintOct(unsigned oct);				///< print octonary number
-void PUMP_CORE_Inner_PrintHex(unsigned hex);				///< print hexadecimal number
-void PUMP_CORE_Inner_PrintAddr(unsigned long addr);			///< print address
-void PUMP_CORE_Inner_PrintStr(char *str);					///< print string
-void PUMP_CORE_Inner_PrintFloat(double f);					///< print float
+void PUMP_CORE_Inner_PrintDeci(int dec);                    ///< print decimal number
+void PUMP_CORE_Inner_PrintOct(unsigned oct);                ///< print octonary number
+void PUMP_CORE_Inner_PrintHex(unsigned hex);                ///< print hexadecimal number
+void PUMP_CORE_Inner_PrintAddr(unsigned long addr);            ///< print address
+void PUMP_CORE_Inner_PrintStr(char *str);                    ///< print string
+void PUMP_CORE_Inner_PrintFloat(double f);                    ///< print float
 
 PUMP_CORE_API pump_void_t PUMP_CALLBACK PUMP_CORE_Printf(const pump_char_t* szFormate, ...)
 {
@@ -106,13 +106,13 @@ PUMP_CORE_API int PUMP_CALLBACK PUMP_CORE_CharIsAlpha(pump_char_t c)
 }
 
 /*
-* 函数名: printNum()
-* 函数功能: 通用数字打印函数可以把整型值打印成
-*           10进制数,8进制数,2进制数,16进制数
-* 参数: 1.需要打印的整数,无符号长整型是为了兼容
-*         地址格式打印; 2.打印的进制
-*  返回值: 无
-*/
+ * 函数名: printNum()
+ * 函数功能: 通用数字打印函数可以把整型值打印成
+ *           10进制数,8进制数,2进制数,16进制数
+ * 参数: 1.需要打印的整数,无符号长整型是为了兼容
+ *         地址格式打印; 2.打印的进制
+ *  返回值: 无
+ */
 void PUMP_CORE_Inner_PrintNum(unsigned long num, int base)
 {
     if (num == 0)
@@ -130,7 +130,7 @@ void PUMP_CORE_Inner_PrintDeci(int dec)
     if (dec < 0)
     {
         ::putchar('-');
-        dec = -dec;  	   // FIXME exist overflow risk, minimum number have no corresponding positive number.
+        dec = -dec;         // FIXME exist overflow risk, minimum number have no corresponding positive number.
     }
 
     if (dec == 0)

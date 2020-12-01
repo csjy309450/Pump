@@ -17,6 +17,7 @@
 
 #ifndef PUMP_CORE_OBJCET_H
 #define PUMP_CORE_OBJCET_H
+#include "pump_macro/pump_pre.h"
 #include "pump_core/pump_core_config.h"
 #include "pump_core/pump_core_types.h"
 #include "pump_core/pump_core_noncopyable.h"

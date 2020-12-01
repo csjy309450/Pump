@@ -1,3 +1,21 @@
+/**
+ * @file pump_core_dllso.cpp
+ * @brief Library Implementation.
+ * @details Implementation of pump_core dll dynamic load interface.
+ *
+ * @author yangzheng [263693992@qq.com]
+ * @date 2020-12-01
+ * @version v0.9.0
+ * @copyright Copyright (c) 2020 yangzheng
+ *
+ * @par Change History
+ * <table>
+ * <tr><th>Date<th>Version<th>Author<th>Description
+ * <tr><td>2020-12-01<td>v0.9.0<td>yangzheng<td>create file.
+ * </table>
+ */
+
+#include "pump_macro/pump_pre.h"
 #ifdef PUMP_OS_POSIX
 #include <dlfcn.h>
 #endif // PUMP_OS_POSIX
@@ -68,13 +86,6 @@ PUMP_CORE_API pump_module_t PUMP_CALLBACK PUMP_CORE_LoadDSoEx(const char* pPath,
 #endif // PUMP_OS_POSIX
 }
 
-/**
-* Function:	PUMP_UnloadDSo
-* Desc:		unload dll
-* Input:		@param hModule: dll handle, reutrned by PUMP_LoadDSo.
-* Output:
-* Return:		if success return handle of dll, otherwise reutrn NULL.
-* */
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_UnloadDSo(pump_handle_t hModule)
 {
 #ifdef PUMP_OS_POSIX
@@ -94,14 +105,6 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_UnloadDSo(pump_handle_t hModu
 #endif // PUMP_OS_POSIX
 }
 
-/**
-* Function:	PUMP_GetDsoSym
-* Desc:		get proc address by name
-* Input:		@param hModule: dll handle, returned by PUMP_LoadDSo.
-@param pName: proc name.
-* Output:
-* Return:		if success return handle of dll, otherwise reutrn NULL.
-* */
 PUMP_CORE_API pump_proc_t PUMP_CALLBACK PUMP_CORE_GetDsoSym(pump_handle_t hModule, const char* pName)
 {
 #ifdef PUMP_OS_POSIX

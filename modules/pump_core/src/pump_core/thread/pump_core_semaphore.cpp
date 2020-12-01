@@ -1,3 +1,20 @@
+/**
+ * @file pump_core_semaphore.cpp
+ * @brief Library Implementation.
+ * @details Implementation of semaphore interface.
+ *
+ * @author yangzheng [263693992@qq.com]
+ * @date 2020-12-01
+ * @version v0.9.0
+ * @copyright Copyright (c) 2020 yangzheng
+ *
+ * @par Change History
+ * <table>
+ * <tr><th>Date<th>Version<th>Author<th>Description
+ * <tr><td>2020-12-01<td>v0.9.0<td>yangzheng<td>create file.
+ * </table>
+ */
+
 #include "pump_macro/pump_pre.h"
 #ifdef PUMP_OS_POSIX
 #include <sys/time.h>
@@ -9,27 +26,18 @@
 static int iSemCount = 0;
 extern pump_mutex_t s_hCreateLock;
 
-#define SEM_NAME_LEN			64
+#define SEM_NAME_LEN            64
 //由于关闭信号量时需要删除名称，所以需要记录信号量名称
 typedef struct
 {
-    pump_sem_t semReal;	//sem_t* 要放在第一个位置
+    pump_sem_t semReal;    //sem_t* 要放在第一个位置
     char semName[SEM_NAME_LEN];
 }__PUMP_SEM_T_MAC;
 
-#define __PUMP_NAME_IN_GLOBALSEM(sem)	((*(__PUMP_SEM_T_MAC*)(sem)).semName)
-#define __PUMP_SEM_IN_GLOBALSEM(sem)	((*(__PUMP_SEM_T_MAC*)(sem)).semReal)
+#define __PUMP_NAME_IN_GLOBALSEM(sem)    ((*(__PUMP_SEM_T_MAC*)(sem)).semName)
+#define __PUMP_SEM_IN_GLOBALSEM(sem)    ((*(__PUMP_SEM_T_MAC*)(sem)).semReal)
 #endif // (defined PUMP_OS_APPLE)
 
-/**
-* Function:	PUMP_CORE_SemCreate
-* Desc:		create semaphore
-* Input:		@param pSem:	semaphore to create
-@param nInitCount:init resource for semaphore
-@param nMaxCount:max resource for semaphore
-* Output:
-* Return:		0 success -1 fail
-* */
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_SemCreate(pump_sem_t* pSem, pump_uint32_t nInitCount/*, pump_uint32_t nMaxCount*/)
 {
 #if (defined PUMP_OS_WINDOWS)
@@ -119,13 +127,6 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_SemCreate(pump_sem_t* pSem, p
 #endif // (defined PUMP_OS_WINDOWS)
 }
 
-/**
-* Function:	PUMP_CORE_SemDestroy
-* Desc:		destroy semaphore
-* Input:		@param pSem: semaphore to destroy.
-* Output:
-* Return:		0 success -1 fail
-* */
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_SemDestroy(pump_sem_t* pSem)
 {
 #if (defined PUMP_OS_WINDOWS)
@@ -154,13 +155,6 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_SemDestroy(pump_sem_t* pSem)
 #endif // (defined PUMP_OS_WINDOWS)
 }
 
-/**
-* Function:	PUMP_CORE_SemWait
-* Desc:		wait the semaphore
-* Input:		@param pSem: semaphore to wait.
-* Output:
-* Return:		0 success -1 fail
-* */
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_SemWait(pump_sem_t* pSem)
 {
 #if (defined PUMP_OS_WINDOWS)
@@ -195,14 +189,6 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_SemWait(pump_sem_t* pSem)
 #endif // (defined PUMP_OS_WINDOWS)
 }
 
-/**
-* Function:	PUMP_CORE_SemTimedWait
-* Desc:		wait for semaphore with timeout
-* Input:		@param pSem:semaphore to wait
-@param nTimeOut: time out in usec
-* Output:
-* Return:		0 success -1 fail
-* */
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_SemTimedWait(pump_sem_t* pSem, pump_uint32_t nTimeOut)
 {
 #if (defined PUMP_OS_WINDOWS)
@@ -230,7 +216,7 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_SemTimedWait(pump_sem_t* pSem
     if(nTimeOut == 0)
     {
 #if defined(PUMP_OS_APPLE)
-        return sem_trywait(__PUMP_SEM_IN_GLOBALSEM(*pSem));	
+        return sem_trywait(__PUMP_SEM_IN_GLOBALSEM(*pSem));    
 #else
         int retVal = PUMP_OK;
         while( (retVal = sem_trywait(pSem)) != PUMP_OK && EINTR == errno);
@@ -266,14 +252,6 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_SemTimedWait(pump_sem_t* pSem
 #endif // (defined PUMP_OS_WINDOWS)
 }
 
-/**
-* Function:	PUMP_CORE_SemPost
-* Desc:		post the semaphore
-* Input:		@param pSem:semaphore to release.
-@param nReleaseCount: release count of resource.
-* Output:
-* Return:		0 success -1 fail
-* */
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_SemPost(pump_sem_t* pSem)
 {
 #if (defined PUMP_OS_WINDOWS)
@@ -296,8 +274,9 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_SemPost(pump_sem_t* pSem)
 #endif // (defined PUMP_OS_WINDOWS)
 }
 
-//////////////////////////////
-///class CSemaphore
+////////////////////////////////////////////////////////////
+// class CSemaphore
+////////////////////////////////////////////////////////////
 namespace Pump
 {
 namespace Core

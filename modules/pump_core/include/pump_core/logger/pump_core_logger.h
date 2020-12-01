@@ -63,8 +63,8 @@ namespace Core
 {
 
 /*
-* @brief deprecated after 20200703
-*/
+ * @brief deprecated after 20200703
+ */
 class PUMP_CORE_CLASS CLogger
   : public CNonCopyable
 {
@@ -133,8 +133,8 @@ protected:
 };
 
 /*
-* @brief Management the log recorder handlers. 
-*/
+ * @brief Management the log recorder handlers. 
+ */
 class PUMP_CORE_CLASS CLogRecorderMgr
 {
 public:
