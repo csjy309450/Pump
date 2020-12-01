@@ -23,8 +23,8 @@
 #include "pump_core/pump_core_pipe.h"
 #include "pump_core/thread/pump_core_thread.h"
 #include "pump_core/thread/pump_core_mutex.h"
-#include "pump_core/pumnp_core_statemachine.h"
-#include "pump_core/pump_core_global_mgr.h"
+#include "pump_core/pump_core_statemachine.h"
+#include "pump_core/pump_core_global_resource_mgr.h"
 #include "pump_core/pump_core_uuid.h"
 
 namespace Pump
@@ -34,7 +34,7 @@ namespace Core
 namespace Cmder
 {
 
-class CCmdSessionMgr : public ::Pump::Core::CGlobalManagement
+class CCmdSessionMgr : public ::Pump::Core::CGlobalResourceMgr
 {
 public:
     //void InsertCmdServer(const std::string & strCmdServerName)

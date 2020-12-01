@@ -424,7 +424,10 @@ pump_int32_t CPipeHandle::Read(pump_void_t * szBuff, pump_uint32_t dwSize, pump_
     if (ret == FALSE || dwTotalBytesAvail <= 0)
     {
         // there are no data to read.
-        *pNRead = 0;
+		if (pNRead)
+		{
+			*pNRead = 0;
+		}
         return PUMP_OK;
     }
     ret = ::ReadFile(
@@ -436,7 +439,10 @@ pump_int32_t CPipeHandle::Read(pump_void_t * szBuff, pump_uint32_t dwSize, pump_
     if (!ret)
     {
         PUMP_CORE_ERR << "CPipeHandle::Read() failed " << PUMP_CORE_GetSystemError();
-        *pNRead = dwNRead;
+		if (pNRead)
+		{
+			*pNRead = dwNRead;
+		}
         return PUMP_ERROR;
     }
     if (pNRead)

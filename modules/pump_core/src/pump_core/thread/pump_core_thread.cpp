@@ -41,6 +41,10 @@ public:
     virtual pump_void_t Bind(pump_void_t* cb, pump_void_t * pData) = 0;
     virtual pump_int32_t Start() = 0;
     virtual pump_int32_t Stop() = 0;
+    virtual pump_int32_t Suspend() = 0;
+    virtual pump_int32_t Resume() = 0;
+    virtual pump_int32_t  SetPriority(pump_int32_t iPriority) = 0;
+    virtual pump_int32_t  SetSchedPolicy(pump_int32_t iSchedPolicy) = 0;
     virtual pump_thread_id GetTID() = 0;
     virtual pump_void_t * GetData() = 0;
 public:
@@ -49,7 +53,7 @@ public:
 
 __CThreadPrimitive::__CThreadPrimitive()
     : ::Pump::Core::__CPrimitiveBase()
-    , m_TID(PUMP_INVALID_THREAD)
+    , m_TID((unsigned long int)PUMP_INVALID_THREAD)
 {
 
 }
@@ -97,6 +101,10 @@ public:
         m_thx.join();
         return PUMP_OK;
     }
+    virtual pump_int32_t Suspend() { return PUMP_ERROR; }
+    virtual pump_int32_t Resume() { return PUMP_ERROR; }
+    virtual pump_int32_t  SetPriority(pump_int32_t iPriority) { return PUMP_ERROR; }
+    virtual pump_int32_t  SetSchedPolicy(pump_int32_t iSchedPolicy) { return PUMP_ERROR; }
     virtual pump_thread_id GetTID()
     {
         if (m_TID!=PUMP_INVALID_THREAD)
@@ -113,6 +121,66 @@ public:
     }
 private:
     boost::thread m_thx;
+    ThreadCallbackType m_pCb;
+    pump_void_t *m_pData;
+};
+#else 
+class __CBuildinThreadPrimitive
+    : public __CThreadPrimitive
+{
+public:
+    typedef pump_void_t * (*ThreadCallbackType)(pump_void_t * pData);
+public:
+    __CBuildinThreadPrimitive()
+        : __CThreadPrimitive()
+        , m_pCb(PUMP_NULL)
+        , m_pData(PUMP_NULL)
+    {
+
+    }
+    virtual ~__CBuildinThreadPrimitive()
+    {
+        this->Stop();
+        m_pCb = PUMP_NULL;
+        m_pData = PUMP_NULL;
+    }
+    virtual void Bind(void* cb, pump_void_t * pData)
+    {
+        m_pCb = (ThreadCallbackType)cb;
+        m_pData = pData;
+    }
+    virtual pump_int32_t Start()
+    {
+        if (!m_pCb)
+        {
+            return PUMP_ERROR;
+        }
+        m_thx = PUMP_CORE_Thread_Create(m_pCb, m_pData, 0);
+        return PUMP_OK;
+    }
+    virtual pump_int32_t Stop()
+    {
+        return PUMP_CORE_Thread_Wait(m_thx);;
+    }
+    virtual pump_int32_t Suspend() { return PUMP_ERROR; }
+    virtual pump_int32_t Resume() { return PUMP_ERROR; }
+    virtual pump_int32_t  SetPriority(pump_int32_t iPriority) { return PUMP_ERROR; }
+    virtual pump_int32_t  SetSchedPolicy(pump_int32_t iSchedPolicy) { return PUMP_ERROR; }
+    virtual pump_thread_id GetTID()
+    {
+        if (m_TID != PUMP_INVALID_THREAD)
+        {
+            return m_TID;
+        }
+        m_TID = PUMP_CORE_Thread_GetSelfId();
+        return m_TID;
+    }
+    virtual pump_void_t * GetData()
+    {
+        return m_pData;
+    }
+private:
+    pump_handle_t m_thx;
     ThreadCallbackType m_pCb;
     pump_void_t *m_pData;
 };
@@ -199,8 +267,52 @@ pump_int32_t CThread::Stop()
     return pPrimitive->Stop();
 }
 
+pump_int32_t CThread::Suspend()
+{
+    if (!m_pPrimitive)
+    {
+        return PUMP_ERROR;
+    }
+    __CThreadPrimitive * pPrimitive = static_cast<__CThreadPrimitive*>(m_pPrimitive);
+    return pPrimitive->Suspend();
+}
+
+pump_int32_t CThread::Resume()
+{
+    if (!m_pPrimitive)
+    {
+        return PUMP_ERROR;
+    }
+    __CThreadPrimitive * pPrimitive = static_cast<__CThreadPrimitive*>(m_pPrimitive);
+    return pPrimitive->Resume();
+}
+
+pump_int32_t CThread::SetPriority(pump_int32_t iPriority)
+{
+    if (!m_pPrimitive)
+    {
+        return PUMP_ERROR;
+    }
+    __CThreadPrimitive * pPrimitive = static_cast<__CThreadPrimitive*>(m_pPrimitive);
+    return pPrimitive->SetPriority(iPriority);
+}
+
+pump_int32_t CThread::SetSchedPolicy(pump_int32_t iSchedPolicy)
+{
+    if (!m_pPrimitive)
+    {
+        return PUMP_ERROR;
+    }
+    __CThreadPrimitive * pPrimitive = static_cast<__CThreadPrimitive*>(m_pPrimitive);
+    return pPrimitive->SetSchedPolicy(iSchedPolicy);
+}
+
 pump_thread_id CThread::GetTID()
 {
+    if (!m_pPrimitive)
+    {
+        return PUMP_ERROR;
+    }
     __CThreadPrimitive * pPrimitive = static_cast<__CThreadPrimitive*>(m_pPrimitive);
     return pPrimitive->GetTID();
 }
@@ -223,4 +335,513 @@ pump_void_t * CThread::__ThreadCallbackCore(pump_void_t * pData)
 
 }
 }
+}
+
+#ifdef PUMP_OS_WINPHONE
+#include <thread>
+#elif !(defined PUMP_OS_WINCE)
+#include <process.h>
+#endif
+
+#ifndef TLS_OUT_OF_INDEXES
+#define TLS_OUT_OF_INDEXES ((DWORD)0xFFFFFFFF)
+#endif
+
+/*************************************************
+函数名称 : PUMP_CORE_Thread_Create
+函数功能 : 创建线程
+输入参数说明 : StartAddress为线程执行体例程；Params为
+传入线程执行体的参数；StackSize为线程堆栈的大小；
+IsSuspend表示创建的线程是否挂起；Priority为线程优先级；
+SchedPolicy为调度策略
+函数返回值的说明 : 成功返回线程句柄，失败返回PUMP_INVALID_HANDLE
+*************************************************/
+PUMP_CORE_API pump_handle_t PUMP_CALLBACK PUMP_CORE_Thread_Create(pump_pvoid_t(PUMP_CALLBACK *StartAddress)(pump_pvoid_t), pump_void_t* Params, pump_uint32_t StackSize, \
+    pump_bool_t IsSuspend, pump_int32_t Priority, pump_int32_t SchedPolicy)
+{
+#if (defined PUMP_OS_WINDOWS)
+    /*lint -save  -sem(_beginthreadex, custodial(4)) */
+    unsigned int initflag = 0;
+    if (IsSuspend)
+    {
+        initflag = CREATE_SUSPENDED;
+    }
+
+    if (StackSize != 0)
+    {
+        initflag = initflag | STACK_SIZE_PARAM_IS_A_RESERVATION;
+    }
+
+#   if defined PUMP_OS_WINCE
+    return (pump_handle_t)CreateThread(NULL, StackSize, (LPTHREAD_START_ROUTINE)StartAddress, Params, initflag, NULL);
+#   elif defined PUMP_OS_WINPHONE
+    return new(std::nothrow) std::thread(StartAddress, Params);
+#   else
+    return (pump_handle_t)_beginthreadex(NULL, StackSize, (unsigned(__stdcall*)(void*))StartAddress, Params, initflag, NULL);
+#   endif // defined PUMP_OS_WINCE
+    /*lint -restore */
+#elif (defined PUMP_OS_POSIX)
+    pthread_attr_t threadattr;
+    int ret = pthread_attr_init(&threadattr);
+    if (ret)
+    {
+        return (pump_handle_t)PUMP_INVALID_THREAD;
+    }
+
+#   if (!defined (PUMP_OS_APPLE)) //APPLE不支持
+    //struct sched_param schedparam;
+    //schedparam.sched_priority = SchedPolicy;
+    ret = pthread_attr_setschedpolicy(&threadattr, SchedPolicy);
+    if (ret)
+    {
+        pthread_attr_destroy(&threadattr);
+        return (pump_handle_t)PUMP_INVALID_THREAD;
+    }
+#   endif
+
+    if (StackSize != 0)
+    {
+        ret = pthread_attr_setstacksize(&threadattr, StackSize);
+        if (ret != 0)
+        {
+            //printf("pthread_attr_setstacksize error\n");
+            pthread_attr_destroy(&threadattr);
+            return (pump_handle_t)(PUMP_INVALID_THREAD);
+
+        }
+    }
+
+#   if defined (PUMP_OS_POSIX)
+    struct sched_param param;
+#       if defined PUMP_OS_ANDROID
+    param.sched_priority = Priority;
+#       else
+    param.__sched_priority = Priority;
+#       endif
+    ret = pthread_attr_setschedparam(&threadattr, &param);
+    if (ret)
+    {
+        pthread_attr_destroy(&threadattr);
+        return (pump_handle_t)PUMP_INVALID_THREAD;
+    }
+#   endif
+
+    pthread_t threadid;
+    ret = pthread_create(&threadid, &threadattr, StartAddress, Params);
+    if (ret)
+    {
+        return (pump_handle_t)PUMP_INVALID_THREAD;
+    }
+    else
+    {
+        return (pump_handle_t)threadid;
+    }
+#endif // (defined PUMP_OS_WINDOWS)
+}
+
+/*************************************************
+函数名称 : PUMP_CORE_Thread_Create
+函数功能 : 创建可分离线程
+输入参数说明 : StartAddress为线程执行体例程；Params为
+传入线程执行体的参数；StackSize为线程堆栈的大小；
+函数返回值的说明 : 成功返回线程句柄，失败返回PUMP_INVALID_HANDLE
+*************************************************/
+PUMP_CORE_API pump_bool_t PUMP_CALLBACK PUMP_CORE_ThreadDetached_Create(pump_pvoid_t(PUMP_CALLBACK *StartAddress)(pump_pvoid_t), pump_void_t* Params, pump_uint32_t StackSize)
+{
+#if (defined PUMP_OS_WINDOWS)
+#   if defined PUMP_OS_WINPHONE
+    std::thread thr(StartAddress, Params);
+    thr.detach();
+
+    return PUMP_TRUE;
+#   else // defined PUMP_OS_WINPHONE
+    HANDLE hThreadId;
+#           if defined PUMP_OS_WINCE
+    hThreadId = (pump_handle_t)CreateThread(NULL, StackSize, (LPTHREAD_START_ROUTINE)StartAddress, Params, 0, NULL);
+#           else // defined PUMP_OS_WINCE
+    unsigned int initflag = 0;
+    if (StackSize != 0)
+    {
+        initflag = initflag | STACK_SIZE_PARAM_IS_A_RESERVATION;
+    }
+    hThreadId = (pump_handle_t)_beginthreadex(NULL, StackSize, (unsigned(__stdcall*)(void*))StartAddress, Params, initflag, NULL);
+#           endif // defined PUMP_OS_WINCE
+    if (hThreadId != NULL)
+    {
+        CloseHandle(hThreadId);
+        //hThreadId = NULL;
+        return PUMP_TRUE;
+    }
+
+    return PUMP_FALSE;
+#   endif // defined PUMP_OS_WINPHONE
+#elif (defined PUMP_OS_POSIX)
+    pthread_attr_t threadattr;
+    int ret = pthread_attr_init(&threadattr);
+    if (ret)
+    {
+        //return (pump_handle_t)PUMP_INVALID_THREAD;
+        return PUMP_FALSE;
+    }
+    ret = pthread_attr_setdetachstate(&threadattr, PTHREAD_CREATE_DETACHED);
+    if (ret)
+    {
+        pthread_attr_destroy(&threadattr);
+        //return (pump_handle_t)PUMP_INVALID_THREAD;
+        return PUMP_FALSE;
+    }
+
+    if (StackSize != 0)
+    {
+        ret = pthread_attr_setstacksize(&threadattr, StackSize);
+        if (ret != 0)
+        {
+            pthread_attr_destroy(&threadattr);
+            return PUMP_FALSE;
+
+        }
+    }
+
+    pthread_t threadid;
+    ret = pthread_create(&threadid, &threadattr, StartAddress, Params);
+    if (ret)
+    {
+        //return (pump_handle_t)PUMP_INVALID_THREAD;
+        return PUMP_FALSE;
+    }
+    else
+    {
+        //return (pump_handle_t)threadid;
+        return PUMP_TRUE;
+    }
+#endif // defined PUMP_OS_POSIX
+}
+
+/**
+函数名称 : PUMP_CORE_Thread_Exit（windows无效）
+函数功能 : 退出线程
+*/
+PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_Thread_Exit()
+{
+#if (defined PUMP_OS_WINDOWS)
+#   if !(defined PUMP_OS_WINCE) && !(defined PUMP_OS_WINPHONE)
+    _endthread();
+#   endif // !defined PUMP_OS_WINCE && !defined PUMP_OS_WINPHONE
+    return 0;
+#elif (defined PUMP_OS_POSIX)
+    pthread_exit(0);
+#endif // (defined PUMP_OS_WINDOWS)
+}
+/*************************************************
+函数名称 : PUMP_CORE_Thread_Wait
+函数功能 : 等待线程线程的退出并关闭相应的句柄
+输入参数说明 : ThreadHandle为线程句柄
+函数返回值的说明 : 成功返回PUMP_OK，失败返回PUMP_ERROR
+*************************************************/
+PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_Thread_Wait(pump_handle_t ThreadHandle)
+{
+#if (defined PUMP_OS_WINDOWS)
+    if (ThreadHandle == (pump_handle_t)PUMP_INVALID_THREAD)
+    {
+        return PUMP_ERROR;
+    }
+#   if (defined PUMP_OS_WINPHONE)
+    std::thread* thr = (std::thread*)ThreadHandle;
+    thr->join();
+    delete thr;
+    thr = NULL;
+
+    return PUMP_OK;
+#   else
+    if (WAIT_OBJECT_0 == WaitForSingleObject(ThreadHandle, INFINITE))
+    {
+        CloseHandle(ThreadHandle);
+        return PUMP_OK;
+    }
+    return PUMP_ERROR;
+#   endif
+#elif (defined PUMP_OS_POSIX)
+    if (ThreadHandle == (pump_handle_t)PUMP_INVALID_THREAD)
+    {
+        return PUMP_ERROR;
+    }
+
+    int ret = pthread_join((pthread_t)ThreadHandle, 0);
+    if (ret)
+    {
+        return PUMP_ERROR;
+    }
+    else
+    {
+        //close((int)ThreadHandle);
+        return PUMP_OK;
+    }
+#endif // defined PUMP_OS_WINDOWS
+}
+
+/*************************************************
+函数名称 : PUMP_CORE_Thread_Suspend
+函数功能 : 挂起线程
+输入参数说明 : ThreadHandle为线程句柄
+函数返回值的说明 : 成功返回PUMP_OK，失败返回PUMP_ERROR
+*************************************************/
+PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_Thread_Suspend(pump_handle_t ThreadHandle)
+{
+#if (defined PUMP_OS_WINDOWS)
+    if (ThreadHandle == (pump_handle_t)PUMP_INVALID_THREAD)
+    {
+        return PUMP_ERROR;
+    }
+#   if defined PUMP_OS_WINPHONE
+    return PUMP_ERROR;
+#   else
+    DWORD ret = SuspendThread(ThreadHandle);
+    if (ret == 0xFFFFFFFF)
+    {
+        return PUMP_ERROR;
+    }
+    else
+    {
+        return PUMP_OK;
+    }
+#   endif // defined PUMP_OS_WINPHONE
+#elif (defined PUMP_OS_POSIX)
+    return PUMP_ERROR; // 不支持
+#endif // (defined PUMP_OS_WINDOWS)
+}
+
+/*************************************************
+函数名称 : PUMP_CORE_Thread_Resume
+函数功能 : 恢复挂起的线程
+输入参数说明 : ThreadHandle为线程句柄
+函数返回值的说明 : 成功返回PUMP_OK，失败返回PUMP_ERROR
+*************************************************/
+PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_Thread_Resume(pump_handle_t ThreadHandle)
+{
+#if (defined PUMP_OS_WINDOWS)
+    if (ThreadHandle == (pump_handle_t)PUMP_INVALID_THREAD)
+    {
+        return PUMP_ERROR;
+    }
+#   if defined PUMP_OS_WINPHONE
+    return PUMP_ERROR;
+#   else
+    DWORD ret = ResumeThread(ThreadHandle);
+    if (ret == 0xFFFFFFFF)
+    {
+        return PUMP_ERROR;
+    }
+    else
+    {
+        return PUMP_OK;
+    }
+#   endif
+#elif (defined PUMP_OS_POSIX)
+    return PUMP_ERROR; // 不支持
+#endif // (defined PUMP_OS_WINDOWS)
+}
+
+/*************************************************
+函数名称 : PUMP_CORE_Thread_SetPriority
+函数功能 : 设置线程的优先级
+输入参数说明 : ThreadHandle为线程句柄；Priority为线程优先级
+函数返回值的说明 : 成功返回PUMP_OK，失败返回PUMP_ERROR
+*************************************************/
+PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_Thread_SetPriority(pump_handle_t ThreadHandle, pump_int32_t Priority)
+{
+#if (defined PUMP_OS_WINDOWS)
+    if (ThreadHandle == (pump_handle_t)PUMP_INVALID_THREAD)
+    {
+        return PUMP_ERROR;
+    }
+#   if defined PUMP_OS_WINPHONE
+    return PUMP_ERROR;
+#   else
+    BOOL bret = SetThreadPriority(ThreadHandle, Priority);
+    if (bret)
+    {
+        return PUMP_OK;
+    }
+    else
+    {
+        return PUMP_ERROR;
+    }
+#   endif
+#elif (defined PUMP_OS_POSIX)
+    if (ThreadHandle == (pump_handle_t)PUMP_INVALID_THREAD)
+    {
+        return PUMP_ERROR;
+    }
+
+    int policy;
+    struct sched_param param;
+    int ret = pthread_getschedparam((pthread_t)ThreadHandle, &policy, &param);
+    if (ret)
+    {
+        return PUMP_ERROR;
+    }
+
+#   if defined (__linux__)
+#       if defined OS_ANDROID
+    param.sched_priority = Priority;
+#       else
+    param.__sched_priority = Priority;
+#       endif
+    ret = pthread_setschedparam((pthread_t)ThreadHandle, policy, &param);
+    if (ret)
+    {
+        return PUMP_ERROR;
+    }
+    else
+    {
+        return PUMP_OK;
+    }
+#   endif
+    return PUMP_OK;
+#endif // (defined PUMP_OS_WINDOWS)
+}
+
+/*************************************************
+函数名称 : PUMP_CORE_Thread_SetSchedPolicy
+函数功能 : 设置调度策略
+输入参数说明 : ThreadHandle为线程句柄；SchedPolicy为调度策略
+函数返回值的说明 : 成功返回PUMP_OK，失败返回PUMP_ERROR
+*************************************************/
+PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_Thread_SetSchedPolicy(pump_handle_t ThreadHandle, pump_int32_t SchedPolicy)
+{
+    if (ThreadHandle == (pump_handle_t)PUMP_INVALID_THREAD)
+    {
+        return PUMP_ERROR;
+    }
+#if !defined PUMP_OS_WINCE && !defined PUMP_OS_WINPHONE
+    //WinCE没有SetPriorityClass这个函数
+    BOOL bret = SetPriorityClass(GetCurrentProcess(), SchedPolicy);
+    if (bret)
+    {
+        return PUMP_OK;
+    }
+    else
+    {
+        return PUMP_ERROR;
+    }
+#else
+    return PUMP_ERROR;
+#endif
+}
+
+/**
+* PUMP_CORE_Thread_GetId
+* @param void
+* @return 线程ID
+* @sa
+*/
+PUMP_CORE_API pump_thread_id PUMP_CALLBACK PUMP_CORE_Thread_GetSelfId()
+{
+#if (defined PUMP_OS_WINDOWS)
+    return ::GetCurrentThreadId();
+#elif (defined PUMP_OS_POSIX)
+    return pthread_self();
+#endif // (defined PUMP_OS_WINDOWS)
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+PUMP_CORE_API pump_handle_t PUMP_CALLBACK PUMP_CORE_ThreadTls_Create()
+{
+#if (defined PUMP_OS_WINDOWS)
+#   if defined PUMP_OS_WINPHONE
+    return NULL;
+#   else
+    pump_uint32_t tls_index = TlsAlloc();
+    if (tls_index == TLS_OUT_OF_INDEXES)
+    {
+        return PUMP_INVALID_TLS;
+    }
+
+    return (pump_handle_t)(tls_index);
+#   endif
+#elif (defined PUMP_OS_POSIX)
+    pthread_key_t tls_key;
+    if (pthread_key_create(&tls_key, NULL) != 0)
+    {
+        return PUMP_INVALID_TLS;
+    }
+    return (pump_handle_t)(tls_key);
+#endif
+}
+
+PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_ThreadTls_SetValue(pump_handle_t hTls, pump_pvoid_t pVal)
+{
+#if (defined PUMP_OS_WINDOWS)
+    if (hTls == PUMP_INVALID_TLS)
+    {
+        return PUMP_ERROR;
+    }
+
+    pump_uint32_t tls_index = (pump_uint32_t)(LPARAM)hTls;
+#   if defined PUMP_OS_WINPHONE
+    return PUMP_ERROR;
+#   else
+    return TlsSetValue(tls_index, pVal) ? PUMP_OK : PUMP_ERROR;
+#   endif
+#elif (defined PUMP_OS_POSIX)
+    if (hTls == PUMP_INVALID_TLS)
+    {
+        return PUMP_ERROR;
+    }
+
+    pthread_key_t tls_key = (pthread_key_t)(long)hTls;
+
+    return (pthread_setspecific(tls_key, pVal) == 0) ? PUMP_OK : PUMP_ERROR;
+#endif 
+}
+
+PUMP_CORE_API pump_pvoid_t PUMP_CALLBACK PUMP_CORE_ThreadTls_GetValue(pump_handle_t hTls)
+{
+#if (defined PUMP_OS_WINDOWS)
+    if (hTls == PUMP_INVALID_TLS)
+    {
+        return NULL;
+    }
+
+    pump_uint32_t tls_index = (pump_uint32_t)(LPARAM)hTls;
+#   if defined PUMP_OS_WINPHONE
+    return NULL;
+#   else
+    return TlsGetValue(tls_index);
+#   endif
+#elif (defined PUMP_OS_POSIX)
+    if (hTls == PUMP_INVALID_TLS)
+    {
+        return NULL;
+    }
+
+    pthread_key_t tls_key = (pthread_key_t)(long)hTls;
+
+    return pthread_getspecific(tls_key);
+#endif 
+}
+
+PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_ThreadTls_Destroy(pump_handle_t hTls)
+{
+#if (defined PUMP_OS_WINDOWS)
+    if (hTls == PUMP_INVALID_TLS)
+    {
+        return PUMP_ERROR;
+    }
+
+    pump_uint32_t tls_index = (pump_uint32_t)(LPARAM)hTls;
+#   if defined PUMP_OS_WINPHONE
+    return PUMP_ERROR;
+#   else
+    return TlsFree(tls_index) ? PUMP_OK : PUMP_ERROR;
+#   endif
+#elif (defined PUMP_OS_POSIX)
+    if (hTls == PUMP_INVALID_TLS)
+    {
+        return PUMP_ERROR;
+    }
+    pthread_key_t tls_key = (pthread_key_t)(long)hTls;
+    return (pthread_key_delete(tls_key) == 0) ? PUMP_OK : PUMP_ERROR;
+#endif
 }

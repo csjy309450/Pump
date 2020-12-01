@@ -26,7 +26,7 @@ void PUMP_CORE_Inner_PrintAddr(unsigned long addr);			///< print address
 void PUMP_CORE_Inner_PrintStr(char *str);					///< print string
 void PUMP_CORE_Inner_PrintFloat(double f);					///< print float
 
-PUMP_CORE_API pump_void_t PUMP_CALLBACK PUMP_CORE_Printf(const char* szFormate, ...)
+PUMP_CORE_API pump_void_t PUMP_CALLBACK PUMP_CORE_Printf(const pump_char_t* szFormate, ...)
 {
     int i = 0;
     va_list va_ptr;
@@ -65,6 +65,54 @@ PUMP_CORE_API pump_void_t PUMP_CALLBACK PUMP_CORE_Printf(const char* szFormate, 
     va_end(va_ptr);
 }
 
+PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_StrCaseCmp(const char *s1, const char *s2)
+{
+#if defined (PUMP_OS_WINDOWS)
+    return ::_stricmp(s1, s2);
+#elif (defined PUMP_OS_POSIX) 
+    return ::strcasecmp(s1, s2);
+#else
+#error Os not supported yet!
+#endif /* PUMP_OS_WINDOWS */
+}
+
+PUMP_CORE_API char * PUMP_CALLBACK PUMP_CORE_StrtOk_R(char *s, const char *tokens, char **lasts)
+{
+#if defined (PUMP_OS_WINDOWS)
+    return strtok_s(s, tokens, lasts);
+#elif defined (PUMP_OS_POSIX)
+    return ::strtok_r(s, tokens, lasts);#else
+#else
+#error Os not supported yet!
+#endif /* ACE_HAS_TR24731_2005_CRT */
+}
+
+PUMP_CORE_API int PUMP_CALLBACK PUMP_CORE_CharIsSpace(pump_char_t c)
+{
+#if defined (PUMP_USES_WCHAR) // TODO 未实现宽字符
+    return iswspace(c);
+#else /* ACE_USES_WCHAR */
+    return isspace((unsigned char)c);
+#endif /* ACE_USES_WCHAR */
+}
+
+PUMP_CORE_API int PUMP_CALLBACK PUMP_CORE_CharIsAlpha(pump_char_t c)
+{
+#if defined (PUMP_USES_WCHAR)
+    return iswalpha(c);
+#else /* ACE_USES_WCHAR */
+    return isalpha((unsigned char)c);
+#endif /* ACE_USES_WCHAR */
+}
+
+/*
+* 函数名: printNum()
+* 函数功能: 通用数字打印函数可以把整型值打印成
+*           10进制数,8进制数,2进制数,16进制数
+* 参数: 1.需要打印的整数,无符号长整型是为了兼容
+*         地址格式打印; 2.打印的进制
+*  返回值: 无
+*/
 void PUMP_CORE_Inner_PrintNum(unsigned long num, int base)
 {
     if (num == 0)

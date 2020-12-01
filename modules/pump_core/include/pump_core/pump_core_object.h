@@ -81,6 +81,14 @@ protected:
     __CPrimitiveBase * m_pPrimitive;
 };
 
+class PUMP_CORE_CLASS CObjectMgrBase
+    : public Pump::Core::CNonCopyable
+{
+public:
+    CObjectMgrBase() {}
+    virtual ~CObjectMgrBase() {}
+};
+
 }
 }
 

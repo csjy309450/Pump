@@ -81,10 +81,12 @@ typedef sockaddr_in6 pump_sockaddr_in6;
 
 #if (defined PUMP_OS_WINDOWS)
 typedef SOCKET pump_sock_t;
-#define PUMP_INVALID_SOCKET ((pump_handle_t)INVALID_SOCKET)
+#define PUMP_INVALID_SOCKET (INVALID_SOCKET)
+#define PUMP_INVALID_SOCKHANDLE ((pump_handle_t)PUMP_INVALID_SOCKET)
 #elif (defined PUMP_OS_POSIX)
 typedef pump_fd_t pump_sock_t;
-#define PUMP_INVALID_SOCKET ((pump_handle_t)INVALID_SOCKET)
+#define PUMP_INVALID_SOCKET (INVALID_SOCKET)
+#define PUMP_INVALID_SOCKHANDLE ((pump_handle_t)PUMP_INVALID_SOCKET)
 #endif // (defined PUMP_OS_WINDOWS)
 
 typedef struct tagPUMP_ADDR
@@ -123,6 +125,11 @@ typedef struct fd_set PUMP_FDSET, *LPPUMP_FDSET;
 
 #define PUMP_INADDR_ANY INADDR_ANY
 #define PUMP_AF_INET AF_INET
+#if (defined PUMP_OS_POSIX) | (PUMP_MSC_VER >= 1700)
+#define PUMP_AF_UNIX AF_UNIX
+#endif // PUMP_OS_POSIX) | (PUMP_MSC_VER >= 1700)
+
+
 #if (defined PUMP_OS_SUPPORT_IPV6)
 #define PUMP_AF_INET6 AF_INET6
 #endif // (defined PUMP_OS_SUPPORT_IPV6)

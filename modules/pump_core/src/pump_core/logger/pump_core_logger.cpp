@@ -15,7 +15,7 @@
  * </table>
  */
 
-#include "pump_core/logger/__pump_core_logger_inner.h"
+#include "pump_core/logger/__pump_core_inner_logger.h"
 #include "pump_core/logger/pump_core_logger.h"
 #include "glog/logging.h"
 
@@ -522,7 +522,6 @@ PUMP_CORE_API void PUMP_CALLBACK  __PUMP_CORE_Test_new_logger()
     struLogCong.szFilePath = "";
     struLogCong.emLogLevel = PUMP_LOG_INFO;
     ::Pump::Core::__CPumpCoreGlobalCtrl::SetLogger(struLogCong);
-    // FIXME [紧急] 20200702 gLog打印不出来，应该是没配置好
     __PUMP_CORE_INFO << "-------test begin-------";
 }
 
@@ -539,7 +538,7 @@ PUMP_CORE_API pump_handle_t PUMP_CALLBACK PUMP_CORE_CreateLogger(PUMP_LOG_RECORE
 }
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_DestroyLogger(pump_handle_t hLog)
 {
-    if (PUMP_INVALID_HANLDE == hLog || PUMP_NULL == hLog)
+    if (PUMP_INVALID_HANDLE == hLog || PUMP_NULL == hLog)
     {
         return PUMP_ERROR;
     }

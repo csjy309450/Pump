@@ -19,11 +19,10 @@
 #define __PUMP_CORE_GLOBAL_CTRL_H
 #include "pump_macro/pump_pre.h"
 #include "pump_core/pump_core_types.h"
-#include "pump_core/pump_core_global_mgr.h"
+#include "pump_core/pump_core_global_resource_mgr.h"
 #include "pump_core/logger/pump_core_logger.h"
 #include "pump_core/pump_core_cmder.h"
-#include "pump_core/thread/pump_core_mutex.h"
-#include "pump_core/logger/__pump_core_logger_inner.h"
+#include "pump_core/logger/__pump_core_inner_logger.h"
 
 namespace Pump
 {
@@ -39,7 +38,7 @@ namespace Core
  * by CLogRecorderMgr::~CLogRecorderMgr(), as well as m_pCmdSessionMgr.
  */
 class __CPumpCoreGlobalCtrl
-    : public CGlobalManagement
+    : public CGlobalResourceMgr
 {
 public:
     /** Object initialize. */
