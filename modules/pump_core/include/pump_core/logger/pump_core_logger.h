@@ -47,15 +47,16 @@ typedef struct tagPUMP_CORE_LOG_CONF
     enum PUMP_CORE_LOG_LEVEL emLogLevel;
 }PUMP_CORE_LOG_CONF, *LPPUMP_CORE_LOG_CONF;
 
-PUMP_CORE_API void PUMP_CALLBACK PUMP_CORE_InitLogger(LPPUMP_CORE_LOG_CONF pConf);
+/** Inject logger to pump_core */
+PUMP_CORE_API int PUMP_CALLBACK PUMP_CORE_InjectLocalLogger(pump_handle_t hLogger);
 
 PUMP_CORE_API void PUMP_CALLBACK  __PUMP_CORE_Test_new_logger();
 
 /** [add] yangzheng 20200702 add multi log recorder*/
-PUMP_CORE_API pump_handle_t PUMP_CALLBACK PUMP_CORE_CreateLogger(PUMP_LOG_RECORED_TYPE emType);
-PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_DestroyLogger(pump_handle_t hLog);
-PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_SetLogger(pump_handle_t hLog, const LPPUMP_CORE_LOG_CONF pConf);
-PUMP_CORE_API pump_void_t PUMP_CALLBACK PUMP_CORE_WriteLog(pump_handle_t hLog, const char* szFormat, ...);
+PUMP_CORE_API pump_handle_t PUMP_CALLBACK PUMP_CORE_LoggerCreate(PUMP_LOG_RECORED_TYPE emType = PUMP_LOG_RECORED_DEFAULT);
+PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_LoggerDestroy(pump_handle_t hLog);
+PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_LoggerConfig(pump_handle_t hLog, const LPPUMP_CORE_LOG_CONF pConf);
+PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_LoggerWrite(pump_handle_t hLog, const char* szFormat, ...);
 
 namespace Pump
 {
@@ -66,32 +67,48 @@ namespace Core
  * @brief deprecated after 20200703
  */
 class PUMP_CORE_CLASS CLogger
-  : public CNonCopyable
+    : public CNonCopyable
 {
 public:
-  CLogger(const char* szFile, int nLine, PUMP_CORE_LOG_LEVEL emLogLevel);
-  
-  ~CLogger();
+    CLogger(const char* szFile, int nLine, PUMP_CORE_LOG_LEVEL emLogLevel);
+
+    ~CLogger();
 
 public:
-  CLogger& operator<< (bool val);
-  CLogger& operator<< (short val);
-  CLogger& operator<< (char val);
-  CLogger& operator<< (unsigned short val);
-  CLogger& operator<< (int val);
-  CLogger& operator<< (unsigned int val);
-  CLogger& operator<< (long val);
-  CLogger& operator<< (unsigned long val);
-  CLogger& operator<< (float val);
-  CLogger& operator<< (double val);
-  CLogger& operator<< (long double val);
-  CLogger& operator<< (void* val);
-  CLogger& operator<< (const char* val);
-  CLogger& operator<< (const std::string & val);
+    CLogger& operator<< (bool val);
+    CLogger& operator<< (short val);
+    CLogger& operator<< (char val);
+    CLogger& operator<< (unsigned short val);
+    CLogger& operator<< (int val);
+    CLogger& operator<< (unsigned int val);
+    CLogger& operator<< (long val);
+    CLogger& operator<< (unsigned long val);
+    CLogger& operator<< (float val);
+    CLogger& operator<< (double val);
+    CLogger& operator<< (long double val);
+    CLogger& operator<< (void* val);
+    CLogger& operator<< (const char* val);
+    CLogger& operator<< (const std::string & val);
 
 private:
-  void * m_pLogMessage;
+    void * m_pLogMessage;
 };
+
+}
+}
+
+/*
+ * @brief deprecated after 20200703
+ */
+#define PUMP_CORE_INFO ::Pump::Core::CLogger(__FILE__,__LINE__,PUMP_LOG_INFO)
+#define PUMP_CORE_WARING ::Pump::Core::CLogger(__FILE__,__LINE__,PUMP_LOG_WARNING)
+#define PUMP_CORE_ERR ::Pump::Core::CLogger(__FILE__,__LINE__,PUMP_LOG_ERROR)
+#define PUMP_CORE_LOG_ASSERT(exp) assert(exp);PUMP_CORE_INFO
+
+namespace Pump
+{
+namespace Core
+{
 
 /*
  * @brief The base class of log recorder, writing log message to file.
@@ -99,7 +116,10 @@ private:
 class PUMP_CORE_CLASS CLogRecorderBase
 {
 public:
-    CLogRecorderBase() {}
+    CLogRecorderBase() 
+    {
+        memset(&m_struConf, 0, sizeof(m_struConf));
+    }
     virtual ~CLogRecorderBase() {}
 
 public:
@@ -174,10 +194,5 @@ private:
 
 }
 }
-
-#define PUMP_CORE_INFO ::Pump::Core::CLogger(__FILE__,__LINE__,PUMP_LOG_INFO)
-#define PUMP_CORE_WARING ::Pump::Core::CLogger(__FILE__,__LINE__,PUMP_LOG_WARNING)
-#define PUMP_CORE_ERR ::Pump::Core::CLogger(__FILE__,__LINE__,PUMP_LOG_ERROR)
-#define PUMP_CORE_LOG_ASSERT(exp) assert(exp);PUMP_CORE_INFO
 
 #endif //PUMP_CORE_LOGGER_H

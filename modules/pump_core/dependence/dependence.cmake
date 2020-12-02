@@ -56,6 +56,7 @@ message("<pump::pump_core> pump_core_INNER_DEP_LIBS=${pump_core_INNER_DEP_LIBS}"
 set(pump_core_INNER_TEST_DEP_INC_DIRS
         ${pump_core_INNER_PROJECT_ROOT_DIR}/dependence/include/${pump_OS_PLATFORM}
         ${pump_core_INNER_PROJECT_ROOT_DIR}/include
+        ${pump_core_INNER_PROJECT_ROOT_DIR}/src
         ${Boost_INCLUDE_DIRS}
         ${pump_core_INCLUDE_DIRS}
         ${pump_macro_INCLUDE_DIRS}

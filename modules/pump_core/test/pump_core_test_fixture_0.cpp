@@ -11,42 +11,75 @@
 #include "pump_core/network/pump_core_sock.h"
 #include "pump_core/pump_core_cmdparse.hpp"
 #include "pump_core/pump_core_environment.h"
-//#include "pump_test/pump_test_def.h"
+#include "pump_test/pump_test_def.h"
+#include "pump_core/logger/__pump_core_inner_logger.h"
 
 using namespace Pump;
 using namespace Pump::Core;
 using namespace Pump::Core::Net;
 using namespace Pump::Core::Thread;
 using namespace Pump::Core::Cmder;
+using namespace Pump::Test;
 
-//template class PUMP_CORE_CLASS CAtomicOp<CMutex, int>;
+PTEST_C_SCENE_DEF(TestScene_001, )
 
-int test_init()
+/**
+ * TestCase_001 repeatedly init-cleanup.
+ */
+PTEST_C_CASE_DEF(TestCase_001, TestScene_001)
 {
-    PUMP_CORE_Init();
-    return 0;
+    PTEST_LOG(comment, "TestCase_001 repeatedly init-cleanup");
+    PTEST_ASSERT((PUMP_CORE_Init() == PUMP_OK), "PUMP_CORE_Init failed 1");
+    PTEST_ASSERT((PUMP_CORE_Init() == PUMP_OK), "PUMP_CORE_Init failed 1.1");
+    PTEST_ASSERT((PUMP_CORE_Cleanup() == PUMP_OK), "PUMP_CORE_Cleanup failed 1");
+    PTEST_ASSERT((PUMP_CORE_Init() == PUMP_OK), "PUMP_CORE_Init failed 2");
+    PTEST_ASSERT((PUMP_CORE_Cleanup() == PUMP_OK), "PUMP_CORE_Cleanup failed 2");
+    PTEST_ASSERT((PUMP_CORE_Init() == PUMP_OK), "PUMP_CORE_Init failed 3");
+    PTEST_ASSERT((PUMP_CORE_Cleanup() == PUMP_OK), "PUMP_CORE_Cleanup failed 3");
+    return PUMP_OK;
 }
 
-int test_logger()
+PTEST_C_CASE_DEF(TestCase_002, TestScene_001)
 {
+    PTEST_LOG(comment, "TestCase_002 init logger");
+    // uninit call API
+    PTEST_ASSERT((PUMP_CORE_LoggerCreate() == PUMP_NULL), "PUMP_CORE_LoggerCreate failed 1");
+    PTEST_ASSERT((PUMP_CORE_LoggerConfig(PUMP_NULL, NULL) == PUMP_ERROR), "PUMP_CORE_LoggerConfig failed 1");
+    // init call API
+    PTEST_ASSERT((PUMP_CORE_Init() == PUMP_OK), "PUMP_CORE_Init failed 1");
     PUMP_CORE_LOG_CONF struLogCong;
     memset(&struLogCong, 0, sizeof(struLogCong));
     struLogCong.szFilePath = "";
     struLogCong.emLogLevel = PUMP_LOG_INFO;
-    PUMP_CORE_InitLogger(&struLogCong);
-    PUMP_CORE_INFO << "-------test begin-------";
-    return  0;
+    pump_handle_t hLog = PUMP_CORE_LoggerCreate();
+    PUMP_CORE_LoggerConfig(hLog, &struLogCong);
+    __PUMP_CORE_INFO << "-------PUMP_CORE_INFO bad1-------";
+    __PUMP_CORE_WARING << "-------PUMP_CORE_WARING  bad1-------";
+    __PUMP_CORE_ERR << "-------PUMP_CORE_ERR  bad1-------";
+    PUMP_CORE_InjectLocalLogger(hLog);
+    __PUMP_CORE_INFO << "-------PUMP_CORE_INFO good-------";
+    __PUMP_CORE_WARING << "-------PUMP_CORE_WARING good-------";
+    __PUMP_CORE_ERR << "-------PUMP_CORE_ERR good-------";
+    PTEST_ASSERT((PUMP_CORE_Cleanup() == PUMP_OK), "PUMP_CORE_Cleanup failed 1");
+    // cleanup call API
+    __PUMP_CORE_INFO << "-------PUMP_CORE_INFO bad2-------";
+    __PUMP_CORE_WARING << "-------PUMP_CORE_WARING bad2-------";
+    __PUMP_CORE_ERR << "-------PUMP_CORE_ERR bad2-------";
+    return  PUMP_OK;
 }
 
-int test_mutex()
+PTEST_C_CASE_DEF(TestCase_003, TestScene_001)
 {
+    PTEST_LOG(comment, "TestCase_003 test CMutex");
     CMutex locker;
     locker.Lock();
+    locker.Unlock();
     return 0;
 }
 
-int test_atomicOp()
+PTEST_C_CASE_DEF(TestCase_004, TestScene_001)
 {
+    PTEST_LOG(comment, "TestCase_004 test atomic option");
     int a;
     CMutex locker;
     CAtomicOp<CMutex, int> aOp(locker, a);
@@ -152,15 +185,13 @@ int test_cmd_env_data_set()
     return 0;
 }
 
-int main(int argc, char** argv)
-{
-    test_init();
+PTEST_MAIN_BEGINE(int argc, char** argv)
     //test_logger();
-    __PUMP_CORE_Test_new_logger();
+    //__PUMP_CORE_Test_new_logger();
     /*test_mutex();
     test_atomicOp();*/
     //test_cmd_parse();
     //test_cmd_env();
     //test_cmd_env_data_set();
     return getchar();
-}
+PTEST_MAIN_END

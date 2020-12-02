@@ -37,12 +37,15 @@ namespace Core
  * TODO All log recorder should allocate and store in CLogRecorderMgr object, and release 
  * by CLogRecorderMgr::~CLogRecorderMgr(), as well as m_pCmdSessionMgr.
  */
-class __CPumpCoreGlobalCtrl
+class PUMP_CORE_CLASS __CPumpCoreGlobalCtrl
     : public CGlobalResourceMgr
 {
 public:
     /** Object initialize. */
     static pump_int32_t Init();
+
+    /** Is  __CPumpCoreGlobalCtrl init*/
+    static pump_bool_t IsInit();
 
     /** Object cleanup. */
     static pump_int32_t Cleanup();
@@ -51,7 +54,7 @@ public:
     static __CPumpCoreGlobalCtrl * GetGlobalCtrl();
 
     /** Configure pump_core private logger. */
-    static pump_int32_t SetLogger(const PUMP_CORE_LOG_CONF & struConf);
+    static pump_int32_t SetLogger(pump_handle_t hLogger);
 
     /** Get pump_core private logger. */
     static CLogRecorderBase * GetLogger();

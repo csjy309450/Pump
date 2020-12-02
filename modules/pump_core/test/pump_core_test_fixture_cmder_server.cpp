@@ -35,12 +35,12 @@ int test_new_logger()
     memset(&struLogCong, 0, sizeof(struLogCong));
     struLogCong.szFilePath = "";
     struLogCong.emLogLevel = PUMP_LOG_INFO;
-    pump_handle_t hLog = PUMP_CORE_CreateLogger(PUMP_LOG_RECORED_GLOG);
+    pump_handle_t hLog = PUMP_CORE_LoggerCreate(PUMP_LOG_RECORED_GLOG);
     if (hLog==PUMP_NULL)
     {
         return  -1;
     }
-    if (PUMP_CORE_SetLogger(hLog, &struLogCong) == PUMP_ERROR)
+    if (PUMP_CORE_LoggerConfig(hLog, &struLogCong) == PUMP_ERROR)
     {
         return  -1;
     }

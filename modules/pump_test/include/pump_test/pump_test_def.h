@@ -146,7 +146,7 @@ private:
 }
 }
 
-#define  INTER_MAKE_TEST_CLASS_NAME(_pre,_indx) INTER_MAKE_TEST_C_NAME(INTER_MAKE_TEST_C_NAME(_pre,TEST_UNIQUE_PRE_NAME),_indx)
+#define INTER_MAKE_TEST_CLASS_NAME(_pre,_indx) INTER_MAKE_TEST_C_NAME(INTER_MAKE_TEST_C_NAME(_pre,TEST_UNIQUE_PRE_NAME),_indx)
 #define INTER_MAKE_TEST_C_NAME(_pre, _indx) INTER_MAKE_TEST_C_NAME_(_pre, _indx)
 #define INTER_MAKE_TEST_C_NAME_(_pre, _indx) _pre##_indx
 
@@ -157,7 +157,7 @@ class INTER_MAKE_TEST_CLASS_NAME(CTestScene_,_indx) \
 private: \
     INTER_MAKE_TEST_CLASS_NAME(CTestScene_,_indx)()  \
         : CTestSceneBase() {} \
-    ~INTER_MAKE_TEST_CLASS_NAME(CTestScene_,_indx)(){} \
+    ~INTER_MAKE_TEST_CLASS_NAME(CTestScene_,_indx)() {} \
 public: \
     _code \
     static INTER_MAKE_TEST_CLASS_NAME(CTestScene_,_indx) * GetTestScene() \

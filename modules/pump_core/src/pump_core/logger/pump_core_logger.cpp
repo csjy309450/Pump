@@ -119,10 +119,14 @@ return this;
 
 public:
     CGLogRecorder()
-        : m_pLogMessage(NULL) {}
+        : m_pLogMessage(NULL) 
+    {
+        google::InitGoogleLogging("debug");
+    }
 
     virtual ~CGLogRecorder()
     {
+        google::ShutdownGoogleLogging();
         if (m_pLogMessage)
             delete static_cast<google::LogMessage *>(m_pLogMessage);
     }
@@ -131,7 +135,6 @@ public:
     virtual pump_int32_t Set(const PUMP_CORE_LOG_CONF & struConf)
     {
         CLogRecorderBase::Set(struConf);
-        google::InitGoogleLogging("debug");
         switch (m_struConf.emLogLevel)
         {
         case PUMP_LOG_INFO:
@@ -517,27 +520,47 @@ CLogger &CLogger::operator<<(const std::string &val)
 
 PUMP_CORE_API void PUMP_CALLBACK  __PUMP_CORE_Test_new_logger()
 {
-    PUMP_CORE_LOG_CONF struLogCong;
-    memset(&struLogCong, 0, sizeof(struLogCong));
-    struLogCong.szFilePath = "";
-    struLogCong.emLogLevel = PUMP_LOG_INFO;
-    ::Pump::Core::__CPumpCoreGlobalCtrl::SetLogger(struLogCong);
-    __PUMP_CORE_INFO << "-------test begin-------";
+    //PUMP_CORE_LOG_CONF struLogCong;
+    //memset(&struLogCong, 0, sizeof(struLogCong));
+    //struLogCong.szFilePath = "";
+    //struLogCong.emLogLevel = PUMP_LOG_INFO;
+    //::Pump::Core::__CPumpCoreGlobalCtrl::SetLogger(struLogCong);
+    //__PUMP_CORE_INFO << "-------test begin-------";
 }
 
-PUMP_CORE_API void PUMP_CALLBACK PUMP_CORE_InitLogger(LPPUMP_CORE_LOG_CONF pConf)
+/**
+ * pump core log init API.  
+ */
+PUMP_CORE_API int PUMP_CALLBACK PUMP_CORE_InjectLocalLogger(pump_handle_t hLogger)
 {
-    ::Pump::Core::CLoggerManagment::CreateLoggerManagment(pConf);
+    //::Pump::Core::CLoggerManagment::CreateLoggerManagment(pConf);
+    if (!::Pump::Core::__CPumpCoreGlobalCtrl::IsInit())
+    {
+        // error: need init.
+        return PUMP_ERROR;
+    }
+    return ::Pump::Core::__CPumpCoreGlobalCtrl::SetLogger(hLogger);
 }
 
-PUMP_CORE_API pump_handle_t PUMP_CALLBACK PUMP_CORE_CreateLogger(PUMP_LOG_RECORED_TYPE emType)
+PUMP_CORE_API pump_handle_t PUMP_CALLBACK PUMP_CORE_LoggerCreate(PUMP_LOG_RECORED_TYPE emType)
 {
+    if (!::Pump::Core::__CPumpCoreGlobalCtrl::IsInit())
+    {
+        // error: need init.
+        return PUMP_NULL;
+    }
     return ::Pump::Core::__CPumpCoreGlobalCtrl::GetLoggerMgr()
         ? ::Pump::Core::__CPumpCoreGlobalCtrl::GetLoggerMgr()->Create(emType)
         : PUMP_NULL;
 }
-PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_DestroyLogger(pump_handle_t hLog)
+
+PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_LoggerDestroy(pump_handle_t hLog)
 {
+    if (!::Pump::Core::__CPumpCoreGlobalCtrl::IsInit())
+    {
+        // error: need init.
+        return PUMP_ERROR;
+    }
     if (PUMP_INVALID_HANDLE == hLog || PUMP_NULL == hLog)
     {
         return PUMP_ERROR;
@@ -546,11 +569,32 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_DestroyLogger(pump_handle_t h
         ::Pump::Core::__CPumpCoreGlobalCtrl::GetLoggerMgr()->Destroy((::Pump::Core::CLogRecorderBase *)hLog)
         : PUMP_ERROR;
 }
-PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_SetLogger(pump_handle_t hLog, const LPPUMP_CORE_LOG_CONF pConf)
+
+PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_LoggerConfig(pump_handle_t hLog, const LPPUMP_CORE_LOG_CONF pConf)
 {
-    if (!pConf)
+    if (!::Pump::Core::__CPumpCoreGlobalCtrl::IsInit())
     {
+        // error: need init.
+        return PUMP_ERROR;
+    }
+    if (hLog==PUMP_NULL || !pConf)
+    {
+        // error: param error.
         return PUMP_ERROR;
     }
     return ((::Pump::Core::CLogRecorderBase *)hLog)->Set(*pConf);
+}
+
+PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_LoggerWrite(pump_handle_t hLog, const char* szFormat, ...)
+{
+    if (!::Pump::Core::__CPumpCoreGlobalCtrl::IsInit())
+    {
+        // error: need init.
+        return PUMP_ERROR;
+    }
+    if (hLog == PUMP_NULL || !szFormat)
+    {
+        // error: param error.
+        return PUMP_ERROR;
+    }
 }
