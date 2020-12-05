@@ -163,17 +163,17 @@ public: \
     static INTER_MAKE_TEST_CLASS_NAME(CTestScene_,_indx) * GetTestScene() \
     { \
         if (!s_pScene) \
-        { \
+                        { \
             s_pScene = new INTER_MAKE_TEST_CLASS_NAME(CTestScene_,_indx)(); \
-        } \
+                        } \
         return s_pScene; \
     } \
     static void RegisterTestCase(CTestCaseBase * pCase) \
     { \
         if (pCase) \
-        { \
+                        { \
             GetTestScene()->_RegisterTestCase(pCase); \
-        } \
+                        } \
     } \
 private: \
     static INTER_MAKE_TEST_CLASS_NAME(CTestScene_,_indx) * s_pScene; \
@@ -210,10 +210,10 @@ int INTER_MAKE_TEST_CLASS_NAME(CTestCase_, _indx)::operator()(CTestSceneBase * p
         _code \
     }
 #define PTEST_MAIN_BEGINE(_argc, _argv) \
-    using namespace Pump::Test; \
-    int main(_argc, _argv) \
-    { \
-        CTestApplication objTest; 
+using namespace Pump::Test; \
+int main(_argc, _argv) \
+{ \
+    CTestApplication objTest; 
 #define PTEST_MAIN_END }
 
 #endif // _PUMP_TEST_DEF_H_

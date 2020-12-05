@@ -289,132 +289,132 @@ pump_int32_t CLogRecorderMgr::Destroy(CLogRecorderBase * pLogRecorder)
     return PUMP_OK;
 }
 
-CLogGuide::CLogGuide(CLogRecorderBase * const pLogRecorder, const char* szFile, int nLine, PUMP_CORE_LOG_LEVEL emLogLevel)
-    : m_pLogRecorder(pLogRecorder)
+CLogGuide::CLogGuide(CLogRecorderGuider & reflogRecorder, const char* szFile, int nLine, PUMP_CORE_LOG_LEVEL emLogLevel)
+    : m_refLogRecorder(reflogRecorder)
 {
-    if (m_pLogRecorder)
+    if (m_refLogRecorder.GetPtr())
     {
-        pLogRecorder->Begin(szFile, nLine, emLogLevel);
+        m_refLogRecorder.GetPtr()->Begin(szFile, nLine, emLogLevel);
     }
 }
 
 CLogGuide::~CLogGuide()
 {
-    if (m_pLogRecorder)
+    if (m_refLogRecorder.GetPtr())
     {
-        m_pLogRecorder->End();
+        m_refLogRecorder.GetPtr()->End();
     }
 }
 
 CLogGuide& CLogGuide::operator<< (bool val)
 {
-    if (m_pLogRecorder)
+    if (m_refLogRecorder.GetPtr())
     {
-        (*m_pLogRecorder) << val;
+        (*m_refLogRecorder.GetPtr()) << val;
     }
     return *this;
 }
 CLogGuide& CLogGuide::operator<< (short val)
 {
-    if (m_pLogRecorder)
+    if (m_refLogRecorder.GetPtr())
     {
-        (*m_pLogRecorder) << val;
+        (*m_refLogRecorder.GetPtr()) << val;
     }
     return *this;
 }
 CLogGuide& CLogGuide::operator<< (char val)
 {
-    if (m_pLogRecorder)
+    if (m_refLogRecorder.GetPtr())
     {
-        (*m_pLogRecorder) << val;
+        (*m_refLogRecorder.GetPtr()) << val;
     }
     return *this;
 }
 CLogGuide& CLogGuide::operator<< (unsigned short val)
 {
-    if (m_pLogRecorder)
+    if (m_refLogRecorder.GetPtr())
     {
-        (*m_pLogRecorder) << val;
+        (*m_refLogRecorder.GetPtr()) << val;
     }
     return *this;
 }
 CLogGuide& CLogGuide::operator<< (int val)
 {
-    if (m_pLogRecorder)
+    if (m_refLogRecorder.GetPtr())
     {
-        (*m_pLogRecorder) << val;
+        (*m_refLogRecorder.GetPtr()) << val;
     }
     return *this;
 }
 CLogGuide& CLogGuide::operator<< (unsigned int val)
 {
-    if (m_pLogRecorder)
+    if (m_refLogRecorder.GetPtr())
     {
-        (*m_pLogRecorder) << val;
+        (*m_refLogRecorder.GetPtr()) << val;
     }
     return *this;
 }
 CLogGuide& CLogGuide::operator<< (long val)
 {
-    if (m_pLogRecorder)
+    if (m_refLogRecorder.GetPtr())
     {
-        (*m_pLogRecorder) << val;
+        (*m_refLogRecorder.GetPtr()) << val;
     }
     return *this;
 }
 CLogGuide& CLogGuide::operator<< (unsigned long val)
 {
-    if (m_pLogRecorder)
+    if (m_refLogRecorder.GetPtr())
     {
-        (*m_pLogRecorder) << val;
+        (*m_refLogRecorder.GetPtr()) << val;
     }
     return *this;
 }
 CLogGuide& CLogGuide::operator<< (float val)
 {
-    if (m_pLogRecorder)
+    if (m_refLogRecorder.GetPtr())
     {
-        (*m_pLogRecorder) << val;
+        (*m_refLogRecorder.GetPtr()) << val;
     }
     return *this;
 }
 CLogGuide& CLogGuide::operator<< (double val)
 {
-    if (m_pLogRecorder)
+    if (m_refLogRecorder.GetPtr())
     {
-        (*m_pLogRecorder) << val;
+        (*m_refLogRecorder.GetPtr()) << val;
     }
     return *this;
 }
 CLogGuide& CLogGuide::operator<< (long double val)
 {
-    if (m_pLogRecorder)
+    if (m_refLogRecorder.GetPtr())
     {
-        (*m_pLogRecorder) << val;
+        (*m_refLogRecorder.GetPtr()) << val;
     }
     return *this;
 }
 CLogGuide& CLogGuide::operator<< (void* val)
 {
-    if (m_pLogRecorder)
+    if (m_refLogRecorder.GetPtr())
     {
-        (*m_pLogRecorder) << val;
+        (*m_refLogRecorder.GetPtr()) << val;
     }
     return *this;
 }
 CLogGuide& CLogGuide::operator<< (const char* val)
 {
-    if (m_pLogRecorder)
+    if (m_refLogRecorder.GetPtr())
     {
-        (*m_pLogRecorder) << val;
+        (*m_refLogRecorder.GetPtr()) << val;
     }
     return *this;
 }
 CLogGuide& CLogGuide::operator<< (const std::string & val)
 {
-    if (m_pLogRecorder)
+    if (m_refLogRecorder.GetPtr())
     {
-        (*m_pLogRecorder) << val;
+        (*m_refLogRecorder.GetPtr()) << val;
     }
     return *this;
 }
@@ -597,4 +597,5 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_LoggerWrite(pump_handle_t hLo
         // error: param error.
         return PUMP_ERROR;
     }
+    return PUMP_OK;
 }

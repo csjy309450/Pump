@@ -24,7 +24,7 @@
 #include "pump_core/thread/pump_core_thread.h"
 #include "pump_core/thread/pump_core_mutex.h"
 #include "pump_core/pump_core_statemachine.h"
-#include "pump_core/pump_core_global_resource_mgr.h"
+#include "pump_core/pump_core_global_ctrl_base.h"
 #include "pump_core/pump_core_uuid.h"
 
 namespace Pump
@@ -34,7 +34,7 @@ namespace Core
 namespace Cmder
 {
 
-class CCmdSessionMgr : public ::Pump::Core::CGlobalResourceMgr
+class CCmdSessionMgr : public ::Pump::Core::CGlobalCtrlBase
 {
 public:
     //void InsertCmdServer(const std::string & strCmdServerName)

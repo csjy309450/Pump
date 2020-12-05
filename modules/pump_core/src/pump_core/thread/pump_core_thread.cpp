@@ -31,7 +31,7 @@ namespace Thread
 {
 
 class __CThreadPrimitive
-    : public ::Pump::Core::__CPrimitiveBase
+    : public ::Pump::Core::CPrimitiveBase
 {
 public:
     friend class CThread;
@@ -52,7 +52,7 @@ public:
 };
 
 __CThreadPrimitive::__CThreadPrimitive()
-    : ::Pump::Core::__CPrimitiveBase()
+    : ::Pump::Core::CPrimitiveBase()
     , m_TID((unsigned long int)PUMP_INVALID_THREAD)
 {
 

@@ -45,11 +45,21 @@ void CGlobalTestSceneMgr::OutPut(const char* pFormat, ...)
 
 int CGlobalTestSceneMgr::Run()
 {
+    PTEST_Printf(\
+        "********************************\n" \
+        "* Test Begin\n" \
+        "********************************\n" \
+        );
     for (std::list<CTestSceneBase*>::iterator it = m_listTestScene.begin();
         it != m_listTestScene.end(); ++it)
     {
         (*it)->Run();
     }
+    PTEST_Printf(\
+        "********************************\n" \
+        "* Test End\n" \
+        "********************************\n" \
+        );
     return 0;
 }
 

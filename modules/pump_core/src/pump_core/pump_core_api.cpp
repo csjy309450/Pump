@@ -27,12 +27,29 @@
 
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_Init()
 {
-    return ::Pump::Core::__CPumpCoreGlobalCtrl::GetGlobalCtrl() ? ::Pump::Core::__CPumpCoreGlobalCtrl::GetGlobalCtrl()->Init() : PUMP_ERROR;
+    if (::Pump::Core::__CPumpCoreGlobalCtrl::IsInit())
+    {
+        return PUMP_OK;
+    }
+    if (::Pump::Core::__CPumpCoreGlobalCtrl::Create() != PUMP_OK)
+    {
+        return PUMP_ERROR;
+    }
+    return ::Pump::Core::__CPumpCoreGlobalCtrl::Init();
 }
 
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_Cleanup()
 {
-    return ::Pump::Core::__CPumpCoreGlobalCtrl::GetGlobalCtrl() ? ::Pump::Core::__CPumpCoreGlobalCtrl::GetGlobalCtrl()->Cleanup() : PUMP_ERROR;
+    if (!::Pump::Core::__CPumpCoreGlobalCtrl::IsInit())
+    {
+        return PUMP_OK;
+    }
+    if (::Pump::Core::__CPumpCoreGlobalCtrl::Cleanup() != PUMP_OK)
+    {
+        return PUMP_ERROR;
+    }
+
+    return ::Pump::Core::__CPumpCoreGlobalCtrl::Destroy();
 }
 
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_GetSystemError()

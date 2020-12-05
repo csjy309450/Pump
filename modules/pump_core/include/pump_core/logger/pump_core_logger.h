@@ -24,9 +24,11 @@
 #include <string>
 #include <cassert>
 #include "pump_core/pump_core_config.h"
+#include "pump_core/pump_core_types.h"
+#include "pump_core/pump_core_global_resouce_guider.hpp"
 #include "pump_core/pump_core_noncopyable.h"
 #include "pump_core/thread/pump_core_mutex.h"
-#include "pump_core/pump_core_types.h"
+
 
 enum PUMP_CORE_LOG_LEVEL
 {
@@ -164,11 +166,26 @@ public:
     pump_int32_t Destroy(CLogRecorderBase * pLogRecorder);
 };
 
+//class PUMP_CORE_CLASS CLogRecorderGuider
+//{
+//public:
+//    explicit CLogRecorderGuider(CLogRecorderBase * pLogRecorder);
+//    ~CLogRecorderGuider();
+//    CLogRecorderGuider(const CLogRecorderGuider & other);
+//    CLogRecorderBase * GetLogger();
+//private:
+//    CLogRecorderGuider();
+//private:
+//    CLogRecorderBase * m_pLogRecorder;
+//};
+
+typedef ::Pump::Core::CGlobalResouceGuider<CLogRecorderBase> CLogRecorderGuider;
+
 class PUMP_CORE_CLASS CLogGuide
     : public CNonCopyable
 {
 public:
-    CLogGuide(CLogRecorderBase * const pLogRecorder, const char* szFile, int nLine, PUMP_CORE_LOG_LEVEL emLogLevel);
+    CLogGuide(CLogRecorderGuider & refLogRecorder, const char* szFile, int nLine, PUMP_CORE_LOG_LEVEL emLogLevel);
 
     ~CLogGuide();
 
@@ -189,7 +206,7 @@ public:
     CLogGuide& operator<< (const std::string & val);
 
 private:
-    CLogRecorderBase * const m_pLogRecorder;
+    CLogRecorderGuider & m_refLogRecorder;
 };
 
 }

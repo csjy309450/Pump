@@ -65,7 +65,7 @@ private:
     static pump_void_t * PUMP_CALLBACK __ThreadCallbackCore(pump_void_t * pData);
 private:
     pump_void_t * m_pData;
-    ::Pump::Core::__CPrimitiveBase * m_pPrimitive;
+    ::Pump::Core::CPrimitiveBase * m_pPrimitive;
     PUMP_THREAD_TYPE m_emType;
 };
 
