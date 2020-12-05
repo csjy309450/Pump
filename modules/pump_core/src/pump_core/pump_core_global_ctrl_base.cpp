@@ -25,29 +25,29 @@ namespace Pump
 namespace Core
 {
 
-//CLogRecorderGuider::CLogRecorderGuider(CLogRecorderBase * pLogRecorder)
+//CLogRecorderKeeper::CLogRecorderKeeper(CLogRecorderBase * pLogRecorder)
 //    : m_pLogRecorder(pLogRecorder)
 //{
 //    CGlobalCtrlBase::ReadLock();
 //}
 //
-//CLogRecorderGuider::CLogRecorderGuider(const CLogRecorderGuider & other)
+//CLogRecorderKeeper::CLogRecorderKeeper(const CLogRecorderKeeper & other)
 //    : m_pLogRecorder(other.m_pLogRecorder)
 //{
 //    CGlobalCtrlBase::ReadLock();
 //}
 //
-//CLogRecorderGuider::~CLogRecorderGuider() 
+//CLogRecorderKeeper::~CLogRecorderKeeper() 
 //{ 
 //    m_pLogRecorder = NULL;
 //    CGlobalCtrlBase::ReadUnlock();
 //}
-//CLogRecorderBase * CLogRecorderGuider::GetLogger() { return m_pLogRecorder; }
+//CLogRecorderBase * CLogRecorderKeeper::GetLogger() { return m_pLogRecorder; }
 
-//CLogRecorderGuider::CLogRecorderGuider() {}
+//CLogRecorderKeeper::CLogRecorderKeeper() {}
 
 CGlobalCtrlBase * CGlobalCtrlBase::s_pGlobalCtrl = PUMP_NULL;
-::Pump::Core::Thread::CRWLocker CGlobalCtrlBase::s_rcsGlobalCtrl;
+::Pump::Core::Thread::CRWLocker CGlobalCtrlBase::s_csGlobalCtrl;
 //::Pump::Core::Thread::CMutex CGlobalCtrlBase::s_wcsGlobalCtrl;
 
 CGlobalCtrlBase::CGlobalCtrlBase()
@@ -66,22 +66,22 @@ CGlobalCtrlBase::~CGlobalCtrlBase()
 
 void CGlobalCtrlBase::ReadLock()
 {
-    s_rcsGlobalCtrl.readLock();
+    s_csGlobalCtrl.readLock();
 }
 
 void CGlobalCtrlBase::ReadUnlock()
 {
-    s_rcsGlobalCtrl.readUnlock();
+    s_csGlobalCtrl.readUnlock();
 }
 
 void CGlobalCtrlBase::WriteLock()
 {
-    s_rcsGlobalCtrl.writeLock();
+    s_csGlobalCtrl.writeLock();
 }
 
 void CGlobalCtrlBase::WriteUnlock()
 {
-    s_rcsGlobalCtrl.writeUnlock();
+    s_csGlobalCtrl.writeUnlock();
 }
 
 void CGlobalCtrlBase::SetInitFlag(pump_bool_t bInit)
@@ -122,20 +122,20 @@ pump_int32_t CGlobalCtrlBase::SetLogger(pump_handle_t hLogger)
     if (!s_pGlobalCtrl)
     {
         CGlobalCtrlBase::ReadLock();
-        return PUMP_FALSE;
+        return PUMP_OK;
     }
     CLogRecorderBase * pLogRecoreder = static_cast<CLogRecorderBase *>(hLogger);
-    s_pGlobalCtrl->m_csLogRecorder.Lock();
+    s_pGlobalCtrl->m_csLogRecorder.writeLock();
     s_pGlobalCtrl->m_pLogRecorder = pLogRecoreder;
-    s_pGlobalCtrl->m_csLogRecorder.Unlock();
+    s_pGlobalCtrl->m_csLogRecorder.writeUnlock();
     CGlobalCtrlBase::ReadUnlock();
-    return PUMP_ERROR;
+    return PUMP_OK;
 }
 
 /** Get private logger. */
-CLogRecorderGuider CGlobalCtrlBase::GetLogger()
+CLogRecorderKeeper CGlobalCtrlBase::GetLogger()
 {
-    return CLogRecorderGuider((CLogRecorderBase*)(!s_pGlobalCtrl ? NULL : s_pGlobalCtrl->m_pLogRecorder));
+    return CLogRecorderKeeper((CLogRecorderBase*)(!s_pGlobalCtrl ? NULL : s_pGlobalCtrl->m_pLogRecorder));
 }
 
 }

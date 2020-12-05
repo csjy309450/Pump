@@ -166,26 +166,33 @@ public:
     pump_int32_t Destroy(CLogRecorderBase * pLogRecorder);
 };
 
-//class PUMP_CORE_CLASS CLogRecorderGuider
+//class PUMP_CORE_CLASS CLogRecorderKeeper
 //{
 //public:
-//    explicit CLogRecorderGuider(CLogRecorderBase * pLogRecorder);
-//    ~CLogRecorderGuider();
-//    CLogRecorderGuider(const CLogRecorderGuider & other);
+//    explicit CLogRecorderKeeper(CLogRecorderBase * pLogRecorder);
+//    ~CLogRecorderKeeper();
+//    CLogRecorderKeeper(const CLogRecorderKeeper & other);
 //    CLogRecorderBase * GetLogger();
 //private:
-//    CLogRecorderGuider();
+//    CLogRecorderKeeper();
 //private:
 //    CLogRecorderBase * m_pLogRecorder;
 //};
 
-typedef ::Pump::Core::CGlobalResouceGuider<CLogRecorderBase> CLogRecorderGuider;
+class PUMP_CORE_CLASS CLogRecorderKeeper
+    : public ::Pump::Core::CGlobalResouceKeeper<CLogRecorderBase>
+{
+public:
+    CLogRecorderKeeper(CLogRecorderBase* pLogRecorder);
+    CLogRecorderKeeper(CLogRecorderKeeper & other);
+    virtual ~CLogRecorderKeeper();
+};
 
 class PUMP_CORE_CLASS CLogGuide
     : public CNonCopyable
 {
 public:
-    CLogGuide(CLogRecorderGuider & refLogRecorder, const char* szFile, int nLine, PUMP_CORE_LOG_LEVEL emLogLevel);
+    CLogGuide(CLogRecorderKeeper & refLogRecorder, const char* szFile, int nLine, PUMP_CORE_LOG_LEVEL emLogLevel);
 
     ~CLogGuide();
 
@@ -206,7 +213,7 @@ public:
     CLogGuide& operator<< (const std::string & val);
 
 private:
-    CLogRecorderGuider & m_refLogRecorder;
+    CLogRecorderKeeper & m_refLogRecorder;
 };
 
 }

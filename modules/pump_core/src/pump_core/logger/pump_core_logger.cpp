@@ -289,7 +289,36 @@ pump_int32_t CLogRecorderMgr::Destroy(CLogRecorderBase * pLogRecorder)
     return PUMP_OK;
 }
 
-CLogGuide::CLogGuide(CLogRecorderGuider & reflogRecorder, const char* szFile, int nLine, PUMP_CORE_LOG_LEVEL emLogLevel)
+CLogRecorderKeeper::CLogRecorderKeeper(CLogRecorderBase* pLogRecorder)
+    : ::Pump::Core::CGlobalResouceKeeper<CLogRecorderBase>(pLogRecorder)
+{
+    if (!::Pump::Core::CGlobalCtrlBase::s_pGlobalCtrl || !pLogRecorder)
+    {
+        return;
+    }
+    ::Pump::Core::CGlobalCtrlBase::s_pGlobalCtrl->m_csLogRecorder.readLock();
+}
+
+CLogRecorderKeeper::CLogRecorderKeeper(CLogRecorderKeeper & other)
+    : ::Pump::Core::CGlobalResouceKeeper<CLogRecorderBase>(other)
+{
+    if (!::Pump::Core::CGlobalCtrlBase::s_pGlobalCtrl || !other.GetPtr())
+    {
+        return;
+    }
+    ::Pump::Core::CGlobalCtrlBase::s_pGlobalCtrl->m_csLogRecorder.readLock();
+}
+
+CLogRecorderKeeper::~CLogRecorderKeeper()
+{
+    if (!::Pump::Core::CGlobalCtrlBase::s_pGlobalCtrl || !this->GetPtr())
+    {
+        return;
+    }
+    ::Pump::Core::CGlobalCtrlBase::s_pGlobalCtrl->m_csLogRecorder.readUnlock();
+}
+
+CLogGuide::CLogGuide(CLogRecorderKeeper & reflogRecorder, const char* szFile, int nLine, PUMP_CORE_LOG_LEVEL emLogLevel)
     : m_refLogRecorder(reflogRecorder)
 {
     if (m_refLogRecorder.GetPtr())

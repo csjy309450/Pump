@@ -29,20 +29,20 @@ PUMP_CORE_CXXAPI void PUMP_CALLBACK PUMP_CORE_INNER_GlobalCtrlReadLock();
 PUMP_CORE_CXXAPI void PUMP_CALLBACK PUMP_CORE_INNER_GlobalCtrlReadUnlock();
 
 template <class T>
-class CGlobalResouceGuider
+class CGlobalResouceKeeper
 {
 public:
-    explicit CGlobalResouceGuider(T * ptr)
+    explicit CGlobalResouceKeeper(T * ptr)
         : m_ptr(ptr)
     {
         PUMP_CORE_INNER_GlobalCtrlReadLock();
     }
-    virtual ~CGlobalResouceGuider()
+    virtual ~CGlobalResouceKeeper()
     {
         m_ptr = (NULL);
         PUMP_CORE_INNER_GlobalCtrlReadUnlock();
     }
-    CGlobalResouceGuider(const CGlobalResouceGuider & other)
+    CGlobalResouceKeeper(const CGlobalResouceKeeper & other)
         : m_ptr(other.m_ptr)
     {
         PUMP_CORE_INNER_GlobalCtrlReadLock();
@@ -52,7 +52,7 @@ public:
         return m_ptr;
     }
 private:
-    CGlobalResouceGuider();
+    CGlobalResouceKeeper();
 private:
     T * m_ptr;
 };
