@@ -19,6 +19,13 @@
 #define PUMP_CORE_CONFIG_H
 #include "pump_macro/pump_pre.h"
 
+/////////////////////////////////////////////////////////////////////////////////
+// User Compile Config
+/////////////////////////////////////////////////////////////////////////////////
+#ifdef PUMP_CORE_HAVA_GLOG
+#define PUMP_USING_GLOG
+#endif // PUMP_HAS_GLOG
+
 #ifdef PUMP_COMPILER_CXX
 #   define PUMP_EXTERNC_FLAG extern "C"
 #else

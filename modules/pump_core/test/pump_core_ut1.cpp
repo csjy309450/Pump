@@ -29,13 +29,13 @@ int PTEST_SCENE_NAME(UnitTestScene001)::Init()
     PTEST_ASSERT((PUMP_CORE_Init() == PUMP_OK), "PUMP_CORE_Init failed 1");
     PUMP_CORE_LOG_CONF struLogCong;
     memset(&struLogCong, 0, sizeof(struLogCong));
-    struLogCong.szFilePath = "";
+    strcpy(struLogCong.szFilePath, "");
     struLogCong.emLogLevel = PUMP_LOG_INFO;
     pump_handle_t hLog = PUMP_CORE_LoggerCreate();
     PTEST_ASSERT(hLog != PUMP_NULL, "PUMP_CORE_LoggerCreate failed 1");
     PTEST_ASSERT((PUMP_CORE_LoggerConfig(hLog, &struLogCong) == PUMP_OK), "PUMP_CORE_LoggerConfig failed 2");
     PTEST_ASSERT((PUMP_CORE_InjectLocalLogger(hLog) == PUMP_OK), "PUMP_CORE_InjectLocalLogger failed 2");
-    __PUMP_CORE_INFO << "-------__PUMP_CORE_INFO good-------";
+    __PUMP_CORE_INFO("-------__PUMP_CORE_INFO good-------");
     return 0;
 }
 int PTEST_SCENE_NAME(UnitTestScene001)::Cleanup()
@@ -73,11 +73,11 @@ private:
             , PUMP_FALSE);
         if (!m_pHPipe)
         {
-            __PUMP_CORE_ERR << "[Test] CreateNamedPipeServer Open Failed";
+            __PUMP_CORE_ERR("[Test] CreateNamedPipeServer Open Failed");
             return PUMP_NULL;
         }
         m_IsStop = PUMP_FALSE;
-        __PUMP_CORE_INFO << "[Test] CreateNamedPipeServer Open Succ";
+        __PUMP_CORE_INFO("[Test] CreateNamedPipeServer Open Succ");
         pump_char_t szBuff[1024] = { 0 };
         while (!m_IsStop)
         {
@@ -86,7 +86,7 @@ private:
             m_pHPipe->Read(szBuff, sizeof(szBuff), &nRead);
             if (nRead>0)
             {
-                __PUMP_CORE_INFO << "[Test] pipe server recv: " << szBuff;
+                __PUMP_CORE_INFO("[Test] pipe server recv: %s", szBuff);
             }
             else
             {
@@ -128,16 +128,16 @@ private:
             , CPipeHandle::PUMP_PIPE_WRITE);
         if (!m_pHPipe)
         {
-            __PUMP_CORE_ERR << "[Test] CreateNamedPipeClient Open Failed";
+            __PUMP_CORE_ERR("[Test] CreateNamedPipeClient Open Failed");
             return PUMP_NULL;
         }
         m_IsStop = PUMP_FALSE;
-        __PUMP_CORE_INFO << "[Test] CreateNamedPipeClient Open Succ";
+        __PUMP_CORE_INFO("[Test] CreateNamedPipeClient Open Succ");
         pump_char_t * szBuff = "dir";
         while (!m_IsStop)
         {
             m_pHPipe->Write(szBuff, strlen(szBuff), NULL);
-            __PUMP_CORE_INFO << "[Test] pipe client send: " << szBuff;
+            __PUMP_CORE_INFO("[Test] pipe client send: %s", szBuff);
             PUMP_CORE_Sleep(500);
         }
         return PUMP_NULL;
@@ -159,15 +159,15 @@ private:
             , CPipeHandle::PUMP_PIPE_WRITE);
         if (!m_pHPipe)
         {
-            __PUMP_CORE_ERR << "CreateNamedPipeClient Open Failed";
+            __PUMP_CORE_ERR("CreateNamedPipeClient Open Failed");
             return PUMP_NULL;
         }
-        __PUMP_CORE_INFO << "CreateNamedPipeClient Open Succ";
+        __PUMP_CORE_INFO("CreateNamedPipeClient Open Succ");
         pump_char_t * szBuff = "I am a Data!";
         while (1)
         {
             m_pHPipe->Write(szBuff, strlen(szBuff), NULL);
-            __PUMP_CORE_INFO << "pipe client send: " << szBuff;
+            __PUMP_CORE_INFO("pipe client send: %s", szBuff);
             PUMP_CORE_Sleep(1000);
         }
         return PUMP_NULL;

@@ -326,7 +326,7 @@ PUMP_CORE_CXXAPI std::string PUMP_CALLBACK PUMP_CORE_Sprintf(const pump_str_t sz
     return strDist;
 }
 
-PUMP_CORE_CXXAPI std::string PUMP_CALLBACK PUMP_CORE_Vprintf(const pump_str_t szFormate, va_list argv)
+PUMP_CORE_CXXAPI std::string PUMP_CALLBACK PUMP_CORE_Vprintf(const char* szFormate, va_list argv)
 {
     std::string strDist;
     //int i = 0;

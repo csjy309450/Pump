@@ -37,7 +37,8 @@ namespace Thread
 
 #define PUMP_INVALID_THREAD (-1)
 
-class PUMP_CORE_CLASS CThread
+class PUMP_CORE_CLASS CThread 
+    : public ::Pump::Core::CNonCopyable
 {
 public:
     typedef enum tagPUMP_THREAD_TYPE

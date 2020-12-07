@@ -22,10 +22,10 @@
 #include "pump_core/__pump_core_global_ctrl.h"
 #include "pump_core/logger/pump_core_logger.h"
 
-#define __PUMP_CORE_INFO ::Pump::Core::CLogGuide(::Pump::Core::__CPumpCoreGlobalCtrl::GetLogger(), __FILE__,__LINE__,PUMP_LOG_INFO)
-#define __PUMP_CORE_WARING ::Pump::Core::CLogGuide(::Pump::Core::__CPumpCoreGlobalCtrl::GetLogger(),__FILE__,__LINE__,PUMP_LOG_WARNING)
-#define __PUMP_CORE_ERR ::Pump::Core::CLogGuide(::Pump::Core::__CPumpCoreGlobalCtrl::GetLogger(),__FILE__,__LINE__,PUMP_LOG_ERROR)
-#define __PUMP_CORE_LOG_ASSERT(_exp) assert(_exp);__PUMP_CORE_INFO
+#define __PUMP_CORE_INFO(form_, ...) ::Pump::Core::CLogGuide().WriteLine(PUMP_LOG_INFO, __FILE__,__LINE__, form_,__VA_ARGS__)
+#define __PUMP_CORE_WARING(form_, ...) ::Pump::Core::CLogGuide().WriteLine(PUMP_LOG_WARNING, __FILE__,__LINE__, form_,__VA_ARGS__)
+#define __PUMP_CORE_ERR(form_, ...) ::Pump::Core::CLogGuide().WriteLine(PUMP_LOG_ERROR, __FILE__,__LINE__, form_,__VA_ARGS__)
+#define __PUMP_CORE_LOG_ASSERT(_exp,form_, ...) assert(_exp);__PUMP_CORE_INFO(form_, __VA_ARGS__)
 
 #endif // __PUMP_CORE_INNER_LOGGER
 

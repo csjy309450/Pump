@@ -71,8 +71,8 @@ std::string PUMP_CORE_Other2Str(T & t)
 
 PUMP_CORE_CXXAPI std::string PUMP_CALLBACK PUMP_CORE_StringTrim(const std::string & strSrc);
 PUMP_CORE_CXXAPI std::string PUMP_CALLBACK PUMP_CORE_StringReplase(const std::string &strSrc, const std::string &pattern, const std::string &target);
-PUMP_CORE_CXXAPI std::string PUMP_CALLBACK PUMP_CORE_Sprintf(const pump_str_t szFormate, ...);
-PUMP_CORE_CXXAPI std::string PUMP_CALLBACK PUMP_CORE_Vprintf(const pump_str_t szFormate, va_list argv);
+PUMP_CORE_CXXAPI std::string PUMP_CALLBACK PUMP_CORE_Sprintf(const char* szFormate, ...);
+PUMP_CORE_CXXAPI std::string PUMP_CALLBACK PUMP_CORE_Vprintf(const char* szFormate, va_list argv);
 
 #endif // PUMP_COMPILER_CXX
 #endif // PUMP_CORE_STRING_H

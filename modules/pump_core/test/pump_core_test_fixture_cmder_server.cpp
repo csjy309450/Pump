@@ -22,7 +22,7 @@ int test_logger()
 {
     PUMP_CORE_LOG_CONF struLogCong;
     memset(&struLogCong, 0, sizeof(struLogCong));
-    struLogCong.szFilePath = "";
+    strcpy(struLogCong.szFilePath, "");
     struLogCong.emLogLevel = PUMP_LOG_INFO;
     //PUMP_CORE_InitLogger(&struLogCong);
     PUMP_CORE_INFO << "-------test begin-------";
@@ -33,9 +33,9 @@ int test_new_logger()
 {
     PUMP_CORE_LOG_CONF struLogCong;
     memset(&struLogCong, 0, sizeof(struLogCong));
-    struLogCong.szFilePath = "";
+    strcpy(struLogCong.szFilePath, "");
     struLogCong.emLogLevel = PUMP_LOG_INFO;
-    pump_handle_t hLog = PUMP_CORE_LoggerCreate(PUMP_LOG_RECORED_GLOG);
+    pump_handle_t hLog = PUMP_CORE_LoggerCreate(PUMP_CORE_LOG_RECORED_GLOG);
     if (hLog==PUMP_NULL)
     {
         return  -1;

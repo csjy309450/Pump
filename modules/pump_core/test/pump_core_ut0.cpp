@@ -49,23 +49,26 @@ PTEST_C_CASE_DEF(UnitTestCase002, UnitTestScene000,)
     PTEST_ASSERT((PUMP_CORE_Init() == PUMP_OK), "PUMP_CORE_Init failed 1");
     PUMP_CORE_LOG_CONF struLogCong;
     memset(&struLogCong, 0, sizeof(struLogCong));
-    struLogCong.szFilePath = "";
+    struLogCong.bPrintConsole = PUMP_TRUE;
+    struLogCong.bWriteFile = PUMP_TRUE;
+    struLogCong.emLogLevel = PUMP_LOG_INFO;
+    strcpy(struLogCong.szFilePath, "yz_log");
     struLogCong.emLogLevel = PUMP_LOG_INFO;
     pump_handle_t hLog = PUMP_CORE_LoggerCreate();
     PTEST_ASSERT(hLog!=PUMP_NULL, "PUMP_CORE_LoggerCreate failed 1");
     PTEST_ASSERT((PUMP_CORE_LoggerConfig(hLog, &struLogCong)==PUMP_OK), "PUMP_CORE_LoggerConfig failed 2");
-    __PUMP_CORE_INFO << "-------PUMP_CORE_INFO bad1-------";
-    __PUMP_CORE_WARING << "-------PUMP_CORE_WARING  bad1-------";
-    __PUMP_CORE_ERR << "-------PUMP_CORE_ERR  bad1-------";
+    __PUMP_CORE_INFO("-------PUMP_CORE_INFO bad1-------");
+    __PUMP_CORE_WARING("-------PUMP_CORE_WARING  bad1-------");
+    __PUMP_CORE_ERR("-------PUMP_CORE_ERR  bad1-------");
     PTEST_ASSERT((PUMP_CORE_InjectLocalLogger(hLog)==PUMP_OK), "PUMP_CORE_InjectLocalLogger failed 2");
-    __PUMP_CORE_INFO << "-------PUMP_CORE_INFO good-------";
-    __PUMP_CORE_WARING << "-------PUMP_CORE_WARING good-------";
-    __PUMP_CORE_ERR << "-------PUMP_CORE_ERR good-------";
+    __PUMP_CORE_INFO("-------PUMP_CORE_INFO good-------");
+    __PUMP_CORE_WARING("-------PUMP_CORE_WARING good-------");
+    __PUMP_CORE_ERR("-------PUMP_CORE_ERR good-------");
     PTEST_ASSERT((PUMP_CORE_Cleanup() == PUMP_OK), "PUMP_CORE_Cleanup failed 1");
     // cleanup call API
-    __PUMP_CORE_INFO << "-------PUMP_CORE_INFO bad2-------";
-    __PUMP_CORE_WARING << "-------PUMP_CORE_WARING bad2-------";
-    __PUMP_CORE_ERR << "-------PUMP_CORE_ERR bad2-------";
+    __PUMP_CORE_INFO("-------PUMP_CORE_INFO bad2-------");
+    __PUMP_CORE_WARING("-------PUMP_CORE_WARING bad2-------");
+    __PUMP_CORE_ERR("-------PUMP_CORE_ERR bad2-------");
     return  PUMP_OK;
 }
 
@@ -175,13 +178,93 @@ PTEST_C_CASE_DEF(UnitTestCase007, UnitTestScene000,)
     return 0;
 }
 
+class CLogTestThread : public CThread
+{
+public:
+    virtual pump_int32_t Stop()
+    {
+        m_bStop = PUMP_TRUE;
+        return 0;
+    }
+private:
+    virtual pump_void_t * ThreadCallback(pump_void_t * pData)
+    {
+        m_bStop = PUMP_FALSE;
+        while (!m_bStop)
+        {
+            __PUMP_CORE_INFO("-------PUMP_CORE_INFO %d-------", PUMP_CORE_Thread_GetSelfId());
+            //PUMP_CORE_Sleep(300);
+        }
+        return 0;
+    }
+private:
+    pump_bool_t m_bStop;
+};
+
+PTEST_C_CASE_DEF(UnitTestCase008, UnitTestScene000, )
+{
+    PTEST_LOG(comment, "UnitTestCase008 test multi thread log <glog>");
+    PTEST_ASSERT((PUMP_CORE_Init() == PUMP_OK), "PUMP_CORE_Init failed 3");
+    PUMP_CORE_LOG_CONF struLogCong;
+    memset(&struLogCong, 0, sizeof(struLogCong));
+    struLogCong.bPrintConsole = PUMP_TRUE;
+    struLogCong.bWriteFile = PUMP_TRUE;
+    struLogCong.emLogLevel = PUMP_LOG_INFO;
+    strcpy(struLogCong.szFilePath, "yz_log_glog");
+    struLogCong.emLogLevel = PUMP_LOG_INFO;
+    pump_handle_t hLog = PUMP_CORE_LoggerCreate(PUMP_CORE_LOG_RECORED_GLOG);
+    PTEST_ASSERT(hLog != PUMP_NULL, "PUMP_CORE_LoggerCreate failed 3");
+    PTEST_ASSERT((PUMP_CORE_LoggerConfig(hLog, &struLogCong) == PUMP_OK), "PUMP_CORE_LoggerConfig failed 3");
+    PTEST_ASSERT((PUMP_CORE_InjectLocalLogger(hLog) == PUMP_OK), "PUMP_CORE_InjectLocalLogger failed 2");
+    std::vector<CLogTestThread*> vecThx;
+    for (int i = 0; i < 1;++i)
+    {
+        CLogTestThread * pthx = new CLogTestThread();
+        pthx->Start();
+        vecThx.push_back(pthx);
+    }
+    PUMP_CORE_Sleep(10000);
+    for (size_t i = 0; i<vecThx.size();++i)
+    {
+        vecThx[i]->Stop();
+        delete vecThx[i];
+    }
+    PTEST_ASSERT((PUMP_CORE_Cleanup() == PUMP_OK), "PUMP_CORE_Cleanup failed 1");
+    return 0;
+}
+
+PTEST_C_CASE_DEF(UnitTestCase009, UnitTestScene000, )
+{
+    PTEST_LOG(comment, "UnitTestCase009 test multi thread log <text>");
+    PTEST_ASSERT((PUMP_CORE_Init() == PUMP_OK), "PUMP_CORE_Init failed 3");
+    PUMP_CORE_LOG_CONF struLogCong;
+    memset(&struLogCong, 0, sizeof(struLogCong));
+    struLogCong.bPrintConsole = PUMP_TRUE;
+    struLogCong.bWriteFile = PUMP_TRUE;
+    struLogCong.emLogLevel = PUMP_LOG_INFO;
+    strcpy(struLogCong.szFilePath, "yz_log_text");
+    struLogCong.emLogLevel = PUMP_LOG_INFO;
+    pump_handle_t hLog = PUMP_CORE_LoggerCreate();
+    PTEST_ASSERT(hLog != PUMP_NULL, "PUMP_CORE_LoggerCreate failed 3");
+    PTEST_ASSERT((PUMP_CORE_LoggerConfig(hLog, &struLogCong) == PUMP_OK), "PUMP_CORE_LoggerConfig failed 3");
+    PTEST_ASSERT((PUMP_CORE_InjectLocalLogger(hLog) == PUMP_OK), "PUMP_CORE_InjectLocalLogger failed 2");
+    std::vector<CLogTestThread*> vecThx;
+    for (int i = 0; i < 100; ++i)
+    {
+        CLogTestThread * pthx = new CLogTestThread();
+        pthx->Start();
+        vecThx.push_back(pthx);
+    }
+    PUMP_CORE_Sleep(10000);
+    for (size_t i = 0; i < vecThx.size(); ++i)
+    {
+        vecThx[i]->Stop();
+        delete vecThx[i];
+    }
+    PTEST_ASSERT((PUMP_CORE_Cleanup() == PUMP_OK), "PUMP_CORE_Cleanup failed 1");
+    return 0;
+}
+
 PTEST_MAIN_BEGINE(int argc, char** argv)
-    //test_logger();
-    //__PUMP_CORE_Test_new_logger();
-    /*test_mutex();
-    test_atomicOp();*/
-    //test_cmd_parse();
-    //test_cmd_env();
-    //test_cmd_env_data_set();
     return getchar();
 PTEST_MAIN_END

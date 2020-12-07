@@ -18,7 +18,7 @@ pump_void_t * CAsyncPipeServerThread::ThreadCallback(pump_void_t * pData)
     m_hCompletion = ::CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, THREAD_NO);
     if (m_hCompletion == NULL)
     {
-        __PUMP_CORE_ERR << "[Test] 完成端口创建失败";
+        __PUMP_CORE_ERR("[Test] 完成端口创建失败");
         return NULL;
     }
 
@@ -33,14 +33,14 @@ pump_void_t * CAsyncPipeServerThread::ThreadCallback(pump_void_t * pData)
         , PUMP_TRUE);
     if (!m_pHPipe)
     {
-        __PUMP_CORE_ERR << "[Test] CreateNamedPipe失败了";
+        __PUMP_CORE_ERR("[Test] CreateNamedPipe失败了");
         return NULL;
     }
     CPipeHandle::LPPUMP_RAW_PIPE pPipe = (CPipeHandle::LPPUMP_RAW_PIPE)m_pHPipe->GetHandle();
     m_hCompletion = ::CreateIoCompletionPort(pPipe->hNamedPipe_, m_hCompletion, (ULONG_PTR)m_pHPipe, 0);
     if (m_pHPipe->ConnectNamedPipeServer() != PUMP_OK)
     {
-        __PUMP_CORE_ERR << "[Test] ConnectNamedPipe失败了" << GetLastError();
+        __PUMP_CORE_ERR("[Test] ConnectNamedPipe失败了 %d", GetLastError());
     }
     while (1);
     return PUMP_NULL;
