@@ -72,15 +72,3 @@ set_target_properties(pump_core_test_fixture_file PROPERTIES FOLDER "pump_core/t
 # target_link_libraries(pump_core_test_fixture_reg pump_core_dll ${pump_core_INNER_TEST_DEP_LIBS} ${pump_core_INNER_TEST_LINK_FLAG})
 # target_compile_options(pump_core_test_fixture_reg PRIVATE ${pump_core_INNER_TEST_COMPILE_FLAG})
 # set_target_properties(pump_core_test_fixture_reg PROPERTIES FOLDER "pump_core/test")
-
-add_executable(pump_core_test_fixture_dllso ${pump_core_INNER_PROJECT_ROOT_DIR}/test/pump_core_test_fixture_dllso.cpp)
-target_include_directories(pump_core_test_fixture_dllso PRIVATE ${pump_core_INNER_TEST_DEP_INC_DIRS})
-target_link_libraries(pump_core_test_fixture_dllso pump_core_dll ${pump_core_INNER_TEST_DEP_LIBS} ${pump_core_INNER_TEST_LINK_FLAG})
-target_compile_options(pump_core_test_fixture_dllso PRIVATE ${pump_core_INNER_TEST_COMPILE_FLAG})
-set_target_properties(pump_core_test_fixture_dllso PROPERTIES FOLDER "pump_core/test")
-
-add_executable(pump_core_test_fixture_thxpool ${pump_core_INNER_PROJECT_ROOT_DIR}/test/pump_core_test_fixture_thxpool.cpp)
-target_include_directories(pump_core_test_fixture_thxpool PRIVATE ${pump_core_INNER_TEST_DEP_INC_DIRS})
-target_link_libraries(pump_core_test_fixture_thxpool pump_core_dll ${pump_core_INNER_TEST_DEP_LIBS} ${pump_core_INNER_TEST_LINK_FLAG})
-target_compile_options(pump_core_test_fixture_thxpool PRIVATE ${pump_core_INNER_TEST_COMPILE_FLAG})
-set_target_properties(pump_core_test_fixture_thxpool PROPERTIES FOLDER "pump_core/test")

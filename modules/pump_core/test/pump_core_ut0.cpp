@@ -13,6 +13,8 @@
 #include "pump_core/pump_core_environment.h"
 #include "pump_test/pump_test.h"
 #include "pump_core/logger/__pump_core_inner_logger.h"
+#include "pump_core/pump_core_dllso.h"
+#include "pump_core/thread/pump_core_thread_pool.h"
 
 using namespace Pump;
 using namespace Pump::Core;
@@ -193,7 +195,7 @@ private:
         while (!m_bStop)
         {
             __PUMP_CORE_INFO("-------PUMP_CORE_INFO %d-------", PUMP_CORE_Thread_GetSelfId());
-            //PUMP_CORE_Sleep(300);
+            PUMP_CORE_Sleep(300);
         }
         return 0;
     }
@@ -201,6 +203,7 @@ private:
     pump_bool_t m_bStop;
 };
 
+#ifdef PUMP_CORE_HAVA_GLOG
 PTEST_C_CASE_DEF(UnitTestCase008, UnitTestScene000, )
 {
     PTEST_LOG(comment, "UnitTestCase008 test multi thread log <glog>");
@@ -217,13 +220,13 @@ PTEST_C_CASE_DEF(UnitTestCase008, UnitTestScene000, )
     PTEST_ASSERT((PUMP_CORE_LoggerConfig(hLog, &struLogCong) == PUMP_OK), "PUMP_CORE_LoggerConfig failed 3");
     PTEST_ASSERT((PUMP_CORE_InjectLocalLogger(hLog) == PUMP_OK), "PUMP_CORE_InjectLocalLogger failed 2");
     std::vector<CLogTestThread*> vecThx;
-    for (int i = 0; i < 1;++i)
+    for (int i = 0; i < 2;++i)
     {
         CLogTestThread * pthx = new CLogTestThread();
         pthx->Start();
         vecThx.push_back(pthx);
     }
-    PUMP_CORE_Sleep(10000);
+    PUMP_CORE_Sleep(3000);
     for (size_t i = 0; i<vecThx.size();++i)
     {
         vecThx[i]->Stop();
@@ -232,6 +235,7 @@ PTEST_C_CASE_DEF(UnitTestCase008, UnitTestScene000, )
     PTEST_ASSERT((PUMP_CORE_Cleanup() == PUMP_OK), "PUMP_CORE_Cleanup failed 1");
     return 0;
 }
+#endif // PUMP_CORE_HAVA_GLOG
 
 PTEST_C_CASE_DEF(UnitTestCase009, UnitTestScene000, )
 {
@@ -249,19 +253,56 @@ PTEST_C_CASE_DEF(UnitTestCase009, UnitTestScene000, )
     PTEST_ASSERT((PUMP_CORE_LoggerConfig(hLog, &struLogCong) == PUMP_OK), "PUMP_CORE_LoggerConfig failed 3");
     PTEST_ASSERT((PUMP_CORE_InjectLocalLogger(hLog) == PUMP_OK), "PUMP_CORE_InjectLocalLogger failed 2");
     std::vector<CLogTestThread*> vecThx;
-    for (int i = 0; i < 100; ++i)
+    for (int i = 0; i < 2; ++i)
     {
         CLogTestThread * pthx = new CLogTestThread();
         pthx->Start();
         vecThx.push_back(pthx);
     }
-    PUMP_CORE_Sleep(10000);
+    PUMP_CORE_Sleep(3000);
     for (size_t i = 0; i < vecThx.size(); ++i)
     {
         vecThx[i]->Stop();
         delete vecThx[i];
     }
     PTEST_ASSERT((PUMP_CORE_Cleanup() == PUMP_OK), "PUMP_CORE_Cleanup failed 1");
+    return 0;
+}
+
+typedef void(*fnTEST_API_Function1)();
+typedef void(*fnTEST_API_Function2)();
+
+PTEST_C_CASE_DEF(UnitTestCase010, UnitTestScene000, )
+{
+    PTEST_LOG(comment, "UnitTestCase010 test load dll");
+    pump_module_t hModule = PUMP_CORE_LoadDSo("E:/VMware/YZ/Pre-Research/dyanamic_load_dll/Debug/entry.dll");
+    PTEST_ASSERT((hModule != PUMP_INVALID_MODULE), "load failed");
+    fnTEST_API_Function1 pTEST_API_Function1 = (fnTEST_API_Function1)PUMP_CORE_GetDsoSym(hModule, "TEST_API_Function1");
+    fnTEST_API_Function2 pTEST_API_Function2 = (fnTEST_API_Function2)PUMP_CORE_GetDsoSym(hModule, "TEST_API_Function2");
+    PTEST_ASSERT(pTEST_API_Function1, "load TEST_API_Function1 failed");
+    pTEST_API_Function1();
+    PTEST_ASSERT(pTEST_API_Function2, "load pTEST_API_Function2 failed");
+    pTEST_API_Function2();
+    return 0;
+}
+
+pump_pvoid_t PUMP_CALLBACK My_ThreadPool_WorkRoutine(pump_pvoid_t pData)
+{
+    __PUMP_CORE_INFO("My_ThreadPool_WorkRoutine in", (int)pData);
+    return NULL;
+}
+
+PTEST_C_CASE_DEF(UnitTestCase011, UnitTestScene000, )
+{
+    PTEST_LOG(comment, "UnitTestCase011 test thread pool");
+    PUMP_CORE_InitThreadPool();
+    pump_handle_t hThxPool = PUMP_CORE_ThreadPool_Create(2, 10);
+    PTEST_ASSERT((hThxPool != PUMP_INVALID_THREADPOOL), "PUMP_CORE_ThreadPool_Create failed");
+    for (int i = 0; i < 10; i++)
+    {
+        PTEST_ASSERT((PUMP_CORE_ThreadPool_Work(hThxPool, My_ThreadPool_WorkRoutine, (void*)i)!=PUMP_ERROR)
+            , "PUMP_CORE_ThreadPool_Work failed");
+    }
     return 0;
 }
 
