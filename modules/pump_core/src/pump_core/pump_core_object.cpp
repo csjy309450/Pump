@@ -23,7 +23,7 @@ namespace Pump
 namespace Core
 {
 
-CObjectBase::CObjectBase(__CPrimitiveBase * pPrimitive)
+CObjectBase::CObjectBase(CPrimitiveBase * pPrimitive)
     : m_pPrimitive(pPrimitive) {}
 
 CObjectBase::CObjectBase()
@@ -32,9 +32,14 @@ CObjectBase::CObjectBase()
 
 }
 
+CObjectBase::CObjectBase(const CObjectBase& other)
+    : m_pPrimitive(other.m_pPrimitive)
+{
+
+}
+
 CObjectBase::~CObjectBase()
 {
-    delete m_pPrimitive;
 }
 
 }

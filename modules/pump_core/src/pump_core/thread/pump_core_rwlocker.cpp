@@ -15,14 +15,15 @@
  * </table>
  */
 
+#include "pump_macro/pump_pre.h"
 #include "pump_core/thread/pump_core_rwlocker.h"
-#ifdef __linux__
+#ifdef PUMP_OS_POSIX
 #include <unistd.h>
-#elif (defined _WIN32)
+#elif (defined PUMP_OS_WINDOWS)
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <synchapi.h>
-#endif // __linux__
+#endif // PUMP_OS_POSIX
 
 namespace Pump
 {

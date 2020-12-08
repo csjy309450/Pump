@@ -17,6 +17,7 @@
 
 #ifndef PUMP_CORE_CMDPARSE_HPP
 #define PUMP_CORE_CMDPARSE_HPP
+#include "pump_macro/pump_pre.h"
 #include <iostream>
 #include <sstream>
 #include <vector>
@@ -27,7 +28,6 @@
 #include <cstring>
 #include <algorithm>
 #include <cstdlib>
-#include "pump_macro/pump_pre.h"
 #include "pump_core/pump_core_api.h"
 
 namespace Pump

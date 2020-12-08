@@ -15,7 +15,7 @@
  * </table>
  */
 
-#include "pump_core\pumnp_core_statemachine.h"
+#include "pump_core/pump_core_statemachine.h"
 
 namespace Pump
 {

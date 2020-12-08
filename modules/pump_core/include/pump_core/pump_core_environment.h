@@ -143,6 +143,10 @@ public:
         std::string strOut;
         for (EnvVarItemType::const_iterator it = envItem->second.cbegin();;)
         {
+            if (envItem->second.empty())
+            {
+                break;
+            }
             strOut += (*it);
             if ((++it) != envItem->second.cend())
             {
@@ -217,7 +221,7 @@ public:
                 subPos = strValue.find(";", pos);
                 if (subPos == std::string::npos)
                 {
-                    envItem.insert(strValue);
+                    //envItem.insert(strValue);
                     break;
                 }
                 strVarItem = strValue.substr(pos, subPos - pos);

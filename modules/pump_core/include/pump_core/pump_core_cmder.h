@@ -23,8 +23,8 @@
 #include "pump_core/pump_core_pipe.h"
 #include "pump_core/thread/pump_core_thread.h"
 #include "pump_core/thread/pump_core_mutex.h"
-#include "pump_core/pumnp_core_statemachine.h"
-#include "pump_core/pump_core_global_mgr.h"
+#include "pump_core/pump_core_statemachine.h"
+//#include "pump_core/pump_core_global_ctrl_base.h"
 #include "pump_core/pump_core_uuid.h"
 
 namespace Pump
@@ -34,7 +34,8 @@ namespace Core
 namespace Cmder
 {
 
-class CCmdSessionMgr : public ::Pump::Core::CGlobalManagement
+class CCmdSessionMgr 
+    //: public ::Pump::Core::CGlobalCtrlBase
 {
 public:
     //void InsertCmdServer(const std::string & strCmdServerName)
@@ -74,7 +75,7 @@ private:
 };
 
 /* TODO 20200626 Need add "ctrl+c" cmd than interrupting running process.
-*/
+ */
 class PUMP_CORE_CLASS CCmderClient
 {
 public:

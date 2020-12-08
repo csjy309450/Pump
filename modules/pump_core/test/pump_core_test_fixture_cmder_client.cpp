@@ -101,9 +101,9 @@ int test_logger()
 {
     PUMP_CORE_LOG_CONF struLogCong;
     memset(&struLogCong, 0, sizeof(struLogCong));
-    struLogCong.szFilePath = "";
+    strcpy(struLogCong.szFilePath, "");
     struLogCong.emLogLevel = PUMP_LOG_INFO;
-    PUMP_CORE_InitLogger(&struLogCong);
+    //PUMP_CORE_InitLogger(&struLogCong);
     PUMP_CORE_INFO << "-------test begin-------";
     return  0;
 }

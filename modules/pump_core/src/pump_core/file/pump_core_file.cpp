@@ -119,10 +119,10 @@ ret_alloc:
 }
 
 /**
-* @brief Get file info from WIN32_FIND_DATA
-* @param (IN) WIN32_FIND_DATA *pFindData
-* @param (OUT) FILE_FIND_INFO *pFileInfo
-*/
+ * @brief Get file info from WIN32_FIND_DATA
+ * @param (IN) WIN32_FIND_DATA *pFindData
+ * @param (OUT) FILE_FIND_INFO *pFileInfo
+ */
 #if !(defined PUMP_OS_WINCE) && !(defined PUMP_OS_WINPHONE)
 void PUMP_CORE_Inner_FillFileInfo(WIN32_FIND_DATAA *pFindData, PUMP_FILEFIND_INFO *pFileInfo)
 {
@@ -177,10 +177,10 @@ void PUMP_CORE_Inner_FillFileInfo(WIN32_FIND_DATAW *pFindData, PUMP_FILEFIND_INF
 }
 
 /**
-* @brief To determine whether there is directory.
-* @param (IN) WIN32_FIND_DATA *pFindData
-* @param (OUT) FILE_FIND_INFO *pFileInfo
-*/
+ * @brief To determine whether there is directory.
+ * @param (IN) WIN32_FIND_DATA *pFindData
+ * @param (OUT) FILE_FIND_INFO *pFileInfo
+ */
 PUMP_CORE_API pump_bool_t PUMP_CALLBACK PUMP_CORE_DirIsExist(const char* szDir)
 {
     if (!szDir)
@@ -196,10 +196,10 @@ PUMP_CORE_API pump_bool_t PUMP_CALLBACK PUMP_CORE_DirIsExist(const char* szDir)
 }
 
 /**
-* @brief create directory.
-* @param szDir: directory to make.
-* @return if success return PUMP_OK, otherwise return PUMP_ERROR.
-*/
+ * @brief create directory.
+ * @param szDir: directory to make.
+ * @return if success return PUMP_OK, otherwise return PUMP_ERROR.
+ */
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_DirCreate(const char* szDir)
 {
     if (!szDir)
@@ -221,10 +221,10 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_DirCreate(const char* szDir)
 }
 
 /**
-* @brief remove directory.
-* @param szDir: remove directory.
-* @return if success return PUMP_OK, otherwise return PUMP_ERROR.
-*/
+ * @brief remove directory.
+ * @param szDir: remove directory.
+ * @return if success return PUMP_OK, otherwise return PUMP_ERROR.
+ */
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_DirDelete(const char* szDir)
 {
     if (!szDir)
@@ -245,24 +245,25 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_DirDelete(const char* szDir)
 }
 
 /**
-*   @brief open dir
-*   @param (IN) const char *szDirName dir path
-*   @return fail-PUMP_NULL, succ-dir handler
-*/
+ * @brief open dir
+ * @param (IN) const char *szDirName dir path
+ * @return fail-PUMP_NULL, succ-dir handler
+ */
 PUMP_CORE_API pump_handle_t PUMP_CALLBACK PUMP_CORE_DirOpen(const char *szDirName)
 {
     if (PUMP_NULL == szDirName)
     {
-        return PUMP_INVALID_HANLDE;
+        return PUMP_INVALID_HANDLE;
     }
 
     int iDirLen = (int)::strlen(szDirName);
     PUMP_DIR_INFO *szDirInfo = PUMP_CORE_Inner_AllocDirInfo(iDirLen + 3);
     if (PUMP_NULL == szDirInfo)
     {
-        return PUMP_INVALID_HANLDE;
+        return PUMP_INVALID_HANDLE;
     }
 
+    // init szDirInfo
     szDirInfo->hFindHandle = INVALID_HANDLE_VALUE;
     szDirInfo->bFirst = false;
 
@@ -280,7 +281,7 @@ PUMP_CORE_API pump_handle_t PUMP_CALLBACK PUMP_CORE_DirOpen(const char *szDirNam
     if (PUMP_CORE_DirFindFile((pump_handle_t)szDirInfo, PUMP_NULL) != PUMP_OK)
     {
         PUMP_CORE_Inner_FreeDirInfo(szDirInfo);
-        return PUMP_INVALID_HANLDE;
+        return PUMP_INVALID_HANDLE;
     }
 
     return (pump_handle_t)szDirInfo;
@@ -288,7 +289,7 @@ PUMP_CORE_API pump_handle_t PUMP_CALLBACK PUMP_CORE_DirOpen(const char *szDirNam
 
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_DirFindFile(pump_handle_t hDir, PUMP_FILEFIND_INFO *pFileInfo)
 {
-    if (PUMP_INVALID_HANLDE == hDir)
+    if (PUMP_INVALID_HANDLE == hDir)
     {
         return PUMP_ERROR;
     }
@@ -351,13 +352,13 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_DirFindFile(pump_handle_t hDi
 }
 
 /**
-* @brief close dir hander
-* @param (IN) pump_handle_t hDir dir hander
-* @return fail-PUMP_ERROR，succ-PUMP_OK
-*/
+ * @brief close dir hander
+ * @param (IN) pump_handle_t hDir dir hander
+ * @return fail-PUMP_ERROR, succ-PUMP_OK
+ */
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_DirClose(pump_handle_t hDir)
 {
-    if (PUMP_INVALID_HANLDE == hDir)
+    if (PUMP_INVALID_HANDLE == hDir)
     {
         return PUMP_ERROR;
     }
@@ -372,14 +373,14 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_DirClose(pump_handle_t hDir)
 //////////////////////////////////////////////////////////////////////////
 
 /**
-* Function:	PUMP_CORE_FileOpen
-* Desc:		open file in user asked mode.
-* Input:		@param pFileName: file name, abs name | relative name.
-@param nFlag: open flag, can be composed by (|) operation
-@param nFileAttr: file attr, if file exist, this param will be ignored.
-* Output:
-* Return:		if success return PUMP_FILE_HANDLE, otherwise return PUMP_FILE_INVALID_HANDLE.
-* */
+ * Function:    PUMP_CORE_FileOpen
+ * Desc:        open file in user asked mode.
+ * Input:        @param pFileName: file name, abs name | relative name.
+ * @param nFlag: open flag, can be composed by (|) operation
+ * @param nFileAttr: file attr, if file exist, this param will be ignored.
+ * Output:
+ * Return:        if success return PUMP_FILE_HANDLE, otherwise return PUMP_FILE_INVALID_HANDLE.
+ */
 PUMP_CORE_API pump_handle_t PUMP_CALLBACK PUMP_CORE_FileOpen(const char* pFileName, pump_uint32_t nFlag, pump_uint32_t nFileAttr)
 {
     HANDLE hFile = INVALID_HANDLE_VALUE;
@@ -408,7 +409,7 @@ PUMP_CORE_API pump_handle_t PUMP_CALLBACK PUMP_CORE_FileOpen(const char* pFileNa
     }
     //if (nFlag & PUMP_DIRECT)
     //{
-    //	dwCreateFlag |= FILE_FLAG_NO_BUFFERING;
+    //    dwCreateFlag |= FILE_FLAG_NO_BUFFERING;
     //}
 
     ///get file open mode
@@ -494,12 +495,12 @@ PUMP_CORE_API pump_handle_t PUMP_CALLBACK PUMP_CORE_FileOpen(const char* pFileNa
 }
 
 /**
-* Function:	PUMP_CORE_FileClose
-* Desc:		close file
-* Input:		@param hFile: file handle to close, file handle is return by PUMP_CORE_FileOpen
-* Output:
-* Return:		if success return PUMP_OK, otherwise return PUMP_ERROR.
-* */
+ * Function:    PUMP_CORE_FileClose
+ * Desc:        close file
+ * Input:        @param hFile: file handle to close, file handle is return by PUMP_CORE_FileOpen
+ * Output:
+ * Return:        if success return PUMP_OK, otherwise return PUMP_ERROR.
+ * */
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_FileClose(pump_handle_t hFile)
 {
     if (hFile == PUMP_INVALID_FILE)
@@ -516,12 +517,12 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_FileClose(pump_handle_t hFile
 }
 
 /**
-* Function:	PUMP_CORE_FileDelete
-* Desc:		delete file
-* Input:		@param pFileName: name of file to delete.
-* Output:
-* Return:		if success return PUMP_OK, otherwise return PUMP_ERROR.
-* */
+ * Function:    PUMP_CORE_FileDelete
+ * Desc:        delete file
+ * Input:        @param pFileName: name of file to delete.
+ * Output:
+ * Return:        if success return PUMP_OK, otherwise return PUMP_ERROR.
+ * */
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_FileDelete(const char* pFileName)
 {
     if (!pFileName)
@@ -539,14 +540,14 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_FileDelete(const char* pFileN
 }
 
 /**
-* Function:	PUMP_CORE_FileRead
-* Desc:		read data from file opened.
-* Input:		@param hFile: file handle
-@param nNumberOfBytesToRead: number bytes to read.
-* Output:		@param pBuf: memory to store readed data.
-@param pNumberOfBytesRead: number of bytes read.
-* Return:		if success return PUMP_OK, otherwise return PUMP_ERROR.
-* */
+ * Function:    PUMP_CORE_FileRead
+ * Desc:        read data from file opened.
+ * Input:        @param hFile: file handle
+ * @param nNumberOfBytesToRead: number bytes to read.
+ * Output:        @param pBuf: memory to store readed data.
+ * @param pNumberOfBytesRead: number of bytes read.
+ * Return:        if success return PUMP_OK, otherwise return PUMP_ERROR.
+ */
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_FileRead(pump_handle_t hFile, pump_pvoid_t pBuf, pump_uint32_t nNumberOfBytesToRead, pump_uint32_t* pNumberOfBytesRead)
 {
     DWORD dwNumberOfBytesRead = 0;
@@ -570,14 +571,14 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_FileRead(pump_handle_t hFile,
 }
 
 /**
-* Function:	PUMP_CORE_FileWrite
-* Desc:		write data to file
-* Input:		@param hFile: file handle open by PUMP_CORE_FileOpen.
+ * Function:    PUMP_CORE_FileWrite
+ * Desc:        write data to file
+ * Input:        @param hFile: file handle open by PUMP_CORE_FileOpen.
 @param pBuf: buf to store write data.
 @param nNumberOfBytesToWrite:number of byte to write.
-* Output:		@param pNumberOfBytesWrite: number of byte wrote.
-* Return:		if success return PUMP_OK, otherwise return PUMP_ERROR.
-* */
+ * Output:        @param pNumberOfBytesWrite: number of byte wrote.
+ * Return:        if success return PUMP_OK, otherwise return PUMP_ERROR.
+ * */
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_FileWrite(pump_handle_t hFile, const pump_pvoid_t pBuf, pump_uint32_t nNumberOfBytesToWrite, pump_uint32_t* pNumberOfBytesWrite)
 {
     DWORD dwNumberOfBytesRead = 0;
@@ -601,14 +602,14 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_FileWrite(pump_handle_t hFile
 }
 
 /**
-* Function:	PUMP_CORE_FileSeek
-* Desc:		seek to file pos.
-* Input:		@param hFile: file handle opened by the PUMP_CORE_FileOpen.
+ * Function:    PUMP_CORE_FileSeek
+ * Desc:        seek to file pos.
+ * Input:        @param hFile: file handle opened by the PUMP_CORE_FileOpen.
 @param iOffset: offst over the base .
 @param nWhence: the base of the seek.
-* Output:		@param iCurOffset: current file point pos.
-* Return:		if success return PUMP_OK, otherwise return PUMP_ERROR.
-* */
+ * Output:        @param iCurOffset: current file point pos.
+ * Return:        if success return PUMP_OK, otherwise return PUMP_ERROR.
+ * */
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_FileSeek(pump_handle_t hFile, pump_int64_t iOffset, pump_uint32_t nWhence, pump_int64_t* iCurOffset)
 {
     LARGE_INTEGER lInt;
@@ -636,15 +637,14 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_FileSeek(pump_handle_t hFile,
 }
 
 /**
-* Function:	PUMP_CORE_FileIsEOF
-* Desc:		judge if file if end.
-* Input:		@param hFile: file handle opened by PUMP_CORE_FileOpen.
-* Output:
-* Return:		if success return PUMP_TRUE, otherwise return PUMP_FALSE.
-* */
+ * Function:    PUMP_CORE_FileIsEOF
+ * Desc:        judge if file if end.
+ * Input:        @param hFile: file handle opened by PUMP_CORE_FileOpen.
+ * Output:
+ * Return:        if success return PUMP_TRUE, otherwise return PUMP_FALSE.
+ * */
 PUMP_CORE_API pump_bool_t PUMP_CALLBACK PUMP_CORE_FileIsEOF(pump_handle_t hFile)
 {
-    //是否有同步问题
     if (hFile != PUMP_INVALID_FILE)
     {
         return (ERROR_HANDLE_EOF == PUMP_CORE_GetSystemError()) ? PUMP_TRUE : PUMP_FALSE;
@@ -654,12 +654,12 @@ PUMP_CORE_API pump_bool_t PUMP_CALLBACK PUMP_CORE_FileIsEOF(pump_handle_t hFile)
 }
 
 /**
-* Function:	PUMP_CORE_FileStat
-* Desc:		statistic the file information.
-* Input:		@param hFile: file handle opened by PUMP_CORE_FileOpen.
-* Output:		@param pInfo: file info.
-* Return:		if success return PUMP_OK, otherwise return PUMP_ERROR.
-* */
+ * Function:    PUMP_CORE_FileStat
+ * Desc:        statistic the file information.
+ * Input:        @param hFile: file handle opened by PUMP_CORE_FileOpen.
+ * Output:        @param pInfo: file info.
+ * Return:        if success return PUMP_OK, otherwise return PUMP_ERROR.
+ * */
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_FileStat(pump_handle_t hFile, PUMP_FINFO* pFInfo)
 {
     pump_int32_t iRet1 = PUMP_ERROR;
@@ -793,12 +793,12 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_FileStat(pump_handle_t hFile,
 }
 
 /**
-Function:	PUMP_CORE_FileFlush
-Desc:		flush data to file
-Input:		hFile;
-Output:
-Return:		0-succ, -1-fail
-*/
+ * Function:    PUMP_CORE_FileFlush
+ * Desc:        flush data to file
+ * Input:        hFile;
+ * Output:
+ * Return:        0-succ, -1-fail
+ */
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_FileFlush(pump_handle_t hFile)
 {
     return ::FlushFileBuffers(hFile) ? PUMP_OK : PUMP_ERROR;

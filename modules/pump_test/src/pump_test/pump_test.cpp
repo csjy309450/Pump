@@ -1,4 +1,4 @@
-#include "pump_test/pump_test_def.h"
+#include "pump_test/pump_test.h"
 #include <cstdarg>
 
 namespace Pump
@@ -45,11 +45,21 @@ void CGlobalTestSceneMgr::OutPut(const char* pFormat, ...)
 
 int CGlobalTestSceneMgr::Run()
 {
+    PTEST_Printf(\
+        "********************************\n" \
+        "* Test Begin\n" \
+        "********************************\n" \
+        );
     for (std::list<CTestSceneBase*>::iterator it = m_listTestScene.begin();
         it != m_listTestScene.end(); ++it)
     {
         (*it)->Run();
     }
+    PTEST_Printf(\
+        "********************************\n" \
+        "* Test End\n" \
+        "********************************\n" \
+        );
     return 0;
 }
 
@@ -69,18 +79,41 @@ CGlobalTestSceneMgr * CGlobalTestSceneMgr::GetGlobalTestMgr()
 
 CTestSceneBase * CTestSceneBase::s_pThis = NULL;
 
-CTestSceneBase::CTestSceneBase()
+CTestSceneBase::CTestSceneBase(const char* pTestSceneId)
+    : m_pTestSceneId(pTestSceneId)
 {
     CGlobalTestSceneMgr::GetGlobalTestMgr()->RegisterTestScene(this);
 }
 
+int CTestSceneBase::Init()
+{
+    return 0;
+}
+
+int CTestSceneBase::Cleanup()
+{
+    return 0;
+}
+
 int CTestSceneBase::Run()
 {
+    if (Init()==-1)
+    {
+        PTEST_Printf("#TestScene %s Init failed\n", m_pTestSceneId);
+        return -1;
+    }
+    PTEST_Printf("#TestScene %s Init succed\n", m_pTestSceneId);
     for (std::list<CTestCaseBase*>::iterator it = m_listTestCase.begin();
         it != m_listTestCase.end(); ++it)
     {
         (*it)->Run(this);
     }
+    if (Cleanup() == -1)
+    {
+        PTEST_Printf("#TestScene %s Cleanup failed\n", m_pTestSceneId);
+        return -1;
+    }
+    PTEST_Printf("#TestScene %s Cleanup succed\n", m_pTestSceneId);
     return 0;
 }
 
@@ -94,8 +127,24 @@ CTestCaseBase::CTestCaseBase(const char* pTestCaseId)
 
 CTestCaseBase::~CTestCaseBase() {}
 
+int CTestCaseBase::Init()
+{
+    return 0;
+}
+
+int CTestCaseBase::Cleanup()
+{
+    return 0;
+}
+
 int CTestCaseBase::Run(CTestSceneBase * pScene)
 {
+    if (Init() == -1)
+    {
+        PTEST_Printf("#CTestCase %s Init failed\n", m_pTestCaseId);
+        return -1;
+    }
+    PTEST_Printf("#CTestCase %s Init succed\n", m_pTestCaseId);
     PTEST_Printf("{\n  \"test_case\": \"%s\",\n", m_pTestCaseId);
     int ret = (*this)(pScene);
     if (ret == -1) {
@@ -105,6 +154,12 @@ int CTestCaseBase::Run(CTestSceneBase * pScene)
         PTEST_Printf("%s", "  \"result\": \"succed\"\n","");
     }
     PTEST_Printf("%s", "}\n");
+    if (Cleanup() == -1)
+    {
+        PTEST_Printf("#CTestCase %s Cleanup failed\n", m_pTestCaseId);
+        return -1;
+    }
+    PTEST_Printf("#CTestCase %s Cleanup succed\n", m_pTestCaseId);
     return ret;
 }
 

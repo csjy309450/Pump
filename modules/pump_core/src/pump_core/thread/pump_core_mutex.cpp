@@ -23,6 +23,133 @@
 #include <boost/atomic.hpp>
 #include <boost/shared_ptr.hpp>
 
+PUMP_CORE_API pump_int32_t PUMP_CORE_MutexCreate(pump_mutex_t* pMutex, pump_int32_t nFlag)
+{
+#if (defined PUMP_OS_WINDOWS)
+    __try
+    {
+#if defined PUMP_OS_WINPHONE
+        InitializeCriticalSectionEx(pMutex, 4000, 0);
+#else
+        InitializeCriticalSection(pMutex);
+#endif
+    }
+    __except(GetExceptionCode() == STATUS_NO_MEMORY)
+    {
+        return PUMP_ERROR;
+    }
+
+    return PUMP_OK;
+#elif (defined PUMP_OS_POSIX)
+    if (!pMutex)
+    {
+        return PUMP_ERROR;
+    }
+
+    pthread_mutexattr_t attr;
+    pthread_mutexattr_init(&attr);
+
+    if (nFlag != -1)
+    {
+        pthread_mutexattr_settype(&attr, nFlag);
+    }
+    else
+    {
+        pthread_mutexattr_settype(&attr, PUMP_MUTEX_RECURSIVE);
+    }
+
+    //pthread_mutex_init always return 0
+    pthread_mutex_init(pMutex, &attr);
+    pthread_mutexattr_destroy(&attr);
+
+    return PUMP_OK;
+#endif // (defined PUMP_OS_POSIX)
+}
+
+PUMP_CORE_API pump_int32_t PUMP_CORE_MutexDestroy(pump_mutex_t* pMutex)
+{
+#if (defined PUMP_OS_WINDOWS)
+    if ( !pMutex )
+    {
+        return PUMP_ERROR;
+    }
+
+    DeleteCriticalSection(pMutex);
+    return PUMP_OK;
+#elif (defined PUMP_OS_POSIX)
+    if (!pMutex)
+    {
+        return PUMP_ERROR;
+    }
+
+    return pthread_mutex_destroy(pMutex) == 0 ? PUMP_OK : PUMP_ERROR;
+#endif // (defined PUMP_OS_POSIX)
+}
+
+PUMP_CORE_API pump_int32_t PUMP_CORE_MutexLock(pump_mutex_t* pMutex)
+{
+#if (defined PUMP_OS_WINDOWS)
+    if (!pMutex)
+    {
+        return PUMP_ERROR;
+    }
+
+    EnterCriticalSection(pMutex);
+    return PUMP_OK;
+#elif (defined PUMP_OS_POSIX)
+    if (!pMutex)
+    {
+        return PUMP_ERROR;
+    }
+
+    return pthread_mutex_lock(pMutex) == 0 ? PUMP_OK : PUMP_ERROR;
+#endif // (defined PUMP_OS_POSIX)
+}
+
+PUMP_CORE_API pump_int32_t PUMP_CORE_MutexTryLock(pump_mutex_t* pMutex)
+{
+#if (defined PUMP_OS_WINDOWS)
+#   if (defined(WIN32) && _WIN32_WINNT >= 0x0500)
+
+    if (!pMutex)
+    {
+        return PUMP_ERROR;
+    }
+
+    return (TryEnterCriticalSection(pMutex)) ? PUMP_OK : PUMP_ERROR;
+#   else
+    return PUMP_ERROR;
+#   endif
+#elif (defined PUMP_OS_POSIX)
+    if (!pMutex)
+    {
+        return PUMP_ERROR;
+    }
+
+    return pthread_mutex_trylock(pMutex) == 0 ? PUMP_OK : PUMP_ERROR;
+#endif // (defined PUMP_OS_POSIX)
+}
+
+PUMP_CORE_API pump_int32_t PUMP_CORE_MutexUnlock(pump_mutex_t* pMutex)
+{
+#if (defined PUMP_OS_WINDOWS)
+    if ( !pMutex )
+    {
+        return PUMP_ERROR;
+    }
+
+    LeaveCriticalSection(pMutex);
+    return PUMP_OK;
+#elif (defined PUMP_OS_POSIX)
+    if (!pMutex)
+    {
+        return PUMP_ERROR;
+    }
+
+    return pthread_mutex_unlock(pMutex) == 0 ? PUMP_OK : PUMP_ERROR;
+#endif // (defined PUMP_OS_POSIX)
+}
+
 namespace Pump
 {
 namespace Core
@@ -30,14 +157,72 @@ namespace Core
 namespace Thread
 {
 class CMutexPrimitive
-    : public __CPrimitiveBase
+    : public CPrimitiveBase
 {
 public:
+    virtual void Lock() = 0;
+    virtual bool TryLock() = 0;
+    virtual void Unlock() = 0;
+};
+
+#ifdef PUMP_CORE_HAVE_BOOST
+class CBoostMutexPrimitive
+    : public CPrimitiveBase
+{
+public:
+    CBoostMutexPrimitive() : CPrimitiveBase(), m_mux() {}
+    virtual void Lock()
+    {
+        m_mux.lock();
+    }
+    virtual bool TryLock()
+    {
+        return m_mux.try_lock();
+    }
+    virtual void Unlock()
+    {
+        m_mux.unlock();
+    }
+private:
     boost::mutex m_mux;
+};
+#endif // PUMP_CORE_HAVE_BOOST
+
+class CBuildinMutexPrimitive
+    : public CPrimitiveBase
+{
+public:
+    CBuildinMutexPrimitive() 
+        : CPrimitiveBase() 
+    {
+       pump_int32_t ret = PUMP_CORE_MutexCreate(&m_mux);
+    }
+    virtual ~CBuildinMutexPrimitive()
+    {
+        PUMP_CORE_MutexDestroy(&m_mux);
+    }
+    virtual void Lock()
+    {
+        PUMP_CORE_MutexLock(&m_mux);
+    }
+    virtual bool TryLock()
+    {
+        return (PUMP_CORE_MutexTryLock(&m_mux) == PUMP_OK ? true : false);
+    }
+    virtual void Unlock()
+    {
+        PUMP_CORE_MutexUnlock(&m_mux);
+    }
+private:
+    pump_mutex_t m_mux;
 };
 
 CMutex::CMutex()
-    : CObjectBase(new CMutexPrimitive())
+#ifdef PUMP_CORE_HAVE_BOOST
+    : CObjectBase(new(std::nothrow) CBoostMutexPrimitive())
+#else
+    : CObjectBase(new(std::nothrow) CBuildinMutexPrimitive())
+#endif // PUMP_CORE_HAVE_BOOST
 {
     
 }
@@ -53,8 +238,8 @@ void CMutex::Lock()
     {
         assert(1 == 0);
     }
-    CMutexPrimitive * primitive = dynamic_cast<CMutexPrimitive*>(m_pPrimitive);
-    primitive->m_mux.lock();
+    CMutexPrimitive * primitive = static_cast<CMutexPrimitive*>(m_pPrimitive);
+    primitive->Lock();
 }
 
 bool CMutex::TryLock()
@@ -63,8 +248,8 @@ bool CMutex::TryLock()
     {
         assert(1 == 0);
     }
-    CMutexPrimitive * primitive = dynamic_cast<CMutexPrimitive*>(m_pPrimitive);
-    return primitive->m_mux.try_lock();
+    CMutexPrimitive * primitive = static_cast<CMutexPrimitive*>(m_pPrimitive);
+    return primitive->TryLock();
 }
 
 void CMutex::Unlock()
@@ -73,8 +258,8 @@ void CMutex::Unlock()
     {
         assert(1 == 0);
     }
-    CMutexPrimitive * primitive = dynamic_cast<CMutexPrimitive*>(m_pPrimitive);
-    return primitive->m_mux.unlock();
+    CMutexPrimitive * primitive = static_cast<CMutexPrimitive*>(m_pPrimitive);
+    return primitive->Unlock();
 }
 
 CMutexGuilder::CMutexGuilder(CMutex & locker)

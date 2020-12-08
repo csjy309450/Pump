@@ -19,6 +19,13 @@
 #define PUMP_CORE_CONFIG_H
 #include "pump_macro/pump_pre.h"
 
+/////////////////////////////////////////////////////////////////////////////////
+// User Compile Config
+/////////////////////////////////////////////////////////////////////////////////
+#ifdef PUMP_CORE_HAVA_GLOG
+#define PUMP_USING_GLOG
+#endif // PUMP_HAS_GLOG
+
 #ifdef PUMP_COMPILER_CXX
 #   define PUMP_EXTERNC_FLAG extern "C"
 #else
@@ -42,7 +49,7 @@
 #           define PUMP_CORE_CXXAPI PUMP_CORE_EXP
 #           define PUMP_CORE_CLASS  
 #   else
-#       error OS not support!
+#       error os not supported.
 #   endif // PUMP_OS_WINDOWS
 #elif defined PUMP_CORE_USING_DLL
 #   ifdef PUMP_OS_WINDOWS
@@ -62,7 +69,7 @@
 #           define PUMP_CORE_CXXAPI PUMP_CORE_EXP
 #           define PUMP_CORE_CLASS  
 #   else
-#       error OS not support!
+#       error os not supported.
 #   endif // PUMP_OS_WINDOWS
 #elif defined PUMP_CORE_BUILD_SLL
 #   ifdef PUMP_OS_WINDOWS
@@ -82,7 +89,7 @@
 #           define PUMP_CORE_CXXAPI PUMP_CORE_EXP
 #           define PUMP_CORE_CLASS  
 #   else
-#       error OS not support!
+#       error os not supported.
 #   endif // PUMP_OS_WINDOWS
 #elif defined PUMP_CORE_USING_SLL
 #   ifdef PUMP_OS_WINDOWS
@@ -102,10 +109,10 @@
 #           define PUMP_CORE_CXXAPI PUMP_CORE_EXP
 #           define PUMP_CORE_CLASS  
 #   else
-#       error OS not support!
+#       error os not supported.
 #   endif // PUMP_OS_WINDOWS
 #else
-#   error must be one of {PUMP_CORE_BUILD_DLL, PUMP_CORE_USING_DLL, PUMP_CORE_BUILD_SLL, PUMP_CORE_USING_SLL}
+#   error must be one of { PUMP_CORE_BUILD_DLL, PUMP_CORE_USING_DLL, PUMP_CORE_BUILD_SLL, PUMP_CORE_USING_SLL }
 #endif // PUMP_CORE_BUILD_DLL
 
 //#define PUMP_TEMP_EXP(class_,temp_arg_) template class PUMP_CORE_CLASS class_ temp_arg_;

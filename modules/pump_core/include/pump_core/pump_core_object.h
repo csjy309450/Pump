@@ -17,6 +17,7 @@
 
 #ifndef PUMP_CORE_OBJCET_H
 #define PUMP_CORE_OBJCET_H
+#include "pump_macro/pump_pre.h"
 #include "pump_core/pump_core_config.h"
 #include "pump_core/pump_core_types.h"
 #include "pump_core/pump_core_noncopyable.h"
@@ -62,23 +63,31 @@ public:
     CPumpNull() : CPumpObjectBase() {}
 };
 
-class PUMP_CORE_CLASS __CPrimitiveBase
+class PUMP_CORE_CLASS CPrimitiveBase
     : public Pump::Core::CNonCopyable
 {
 public:
-    __CPrimitiveBase() {}
-    virtual ~__CPrimitiveBase() {}
+    CPrimitiveBase() {}
+    virtual ~CPrimitiveBase() {}
 };
 
 class PUMP_CORE_CLASS CObjectBase
 {
 public:
-    CObjectBase(__CPrimitiveBase * pPrimitive);
-    virtual ~CObjectBase();
-private:
     CObjectBase();
+    CObjectBase(const CObjectBase& other);
+    explicit CObjectBase(CPrimitiveBase * pPrimitive);
+    virtual ~CObjectBase();
 protected:
-    __CPrimitiveBase * m_pPrimitive;
+    CPrimitiveBase * m_pPrimitive; ///< pointer to primitive, but must not free. [Not Owner]
+};
+
+class PUMP_CORE_CLASS CObjectMgrBase
+    : public Pump::Core::CNonCopyable
+{
+public:
+    CObjectMgrBase() {}
+    virtual ~CObjectMgrBase() {}
 };
 
 }

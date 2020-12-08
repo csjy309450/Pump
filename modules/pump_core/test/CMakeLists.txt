@@ -19,23 +19,23 @@ endif()
 set(pump_core_INNER_TEST_COMPILE_FLAG ${pump_core_INNER_TEST_COMPILE_FLAG}
         -DPUMP_CORE_USING_DLL)
 
-add_executable(pump_core_test_fixture_0 ${pump_core_INNER_PROJECT_ROOT_DIR}/test/pump_core_test_fixture_0.cpp)
-target_include_directories(pump_core_test_fixture_0 PRIVATE ${pump_core_INNER_TEST_DEP_INC_DIRS})
-target_link_libraries(pump_core_test_fixture_0 pump_core_dll ${pump_core_INNER_TEST_DEP_LIBS} ${pump_core_INNER_TEST_LINK_FLAG})
-target_compile_options(pump_core_test_fixture_0 PRIVATE ${pump_core_INNER_TEST_COMPILE_FLAG})
-set_target_properties(pump_core_test_fixture_0 PROPERTIES FOLDER "pump_core/test")
+add_executable(pump_core_ut0 ${pump_core_INNER_PROJECT_ROOT_DIR}/test/pump_core_ut0.cpp)
+target_include_directories(pump_core_ut0 PRIVATE ${pump_core_INNER_TEST_DEP_INC_DIRS})
+target_link_libraries(pump_core_ut0 pump_core_dll ${pump_core_INNER_TEST_DEP_LIBS} ${pump_core_INNER_TEST_LINK_FLAG})
+target_compile_options(pump_core_ut0 PRIVATE ${pump_core_INNER_TEST_COMPILE_FLAG})
+set_target_properties(pump_core_ut0 PROPERTIES FOLDER "pump_core/test")
 
-add_executable(pump_core_test_fixture_1 
-    ${pump_core_INNER_PROJECT_ROOT_DIR}/test/pump_core_test_fixture_1.cpp
+add_executable(pump_core_ut1 
+    ${pump_core_INNER_PROJECT_ROOT_DIR}/test/pump_core_ut1.cpp
     ${pump_core_INNER_PROJECT_ROOT_DIR}/test/async_pipe_server_thread.h
     ${pump_core_INNER_PROJECT_ROOT_DIR}/test/async_pipe_server_thread.cpp
     ${pump_core_INNER_PROJECT_ROOT_DIR}/test/async_pipe_server_recv_thread.h
     ${pump_core_INNER_PROJECT_ROOT_DIR}/test/async_pipe_server_recv_thread.cpp
     )
-target_include_directories(pump_core_test_fixture_1 PRIVATE ${pump_core_INNER_TEST_DEP_INC_DIRS})
-target_link_libraries(pump_core_test_fixture_1 pump_core_dll ${pump_core_INNER_TEST_DEP_LIBS} ${pump_core_INNER_TEST_LINK_FLAG})
-target_compile_options(pump_core_test_fixture_1 PRIVATE ${pump_core_INNER_TEST_COMPILE_FLAG})
-set_target_properties(pump_core_test_fixture_1 PROPERTIES FOLDER "pump_core/test")
+target_include_directories(pump_core_ut1 PRIVATE ${pump_core_INNER_TEST_DEP_INC_DIRS})
+target_link_libraries(pump_core_ut1 pump_core_dll ${pump_core_INNER_TEST_DEP_LIBS} ${pump_core_INNER_TEST_LINK_FLAG})
+target_compile_options(pump_core_ut1 PRIVATE ${pump_core_INNER_TEST_COMPILE_FLAG})
+set_target_properties(pump_core_ut1 PROPERTIES FOLDER "pump_core/test")
 
 add_executable(pump_core_test_fixture_tcp_server ${pump_core_INNER_PROJECT_ROOT_DIR}/test/pump_core_test_fixture_tcp_server.cpp)
 target_include_directories(pump_core_test_fixture_tcp_server PRIVATE ${pump_core_INNER_TEST_DEP_INC_DIRS})
