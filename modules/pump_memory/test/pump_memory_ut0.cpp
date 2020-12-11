@@ -24,6 +24,8 @@
 #include "pump_memory/smart_ptr/voidwptr.hpp"
 #include "pump_memory/smart_ptr/sharedptr.hpp"
 #include "pump_memory/smart_ptr/weakptr.hpp"
+#include "pump_memory/trie.hpp"
+#include "pump_memory/smart_buffer/smart_buffer.h"
 #include "pump_test/pump_test.h"
 
 using namespace std;
@@ -335,6 +337,46 @@ PTEST_C_CASE_DEF(PumpMemoryUnitTestCase010, PumpMemoryUnitTestScene000, )
     PTEST_ASSERT(wp_0.expired(), "[ ERROR ] 1-1");
     wp_0 = sp_0;
     PTEST_ASSERT(!wp_0.expired(), "[ ERROR ] 1-2");
+    return 0;
+}
+
+PTEST_C_CASE_DEF(PumpMemoryUnitTestCase011, PumpMemoryUnitTestScene000, )
+{
+    PTEST_LOG(comment, "PumpMemoryUnitTestCase011 test_trie");
+    trie<int> t;
+    //∞—µ•¥  ‰»Î◊÷µ‰ ˜
+    t.insert("proc/pid/mem", 10298);
+    t.insert("proc/pid/meminfo", 2);
+    t.insert("proc/pid/smaps", 3);
+    t.insert("proc/pid/maps", 41);
+    PTEST_LOG(log, "----print tree elements----");
+    t.print_all();
+    //≤È’“≤‚ ‘
+    PTEST_LOG(log, "---search test---");
+    trie<int>::iterator it1 = t.find("proc/pid/mem");
+    PTEST_ASSERT(!it1.is_null(), "unexist \"proc/pid/mem\"");
+    PUMP_CORE_INFO("exist \"proc/pid/mem\" , elem: %d", (*it1).elem);
+
+    trie<int>::iterator it2 = t.find("proc/pid/maps");
+    PTEST_ASSERT(!it2.is_null(), "unexist \"proc/pid/maps\"");
+    PUMP_CORE_INFO("exist \"proc/pid/maps\", elem: %d", (*it2).elem);
+
+    PTEST_LOG(log, "----delete test----");
+    bool isDel = t.remove("proc/pid/mem");
+    PTEST_ASSERT(isDel, "delete \"proc/pid/mem\" failed");
+    PTEST_LOG(log, "----print tree elements----");
+    t.print_all();
+    PTEST_LOG(log, "----print all \"proc/pid/s*\"----");
+    t.print_pre("proc/pid/s");
+    return 0;
+}
+
+PTEST_C_CASE_DEF(PumpMemoryUnitTestCase012, PumpMemoryUnitTestScene000, )
+{
+    PTEST_LOG(comment, "PumpMemoryUnitTestCase012 test_smart_buffer");
+    const char * szMsg = "AAAAAAAAAAAAAAAAAAAAAAAAA";
+    smart_buffer<char> buf(8, NULL);
+    buf.append(szMsg, strlen(szMsg));
     return 0;
 }
 
