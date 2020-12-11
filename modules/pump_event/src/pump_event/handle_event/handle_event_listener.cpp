@@ -125,7 +125,7 @@ int CHandleEventListener::listen(PUMP_ARG_IN void *pArgIn,
                              PUMP_ARG_IN size_t dwSizeIn)
 {
 #ifdef _TEST_LEVEL_INFO
-    PUMP_CORE_INFO << "fd_event_listener::listen() in";
+    PUMP_CORE_INFO("fd_event_listener::listen() in");
 #endif // _TEST_LEVEL_INFO
     // 1.构造::Pump::Core::Net::CFdRetList对象,用于获取发生事件的fd
     ::Pump::Core::Net::CFdRetList fdRetList;
@@ -140,14 +140,14 @@ int CHandleEventListener::listen(PUMP_ARG_IN void *pArgIn,
     if (ret == -1)
     {
 #ifdef _TEST_LEVEL_INFO
-        PUMP_CORE_INFO << "__CMultiplexBackend::wait() fail";
+        PUMP_CORE_INFO("__CMultiplexBackend::wait() fail");
 #endif // _TEST_LEVEL_INFO
     } 
     else 
     {
         // TODO 添加返回处理
 #ifdef _TEST_LEVEL_INFO
-        PUMP_CORE_INFO << "__CMultiplexBackend::wait() succ fd_event(" << ret << ")";
+        PUMP_CORE_INFO("__CMultiplexBackend::wait() succ fd_event(%d)",ret);
 #endif // _TEST_LEVEL_INFO
         
         // 3.遍历发生事件的fd, 激活其对应的事件对象,并根据事件类型投递到对应的事件管理容器
@@ -171,7 +171,7 @@ int CHandleEventListener::listen(PUMP_ARG_IN void *pArgIn,
             {
                 /* TODO: 未找到fd 或 fd不匹配 */
 #ifdef _TEST_LEVEL_INFO
-                PUMP_CORE_INFO << "error: 未找到fd 或 fd不匹配";
+                PUMP_CORE_INFO("error: 未找到fd 或 fd不匹配");
 #endif // _TEST_LEVEL_INFO
                 continue;
             }
@@ -186,7 +186,7 @@ int CHandleEventListener::listen(PUMP_ARG_IN void *pArgIn,
                         {
                             //处理accept事件
 #ifdef _TEST_LEVEL_DEBUG
-                            PUMP_CORE_INFO << "::Pump::Core::Net::PUMP_IOEV_IN::FD_STATE_SOCK_LISTENED";
+                            PUMP_CORE_INFO("::Pump::Core::Net::PUMP_IOEV_IN::FD_STATE_SOCK_LISTENED");
 #endif // _TEST_LEVEL_DEBUG
                             CHandleCap::FindByFdEventCond FCond;
                             FCond.fdEvType_ = FDEV_TYPE_SOCK_ACCEPT;
@@ -210,13 +210,13 @@ int CHandleEventListener::listen(PUMP_ARG_IN void *pArgIn,
                         case FD_STATE_SOCK_CONNECTING: // 当fd处于正在连接时,说明TCP连接成功
                         {
 #ifdef _TEST_LEVEL_DEBUG
-                            PUMP_CORE_INFO << "::Pump::Core::Net::PUMP_IOEV_IN::FD_STATE_SOCK_CONNECTING";
+                            PUMP_CORE_INFO("::Pump::Core::Net::PUMP_IOEV_IN::FD_STATE_SOCK_CONNECTING");
 #endif // _TEST_LEVEL_DEBUG
                         } break;
                         case FD_STATE_SOCK_CONNECTED: //当fd处于链接状态,说明消息到达
                         {
 #ifdef _TEST_LEVEL_DEBUG
-                            PUMP_CORE_INFO << "::Pump::Core::Net::PUMP_IOEV_IN::FD_STATE_SOCK_CONNECTED";
+                            PUMP_CORE_INFO("::Pump::Core::Net::PUMP_IOEV_IN::FD_STATE_SOCK_CONNECTED");
 #endif // _TEST_LEVEL_DEBUG
                             CHandleCap::FindByFdEventCond FCond;
                             FCond.fdEvType_ = FDEV_TYPE_SOCK_RECV;
@@ -239,7 +239,7 @@ int CHandleEventListener::listen(PUMP_ARG_IN void *pArgIn,
                         case FD_STATE_TIMER_OPEN: // 定时器处于开启状态
                         {
 #ifdef _TEST_LEVEL_DEBUG
-                            PUMP_CORE_INFO << "::Pump::Core::Net::PUMP_IOEV_IN::FD_STATE_TIMER_OPEN";
+                            PUMP_CORE_INFO("::Pump::Core::Net::PUMP_IOEV_IN::FD_STATE_TIMER_OPEN");
 #endif // _TEST_LEVEL_DEBUG
                             CHandleCap::FindByFdEventCond FCond;
                             FCond.fdEvType_ = FDEV_TYPE_TIMER_CREART;
@@ -267,14 +267,14 @@ int CHandleEventListener::listen(PUMP_ARG_IN void *pArgIn,
                 {
                     //TODO: 产生一个立即事件投递到EventReactor
 #ifdef _TEST_LEVEL_INFO
-                    PUMP_CORE_INFO << "::Pump::Core::Net::PUMP_IOEV_OUT::";
+                    PUMP_CORE_INFO("::Pump::Core::Net::PUMP_IOEV_OUT::");
 #endif // _TEST_LEVEL_INFO
                 } break;
                 case ::Pump::Core::Net::PUMP_IOEV_ERR: // 3.2.2 fd出现故障
                 {
                     //TODO: 产生一个立即事件投递到EventReactor
 #ifdef _TEST_LEVEL_INFO
-                    PUMP_CORE_INFO << "IO_EV_ERR::";
+                    PUMP_CORE_INFO("IO_EV_ERR::");
 #endif // _TEST_LEVEL_INFO
                 } break;
                 default:
@@ -290,7 +290,7 @@ int CHandleEventListener::postListen(PUMP_ARG_IN void *pArgIn,
 {
     // FIXME 运行后置事件列表
 #ifdef _TEST_LEVEL_INFO
-    PUMP_CORE_INFO << "fd_event_listener::postListen()";
+    PUMP_CORE_INFO("fd_event_listener::postListen()");
 #endif // _TEST_LEVEL_INFO
     //  m_pPostEvents->runAll();
     return 0;

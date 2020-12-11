@@ -168,13 +168,13 @@ pump_void_t * CEventLoop::ThreadCallback(pump_void_t * pData)
             continue;
         }
 #ifdef _TEST_LEVEL_DEBUG
-        PUMP_CORE_INFO << "**** pump_ev loop batch ****";
+        PUMP_CORE_INFO("**** pump_ev loop batch ****");
 #endif //_TEST_LEVEL_DEBUG
         PUMP_CORE_Sleep(500);
         pLoop->m_objEvEngine.routine();
     }
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "**** pump_ev loop ending ****";
+    PUMP_CORE_INFO("**** pump_ev loop ending ****");
 #endif //_TEST_LEVEL_DEBUG
     return NULL;
 }

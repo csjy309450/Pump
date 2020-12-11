@@ -11,10 +11,10 @@
 #include "pump_core/network/pump_core_sock.h"
 #include "pump_core/pump_core_cmdparse.hpp"
 #include "pump_core/pump_core_environment.h"
-#include "pump_test/pump_test.h"
 #include "pump_core/logger/__pump_core_inner_logger.h"
 #include "pump_core/pump_core_dllso.h"
 #include "pump_core/thread/pump_core_thread_pool.h"
+#include "pump_test/pump_test.h"
 
 using namespace Pump;
 using namespace Pump::Core;
@@ -23,14 +23,14 @@ using namespace Pump::Core::Thread;
 using namespace Pump::Core::Cmder;
 using namespace Pump::Test;
 
-PTEST_C_SCENE_DEF(UnitTestScene000, )
+PTEST_C_SCENE_DEF(PumpCoreUnitTestScene000, )
 
 /**
- * UnitTestCase001 repeatedly init-cleanup.
+ * PumpCoreUnitTestCase001 repeatedly init-cleanup.
  */
-PTEST_C_CASE_DEF(UnitTestCase001, UnitTestScene000,)
+PTEST_C_CASE_DEF(PumpCoreUnitTestCase001, PumpCoreUnitTestScene000,)
 {
-    PTEST_LOG(comment, "UnitTestCase001 repeatedly init-cleanup");
+    PTEST_LOG(comment, "PumpCoreUnitTestCase001 repeatedly init-cleanup");
     PTEST_ASSERT((PUMP_CORE_Init() == PUMP_OK), "PUMP_CORE_Init failed 1");
     PTEST_ASSERT((PUMP_CORE_Init() == PUMP_OK), "PUMP_CORE_Init failed 1.1");
     PTEST_ASSERT((PUMP_CORE_Cleanup() == PUMP_OK), "PUMP_CORE_Cleanup failed 1");
@@ -41,9 +41,9 @@ PTEST_C_CASE_DEF(UnitTestCase001, UnitTestScene000,)
     return PUMP_OK;
 }
 
-PTEST_C_CASE_DEF(UnitTestCase002, UnitTestScene000,)
+PTEST_C_CASE_DEF(PumpCoreUnitTestCase002, PumpCoreUnitTestScene000,)
 {
-    PTEST_LOG(comment, "UnitTestCase002 init logger");
+    PTEST_LOG(comment, "PumpCoreUnitTestCase002 init logger");
     // uninit call API
     PTEST_ASSERT((PUMP_CORE_LoggerCreate() == PUMP_NULL), "PUMP_CORE_LoggerCreate failed 1");
     PTEST_ASSERT((PUMP_CORE_LoggerConfig(PUMP_NULL, NULL) == PUMP_ERROR), "PUMP_CORE_LoggerConfig failed 1");
@@ -74,18 +74,18 @@ PTEST_C_CASE_DEF(UnitTestCase002, UnitTestScene000,)
     return  PUMP_OK;
 }
 
-PTEST_C_CASE_DEF(UnitTestCase003, UnitTestScene000,)
+PTEST_C_CASE_DEF(PumpCoreUnitTestCase003, PumpCoreUnitTestScene000,)
 {
-    PTEST_LOG(comment, "UnitTestCase003 test CMutex");
+    PTEST_LOG(comment, "PumpCoreUnitTestCase003 test CMutex");
     CMutex locker;
     locker.Lock();
     locker.Unlock();
     return 0;
 }
 
-PTEST_C_CASE_DEF(UnitTestCase004, UnitTestScene000,)
+PTEST_C_CASE_DEF(PumpCoreUnitTestCase004, PumpCoreUnitTestScene000,)
 {
-    PTEST_LOG(comment, "UnitTestCase004 test atomic option");
+    PTEST_LOG(comment, "PumpCoreUnitTestCase004 test atomic option");
     int a;
     CMutex locker;
     CAtomicOp<CMutex, int> aOp(locker, a);
@@ -95,9 +95,9 @@ PTEST_C_CASE_DEF(UnitTestCase004, UnitTestScene000,)
     return 0;
 }
 
-PTEST_C_CASE_DEF(UnitTestCase005, UnitTestScene000,)
+PTEST_C_CASE_DEF(PumpCoreUnitTestCase005, PumpCoreUnitTestScene000,)
 {
-    PTEST_LOG(comment, "UnitTestCase005 test cmdline parse");
+    PTEST_LOG(comment, "PumpCoreUnitTestCase005 test cmdline parse");
     CCmdParser cmdLine;
     cmdLine.Add<std::string>("host", 'h', "host name", true, "");
     cmdLine.Add<int>("port", 'p', "port number", false, 80, Range(1, 65535));
@@ -132,9 +132,9 @@ PTEST_C_CASE_DEF(UnitTestCase005, UnitTestScene000,)
     return 0;
 }
 
-PTEST_C_CASE_DEF(UnitTestCase006, UnitTestScene000,)
+PTEST_C_CASE_DEF(PumpCoreUnitTestCase006, PumpCoreUnitTestScene000,)
 {
-    PTEST_LOG(comment, "UnitTestCase006 test environment var get/set");
+    PTEST_LOG(comment, "PumpCoreUnitTestCase006 test environment var get/set");
     CEnvironment env;
     PTEST_ASSERT(env.GetEnvStrings()==PUMP_TRUE, "GetEnvStrings failed.");
 
@@ -151,9 +151,9 @@ PTEST_C_CASE_DEF(UnitTestCase006, UnitTestScene000,)
     return 0;
 }
 
-PTEST_C_CASE_DEF(UnitTestCase007, UnitTestScene000,)
+PTEST_C_CASE_DEF(PumpCoreUnitTestCase007, PumpCoreUnitTestScene000,)
 {
-    PTEST_LOG(comment, "UnitTestCase007 test environment data set");
+    PTEST_LOG(comment, "PumpCoreUnitTestCase007 test environment data set");
     CEnvironment env;
     CEnvVarSet envSetDefault, envSetModify;
     env.GetForEnvVarSet(envSetDefault);
@@ -204,9 +204,9 @@ private:
 };
 
 #ifdef PUMP_CORE_HAVA_GLOG
-PTEST_C_CASE_DEF(UnitTestCase008, UnitTestScene000, )
+PTEST_C_CASE_DEF(PumpCoreUnitTestCase008, PumpCoreUnitTestScene000, )
 {
-    PTEST_LOG(comment, "UnitTestCase008 test multi thread log <glog>");
+    PTEST_LOG(comment, "PumpCoreUnitTestCase008 test multi thread log <glog>");
     PTEST_ASSERT((PUMP_CORE_Init() == PUMP_OK), "PUMP_CORE_Init failed 3");
     PUMP_CORE_LOG_CONF struLogCong;
     memset(&struLogCong, 0, sizeof(struLogCong));
@@ -237,9 +237,9 @@ PTEST_C_CASE_DEF(UnitTestCase008, UnitTestScene000, )
 }
 #endif // PUMP_CORE_HAVA_GLOG
 
-PTEST_C_CASE_DEF(UnitTestCase009, UnitTestScene000, )
+PTEST_C_CASE_DEF(PumpCoreUnitTestCase009, PumpCoreUnitTestScene000, )
 {
-    PTEST_LOG(comment, "UnitTestCase009 test multi thread log <text>");
+    PTEST_LOG(comment, "PumpCoreUnitTestCase009 test multi thread log <text>");
     PTEST_ASSERT((PUMP_CORE_Init() == PUMP_OK), "PUMP_CORE_Init failed 3");
     PUMP_CORE_LOG_CONF struLogCong;
     memset(&struLogCong, 0, sizeof(struLogCong));
@@ -272,9 +272,9 @@ PTEST_C_CASE_DEF(UnitTestCase009, UnitTestScene000, )
 typedef void(*fnTEST_API_Function1)();
 typedef void(*fnTEST_API_Function2)();
 
-PTEST_C_CASE_DEF(UnitTestCase010, UnitTestScene000, )
+PTEST_C_CASE_DEF(PumpCoreUnitTestCase010, PumpCoreUnitTestScene000, )
 {
-    PTEST_LOG(comment, "UnitTestCase010 test load dll");
+    PTEST_LOG(comment, "PumpCoreUnitTestCase010 test load dll");
     pump_module_t hModule = PUMP_CORE_LoadDSo("E:/VMware/YZ/Pre-Research/dyanamic_load_dll/Debug/entry.dll");
     PTEST_ASSERT((hModule != PUMP_INVALID_MODULE), "load failed");
     fnTEST_API_Function1 pTEST_API_Function1 = (fnTEST_API_Function1)PUMP_CORE_GetDsoSym(hModule, "TEST_API_Function1");
@@ -292,9 +292,22 @@ pump_pvoid_t PUMP_CALLBACK My_ThreadPool_WorkRoutine(pump_pvoid_t pData)
     return NULL;
 }
 
-PTEST_C_CASE_DEF(UnitTestCase011, UnitTestScene000, )
+PTEST_C_CASE_DEF(PumpCoreUnitTestCase011, PumpCoreUnitTestScene000, )
 {
-    PTEST_LOG(comment, "UnitTestCase011 test thread pool");
+    PTEST_LOG(comment, "PumpCoreUnitTestCase011 test thread pool");
+    PTEST_ASSERT((PUMP_CORE_Init() == PUMP_OK), "PUMP_CORE_Init failed 3");
+    PUMP_CORE_LOG_CONF struLogCong;
+    memset(&struLogCong, 0, sizeof(struLogCong));
+    struLogCong.bPrintConsole = PUMP_TRUE;
+    struLogCong.bWriteFile = PUMP_TRUE;
+    struLogCong.emLogLevel = PUMP_LOG_INFO;
+    strcpy(struLogCong.szFilePath, "yz_log_text");
+    struLogCong.emLogLevel = PUMP_LOG_INFO;
+    pump_handle_t hLog = PUMP_CORE_LoggerCreate();
+    PTEST_ASSERT(hLog != PUMP_NULL, "PUMP_CORE_LoggerCreate failed 3");
+    PTEST_ASSERT((PUMP_CORE_LoggerConfig(hLog, &struLogCong) == PUMP_OK), "PUMP_CORE_LoggerConfig failed 3");
+    PTEST_ASSERT((PUMP_CORE_InjectLocalLogger(hLog) == PUMP_OK), "PUMP_CORE_InjectLocalLogger failed 2");
+
     PUMP_CORE_InitThreadPool();
     pump_handle_t hThxPool = PUMP_CORE_ThreadPool_Create(2, 10);
     PTEST_ASSERT((hThxPool != PUMP_INVALID_THREADPOOL), "PUMP_CORE_ThreadPool_Create failed");
@@ -303,6 +316,9 @@ PTEST_C_CASE_DEF(UnitTestCase011, UnitTestScene000, )
         PTEST_ASSERT((PUMP_CORE_ThreadPool_Work(hThxPool, My_ThreadPool_WorkRoutine, (void*)i)!=PUMP_ERROR)
             , "PUMP_CORE_ThreadPool_Work failed");
     }
+    PTEST_ASSERT(PUMP_CORE_ThreadPool_Destroy(hThxPool)==PUMP_OK, "PUMP_CORE_ThreadPool_Destroy failed");
+
+    PTEST_ASSERT((PUMP_CORE_Cleanup() == PUMP_OK), "PUMP_CORE_Cleanup failed 1");
     return 0;
 }
 

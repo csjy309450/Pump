@@ -43,12 +43,14 @@ set(pump_memory_INNER_TEST_DEP_INC_DIRS
         ${pump_memory_INNER_PROJECT_ROOT_DIR}/include
         ${pump_memory_INNER_PROJECT_ROOT_DIR}/src
         # ${Boost_INCLUDE_DIRS}
+        ${pump_test_INCLUDE_DIRS}
         )
 message("<pump::pump_memory> pump_memory_INNER_TEST_DEP_INC_DIRS> ${pump_memory_INNER_TEST_DEP_INC_DIRS}")
 
 # set test srdparty libs
 set(pump_memory_INNER_TEST_DEP_LIBS
         # ${Boost_LIBRARIES}
+        pump_test_sll
         )
 message("<pump::pump_memory> pump_memory_INNER_TEST_DEP_LIBS> ${pump_memory_INNER_TEST_DEP_LIBS}")
 

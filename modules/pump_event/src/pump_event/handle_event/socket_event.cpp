@@ -45,7 +45,7 @@ CTCPSockAccept::CTCPSockAccept()
     : CHandleEvent(PUMP_NULL, CONDITIONAL, PUMP_EVENT_ASYNC, FDEV_TYPE_SOCK_ACCEPT, EVPRIOR_DEFAULT, CONTINUOUS)
 {
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "new CTCPSockAccept -> " << this;
+    PUMP_CORE_INFO("new CTCPSockAccept -> %ul" , this);
 #endif //_TEST_LEVEL_DEBUG
     memset(&m_struArg, 0, sizeof(m_struArg));
 }
@@ -55,7 +55,7 @@ CTCPSockAccept::CTCPSockAccept(OnAcceptCbType & cb)
     , m_cbAccept(cb)
 {
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "new CTCPSockAccept -> " << this;
+    PUMP_CORE_INFO("new CTCPSockAccept -> %ul" , this);
 #endif //_TEST_LEVEL_DEBUG
     memset(&m_struArg, 0, sizeof(m_struArg));
 }
@@ -64,7 +64,7 @@ CTCPSockAccept::CTCPSockAccept(::Pump::Core::CHandleBase * pHandle, EventPriorit
     : CHandleEvent(pHandle, CONDITIONAL, PUMP_EVENT_ASYNC, FDEV_TYPE_SOCK_ACCEPT, emPrior, CONTINUOUS)
 {
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "new sock_accept -> " << this;
+    PUMP_CORE_INFO("new sock_accept -> %ul" , this);
 #endif //_TEST_LEVEL_DEBUG
     memset(&m_struArg, 0, sizeof(m_struArg));
 }
@@ -72,7 +72,7 @@ CTCPSockAccept::CTCPSockAccept(::Pump::Core::CHandleBase * pHandle, EventPriorit
 CTCPSockAccept::~CTCPSockAccept()
 {
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "delete sock_accept -> " << this;
+    PUMP_CORE_INFO("delete sock_accept -> %ul" , this);
 #endif //_TEST_LEVEL_DEBUG
 }
 
@@ -84,7 +84,7 @@ void CTCPSockAccept::Bind(OnAcceptCbType & cb)
 int CTCPSockAccept::_on_listend(CEventEngine &refEvEngine, EvData objData)
 {
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "sock_accept::_on_listend() in";
+    PUMP_CORE_INFO("sock_accept::_on_listend() in");
 #endif //_TEST_LEVEL_DEBUG
     ::Pump::Core::Net::CSock * pSock = dynamic_cast<::Pump::Core::Net::CSock *>(m_pHandle);
     if (!pSock)
@@ -95,7 +95,7 @@ int CTCPSockAccept::_on_listend(CEventEngine &refEvEngine, EvData objData)
     if (pSock->ListenExt(objAddr, m_struArg.iBackLog_) == -1)
     {
 #ifdef _TEST_LEVEL_DEBUG
-        PUMP_CORE_INFO << "listen() error: " << errno;
+        PUMP_CORE_INFO("listen() error: %d", errno);
 #endif //_TEST_LEVEL_DEBUG
         return -1;
     }
@@ -173,13 +173,13 @@ int CTCPSockAccept::_on_listend(CEventEngine &refEvEngine, EvData objData)
 
 ret_good:
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "sock_accept::_on_listend() out with 1";
+    PUMP_CORE_INFO("sock_accept::_on_listend() out with 1");
 #endif //_TEST_LEVEL_DEBUG
     return 0;
 
 ret_bad:
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "sock_accept::_on_listend() out with -1";
+    PUMP_CORE_INFO("sock_accept::_on_listend() out with -1");
 #endif //_TEST_LEVEL_DEBUG
     return -1;
 }
@@ -187,7 +187,7 @@ ret_bad:
 int CTCPSockAccept::_on_actived(CEventEngine &refEvEngine, EvData objData)
 {
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "sock_accept::_on_actived() in";
+    PUMP_CORE_INFO("sock_accept::_on_actived() in");
 #endif //_TEST_LEVEL_DEBUG
     ::Pump::Core::Net::CSock * pSock = dynamic_cast<::Pump::Core::Net::CSock *>(m_pHandle);
     if (!pSock)
@@ -242,7 +242,7 @@ ACCEPT:
         else
         {
 #ifdef _TEST_LEVEL_ERROR
-            PUMP_CORE_ERR << "accept fail, error(" << errno << "): " << strerror(errno);
+            PUMP_CORE_ERR("accept fail, error(%d) %s" , errno ,strerror(errno));
 #endif // _TEST_LEVEL_ERROR
             return -1;
         }
@@ -251,7 +251,7 @@ ACCEPT:
     pAddr->GetAddrStr(strIp);
     pAddr->GetPort(sPort);
 #ifdef _TEST_LEVEL_INFO
-    PUMP_CORE_INFO << "accept a new client: " << strIp.c_str() << ":" << sPort;
+    PUMP_CORE_INFO("accept a new client: %s:%d" , strIp.c_str() ,sPort);
 #endif // _TEST_LEVEL_INFO
     fdConnector = pClientSock->GetHandle();
     fCond.dwSize_ = sizeof(fCond);
@@ -267,7 +267,7 @@ ACCEPT:
         goto ret_bad;
     }
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "pHashContainer size == " << pHashContainer->size() << " before insert";
+    PUMP_CORE_INFO("pHashContainer size == %d before insert",pHashContainer->size());
 #endif //_TEST_LEVEL_DEBUG
 
     if (pClientSock->SetNonBlock(PUMP_TRUE) != PUMP_OK)
@@ -321,18 +321,18 @@ ACCEPT:
     // connectSock 插入到 pHashContainer
     pHashContainer->insert(&connectedSock);
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "pHashContainer size == " << pHashContainer->size() << " after insert";
+    PUMP_CORE_INFO("pHashContainer size == %d after insert", pHashContainer->size());
 #endif //_TEST_LEVEL_DEBUG
 
 ret_good:
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "sock_accept::_on_actived() out with 1";
+    PUMP_CORE_INFO("sock_accept::_on_actived() out with 1");
 #endif //_TEST_LEVEL_DEBUG
     return 0;
 
 ret_bad:
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "sock_accept::_on_actived() out with -1";
+    PUMP_CORE_INFO("sock_accept::_on_actived() out with -1");
 #endif //_TEST_LEVEL_DEBUG
     return -1;
 }
@@ -340,7 +340,7 @@ ret_bad:
 int CTCPSockAccept::_on_destroyed(CEventEngine &refEvEngine, EvData objData)
 {
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "sock_accept::_on_destroyed() in";
+    PUMP_CORE_INFO("sock_accept::_on_destroyed() in");
 #endif //_TEST_LEVEL_DEBUG
     //FIXED 死锁
     CHandleEventHashContainer *pHashContainer = NULL;
@@ -390,7 +390,7 @@ int CTCPSockAccept::_on_destroyed(CEventEngine &refEvEngine, EvData objData)
         {
             /* FIXME 设置错误码 */
             refEvEngine.unlock_listener_by_uuid(this->m_szUuid);
-            PUMP_CORE_INFO << "fd 跟新到 MutiplexBackend 失败";
+            PUMP_CORE_INFO("fd 跟新到 MutiplexBackend 失败");
             goto ret_bad;
         }
 
@@ -406,20 +406,20 @@ int CTCPSockAccept::_on_destroyed(CEventEngine &refEvEngine, EvData objData)
     default:
     {
         // TODO: 设置错误码
-        PUMP_CORE_INFO << "fd 所在生命周期状态不允许 disableAccept() 操作";
+        PUMP_CORE_INFO("fd 所在生命周期状态不允许 disableAccept() 操作");
         goto ret_bad;
     }
     }
 
 ret_good:
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "sock_accept::_on_destroyed() out with 1";
+    PUMP_CORE_INFO("sock_accept::_on_destroyed() out with 1");
 #endif //_TEST_LEVEL_DEBUG
     return 0;
 
 ret_bad:
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "sock_accept::_on_destroyed() out with -1";
+    PUMP_CORE_INFO("sock_accept::_on_destroyed() out with -1");
 #endif //_TEST_LEVEL_DEBUG
     return -1;
 }
@@ -428,7 +428,7 @@ CTCPSockConnect::CTCPSockConnect()
     : CHandleEvent(PUMP_NULL, CONDITIONAL, PUMP_EVENT_ASYNC, FDEV_TYPE_SOCK_CONNECT, EVPRIOR_DEFAULT, ONETIME)
 {
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "new sock_connect -> " << this;
+    PUMP_CORE_INFO("new sock_connect -> %ul", this);
 #endif //_TEST_LEVEL_DEBUG
 }
 
@@ -436,21 +436,21 @@ CTCPSockConnect::CTCPSockConnect(::Pump::Core::CHandleBase * pHandle, EventPrior
     : CHandleEvent(pHandle, CONDITIONAL, PUMP_EVENT_ASYNC, FDEV_TYPE_SOCK_CONNECT, emPrior, ONETIME)
 {
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "new sock_connect -> " << this;
+    PUMP_CORE_INFO("new sock_connect -> %ul", this);
 #endif //_TEST_LEVEL_DEBUG
 }
 
 CTCPSockConnect::~CTCPSockConnect()
 {
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "delete sock_connect -> " << this;
+    PUMP_CORE_INFO("delete sock_connect -> %ul",this);
 #endif //_TEST_LEVEL_DEBUG
 }
 
 int CTCPSockConnect::_on_actived(CEventEngine &refEvEngine, EvData objData)
 {
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "sock_connect::_on_actived() in";
+    PUMP_CORE_INFO("sock_connect::_on_actived() in");
 #endif //_TEST_LEVEL_DEBUG
     return 0;
 }
@@ -460,7 +460,7 @@ CTCPSockRecv::CTCPSockRecv()
     , m_objIoBufRecv(g_iIoBufferSize)
 {
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "new sock_recv -> " << this;
+    PUMP_CORE_INFO("new sock_recv -> %ul", this);
 #endif //_TEST_LEVEL_DEBUG
 }
 
@@ -470,7 +470,7 @@ CTCPSockRecv::CTCPSockRecv(OnRecvCbType & cb)
     , m_cbRecv(cb)
 {
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "new sock_recv -> " << this;
+    PUMP_CORE_INFO("new sock_recv -> %ul" , this);
 #endif //_TEST_LEVEL_DEBUG
 }
 
@@ -479,14 +479,14 @@ CTCPSockRecv::CTCPSockRecv(::Pump::Core::CHandleBase * pHandle, EventPriority em
     m_objIoBufRecv(g_iIoBufferSize)
 {
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "new sock_recv -> " << this;
+    PUMP_CORE_INFO("new sock_recv -> %ul" , this);
 #endif //_TEST_LEVEL_DEBUG
 }
 
 CTCPSockRecv::~CTCPSockRecv()
 {
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "delete sock_recv -> " << this;
+    PUMP_CORE_INFO("delete sock_recv -> %ul" , this);
 #endif //_TEST_LEVEL_DEBUG
 }
 
@@ -498,7 +498,7 @@ void CTCPSockRecv::Bind(OnRecvCbType & cb)
 int CTCPSockRecv::_on_actived(CEventEngine &refEvEngine, EvData objData)
 {
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "sock_recv::_on_actived() in";
+    PUMP_CORE_INFO("sock_recv::_on_actived() in");
 #endif //_TEST_LEVEL_DEBUG
     ::Pump::Core::Net::CSock * pSock = dynamic_cast<::Pump::Core::Net::CSock *>(m_pHandle);
     if (!pSock)
@@ -556,7 +556,7 @@ int CTCPSockRecv::_on_actived(CEventEngine &refEvEngine, EvData objData)
     else
     {
 #ifdef _TEST_LEVEL_DEBUG
-        PUMP_CORE_INFO << "sock_recv::_on_actived() recv from :" << this->m_fd << "{\n" << buf << "\n}";
+        PUMP_CORE_INFO("sock_recv::_on_actived() recv from :%ul {\n%s\n}", this->m_fd , buf );
 #endif //_TEST_LEVEL_DEBUG
         // 压入接收缓冲区
         this->m_objIoBufRecv.append(buf, static_cast<size_t>(ret));
@@ -565,13 +565,13 @@ int CTCPSockRecv::_on_actived(CEventEngine &refEvEngine, EvData objData)
 
 ret_good:
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "sock_recv::_on_actived() out with 1";
+    PUMP_CORE_INFO("sock_recv::_on_actived() out with 1");
 #endif //_TEST_LEVEL_DEBUG
     return PUMP_OK;
 
 ret_bad:
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "sock_recv::_on_actived() out with -1";
+    PUMP_CORE_INFO("sock_recv::_on_actived() out with -1");
 #endif //_TEST_LEVEL_DEBUG
     return PUMP_ERROR;
 }
@@ -579,7 +579,7 @@ ret_bad:
 pump_int32_t CTCPSockRecv::__OnRemoteClose(CHandleCap * pFDescriptor, CEventEngine &refEvEngine)
 {
 #ifdef _TEST_LEVEL_INFO
-    PUMP_CORE_INFO << "[warning] 链接断开";
+    PUMP_CORE_INFO("[warning] 链接断开");
 #endif // _TEST_LEVEL_INFO
     // FIXME [critical] 缺少链接断开处理
     switch (pFDescriptor->m_emState)
@@ -612,7 +612,7 @@ pump_int32_t CTCPSockRecv::__OnRemoteClose(CHandleCap * pFDescriptor, CEventEngi
         if (pEvListener->get_backend()->update(change) == -1)
         {
             /* FIXME 设置错误码 */
-            PUMP_CORE_INFO << "fd 跟新到 MutiplexBackend 失败";
+            PUMP_CORE_INFO("fd 跟新到 MutiplexBackend 失败");
             refEvEngine.unlock_listener_by_uuid(this->m_szUuid);
             return PUMP_ERROR;
         }
@@ -624,7 +624,7 @@ pump_int32_t CTCPSockRecv::__OnRemoteClose(CHandleCap * pFDescriptor, CEventEngi
     default:
     {
         // TODO: err 设置错误码
-        PUMP_CORE_INFO << "fd 所在生命周期状态不允许 disableRecv() 操作";
+        PUMP_CORE_INFO("fd 所在生命周期状态不允许 disableRecv() 操作");
         return PUMP_ERROR;
     }
     }
@@ -642,7 +642,7 @@ CTCPSockSend::CTCPSockSend()
     m_objIoBufSend(g_iIoBufferSize)
 {
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "new sock_send -> " << this;
+    PUMP_CORE_INFO("new sock_send -> %ul" , this);
 #endif //_TEST_LEVEL_DEBUG
 }
 
@@ -651,21 +651,21 @@ CTCPSockSend::CTCPSockSend(::Pump::Core::CHandleBase * pHandle, EventPriority em
     m_objIoBufSend(g_iIoBufferSize)
 {
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "new sock_send -> " << this;
+    PUMP_CORE_INFO("new sock_send -> %ul" , this);
 #endif //_TEST_LEVEL_DEBUG
 }
 
 CTCPSockSend::~CTCPSockSend()
 {
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "delete sock_send -> " << this;
+    PUMP_CORE_INFO("delete sock_send -> %ul", this);
 #endif //_TEST_LEVEL_DEBUG
 }
 
 int CTCPSockSend::_on_actived(CEventEngine &refEvEngine, EvData objData)
 {
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "sock_send::_on_actived() in";
+    PUMP_CORE_INFO("sock_send::_on_actived() in");
 #endif //_TEST_LEVEL_DEBUG
     return 0;
 }

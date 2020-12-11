@@ -175,7 +175,7 @@ namespace Memory {
                     p_ = (void *)a_.allocate(n, hint);
                 }
                 catch (std::bad_alloc e) {
-                    PUMP_CORE_ERR << "Heap allocate() failed";
+                    PUMP_CORE_ERR ( "Heap allocate() failed");
                     p_ = 0;
                     return false;
                 }
@@ -245,7 +245,7 @@ namespace Memory {
             template<typename T>
             T &ref() {
                 if (this->empty()) {
-                    PUMP_CORE_ERR << "Block pointer is null";
+                    PUMP_CORE_ERR ( "Block pointer is null");
                     throw 1;
                 }
                 return m_px->ref<T>();
@@ -254,7 +254,7 @@ namespace Memory {
             template<typename T>
             T &c_ref() const {
                 if (this->empty()) {
-                    PUMP_CORE_ERR << "Block pointer is null";
+                    PUMP_CORE_ERR ( "Block pointer is null");
                     throw 1;
                 }
                 return m_px->c_ref<T>();
@@ -301,7 +301,7 @@ namespace Memory {
                         m_px = (type_block *)a_.allocate(1);
                     }
                     catch (std::bad_alloc e) {
-                        PUMP_CORE_ERR << "Heap allocate() failed";
+                        PUMP_CORE_ERR ( "Heap allocate() failed");
                         m_px = 0;
                     }
                     if (m_px != 0) {
@@ -318,7 +318,7 @@ namespace Memory {
                         m_px = (Block *)a_.allocate(1);
                     }
                     catch (std::bad_alloc e) {
-                        PUMP_CORE_ERR << "Heap allocate() failed";
+                        PUMP_CORE_ERR("Heap allocate() failed");
                         m_px = 0;
                     }
                     if (m_px != 0) {

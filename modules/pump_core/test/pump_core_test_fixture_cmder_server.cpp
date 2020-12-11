@@ -25,7 +25,7 @@ int test_logger()
     strcpy(struLogCong.szFilePath, "");
     struLogCong.emLogLevel = PUMP_LOG_INFO;
     //PUMP_CORE_InitLogger(&struLogCong);
-    PUMP_CORE_INFO << "-------test begin-------";
+    PUMP_CORE_INFO("-------test begin-------");
     return  0;
 }
 
@@ -46,7 +46,7 @@ int test_new_logger()
     }
     
 
-    PUMP_CORE_INFO << "-------test begin-------";
+    PUMP_CORE_INFO("-------test begin-------");
     return  0;
 }
 

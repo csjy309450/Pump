@@ -61,7 +61,7 @@ CHandleInsert::CHandleInsert()
     : CHandleEvent(PUMP_NULL, NONCONDITIONAL, PUMP_EVENT_SYNC, FDEV_TYPE_SOCK_CREART, EVPRIOR_DEFAULT, ONETIME)
 {
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "new sock_create -> " << this;
+    PUMP_CORE_INFO("new sock_create -> %ul" , this);
 #endif //_TEST_LEVEL_DEBUG
 }
 
@@ -69,21 +69,21 @@ CHandleInsert::CHandleInsert(::Pump::Core::CHandleBase * pHandle, EventPriority 
     : CHandleEvent(pHandle, NONCONDITIONAL, PUMP_EVENT_SYNC, FDEV_TYPE_SOCK_CREART, emPrior, ONETIME)
 {
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "new sock_create -> " << this;
+    PUMP_CORE_INFO("new sock_create -> %ul" , this);
 #endif //_TEST_LEVEL_DEBUG
 }
 
 CHandleInsert::~CHandleInsert()
 {
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "delete sock_create -> " << this;
+    PUMP_CORE_INFO("delete sock_create -> %ul" , this);
 #endif //_TEST_LEVEL_DEBUG
 }
 
 int CHandleInsert::_on_newed(CEventEngine &refEvEngine, EvData objData)
 {
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "CHandleInsert::_on_newed() in";
+    PUMP_CORE_INFO("CHandleInsert::_on_newed() in");
 #endif //_TEST_LEVEL_DEBUG
     CHandleCap fDescriptor;
     CListenedEventContainer *pLEContainer = NULL;
@@ -122,7 +122,7 @@ int CHandleInsert::_on_newed(CEventEngine &refEvEngine, EvData objData)
         goto ret_bad;
     }
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "pHashContainer size == " << pHashContainer->size() << " before insert";
+    PUMP_CORE_INFO("pHashContainer size == %d before insert", pHashContainer->size());
 #endif //_TEST_LEVEL_DEBUG
     // 创建一个FileDescriptor对象,并插入到pHashContainer
     fDescriptor.m_pHandle = m_pHandle;
@@ -135,14 +135,14 @@ int CHandleInsert::_on_newed(CEventEngine &refEvEngine, EvData objData)
 
 ret_good:
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "pHashContainer size == " << pHashContainer->size() << " after insert";
-    PUMP_CORE_INFO << "sock_create::_on_actived() out with " << 1;
+    PUMP_CORE_INFO("pHashContainer size == %d after insert" , pHashContainer->size());
+    PUMP_CORE_INFO("sock_create::_on_actived() out with 1");
 #endif //_TEST_LEVEL_DEBUG
     return 0;
 
 ret_bad:
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "sock_create::_on_actived() out with " << -1;
+    PUMP_CORE_INFO("sock_create::_on_actived() out with -1");
 #endif //_TEST_LEVEL_DEBUG
     return -1;
 }
@@ -151,7 +151,7 @@ CHandleRemove::CHandleRemove()
     : CHandleEvent(PUMP_NULL, NONCONDITIONAL, PUMP_EVENT_SYNC, FDEV_TYPE_CLOSE, EVPRIOR_DEFAULT, ONETIME)
 {
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "new fd_close -> " << this;
+    PUMP_CORE_INFO("new fd_close -> %ul" ,this);
 #endif //_TEST_LEVEL_DEBUG
 }
 
@@ -159,21 +159,21 @@ CHandleRemove::CHandleRemove(::Pump::Core::CHandleBase * pHandle, EventPriority 
     : CHandleEvent(pHandle, NONCONDITIONAL, PUMP_EVENT_SYNC, FDEV_TYPE_CLOSE, emPrior, ONETIME)
 {
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "new fd_close -> " << this;
+    PUMP_CORE_INFO("new fd_close -> %ul" , this);
 #endif //_TEST_LEVEL_DEBUG
 }
 
 CHandleRemove::~CHandleRemove()
 {
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "delete fd_close -> " << this;
+    PUMP_CORE_INFO("delete fd_close -> %ul" ,this);
 #endif //_TEST_LEVEL_DEBUG
 }
 
 int CHandleRemove::_on_newed(CEventEngine &refEvEngine, EvData objData)
 {
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "fd_close::_on_newed() in";
+    PUMP_CORE_INFO("fd_close::_on_newed() in");
 #endif //_TEST_LEVEL_DEBUG
     CHandleEventHashContainer *pHashContainer = NULL;
     ::Pump::Event::HandleEvent::FindCond fCond;
@@ -197,21 +197,21 @@ int CHandleRemove::_on_newed(CEventEngine &refEvEngine, EvData objData)
         goto ret_bad;
     }
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "pHashContainer size == " << pHashContainer->size() << " before remove";
+    PUMP_CORE_INFO("pHashContainer size == %d before remove" , pHashContainer->size());
 #endif //_TEST_LEVEL_DEBUG
     // 重置 pFDescriptor 状态为未初始化
     pHashContainer->remove(pFDescriptor);
 
 ret_good:
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "pHashContainer size == " << pHashContainer->size() << " after remove";
-    PUMP_CORE_INFO << "fd_close::_on_newed() out with " << 1;
+    PUMP_CORE_INFO("pHashContainer size == %d after remove" , pHashContainer->size());
+    PUMP_CORE_INFO("fd_close::_on_newed() out with 1");
 #endif //_TEST_LEVEL_DEBUG
     return 0;
 
 ret_bad:
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "fd_close::_on_newed() out with " << -1;
+    PUMP_CORE_INFO("fd_close::_on_newed() out with -1");
 #endif //_TEST_LEVEL_DEBUG
     return -1;
 }

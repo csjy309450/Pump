@@ -54,7 +54,7 @@ namespace Memory {
                 : VoidSPtr(sizeof(element_type)),
                 m_state(SP_STATE_NEW) {
 #ifdef _TEST_LEVEL_INFO
-                PUMP_CORE_INFO << "SharedPtr()";
+                PUMP_CORE_INFO ( "SharedPtr()");
 #endif //_TEST_LEVEL_INFO
             }
 
@@ -62,7 +62,7 @@ namespace Memory {
                 : VoidSPtr(r),
                 m_state(SP_STATE_NEW) {
 #ifdef _TEST_LEVEL_INFO
-                PUMP_CORE_INFO << "SharedPtr()";
+                PUMP_CORE_INFO ( "SharedPtr()");
 #endif //_TEST_LEVEL_INFO
             }
 
@@ -71,7 +71,7 @@ namespace Memory {
                 : VoidSPtr(a, sizeof(element_type)),
                 m_state(SP_STATE_NEW) {
 #ifdef _TEST_LEVEL_INFO
-                PUMP_CORE_INFO << "SharedPtr()";
+                PUMP_CORE_INFO ( "SharedPtr()");
 #endif //_TEST_LEVEL_INFO
             }
 
@@ -80,7 +80,7 @@ namespace Memory {
                 : VoidSPtr(a, sizeof(element_type), d),
                 m_state(SP_STATE_NEW) {
 #ifdef _TEST_LEVEL_INFO
-                PUMP_CORE_INFO << "SharedPtr()";
+                PUMP_CORE_INFO ( "SharedPtr()");
 #endif //_TEST_LEVEL_INFO
             }
 
@@ -88,7 +88,7 @@ namespace Memory {
                 : VoidSPtr(static_cast<VoidSPtr const &>(r)),
                 m_state(r.m_state) {
 #ifdef _TEST_LEVEL_INFO
-                PUMP_CORE_INFO << "SharedPtr()";
+                PUMP_CORE_INFO ( "SharedPtr()");
 #endif //_TEST_LEVEL_INFO
             }
 
@@ -108,7 +108,7 @@ namespace Memory {
                 //    }
 
 #ifdef _TEST_LEVEL_INFO
-                PUMP_CORE_INFO << "~SharedPtr()";
+                PUMP_CORE_INFO ( "~SharedPtr()");
 #endif //_TEST_LEVEL_INFO
             }
 
@@ -129,7 +129,7 @@ namespace Memory {
             void construct(Args &&...args) {
                 if ((*this != PUMP_NULLPTR)
                     && (m_state == SP_STATE_NEW)) {
-                    ::new(this->r_get<element_type>())element_type(nsp_std::forward<Args>(args)...);
+                    ::new(this->r_get<element_type>())element_type(std::forward<Args>(args)...);
                     m_state = SP_STATE_INIT;
                     // 构造成功则注册私有析构函数
                     m_policy.fn_destruct().Bind(&SharedPtr::destroy_private);
@@ -160,7 +160,7 @@ namespace Memory {
                 if (typeid(element_type) != typeid(void)) {
                     self->~element_type();
 #ifdef _TEST_LEVEL_INFO
-                    PUMP_CORE_INFO << "destroy_private";
+                    PUMP_CORE_INFO ( "destroy_private" );
 #endif //_TEST_LEVEL_INFO
                 }
             }
@@ -177,7 +177,7 @@ namespace Memory {
             element_type *operator->() const {
                 if (m_state != SP_STATE_INIT) {
                     // FIXME 设置错误码
-                    PUMP_CORE_ERR << "Object not constructed.";
+                    PUMP_CORE_ERR ( "Object not constructed.");
                     throw 0;
                 }
                 return (VoidSPtr::get<element_type>());
@@ -200,7 +200,7 @@ namespace Memory {
             element_type & ref() {
                 if (m_state != SP_STATE_INIT) {
                     // FIXME 设置错误码
-                    PUMP_CORE_ERR << "Object not constructed.";
+                    PUMP_CORE_ERR ( "Object not constructed.");
                     throw 0;
                 }
                 return *VoidSPtr::r_get<element_type>();

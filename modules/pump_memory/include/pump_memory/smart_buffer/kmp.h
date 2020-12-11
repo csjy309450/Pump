@@ -20,13 +20,10 @@
 
 #include "pump_core/logger/pump_core_logger.h"
 
-namespace nsp_std = std;
-
 namespace Pump
 {
 namespace Memory
 {
-
 
 class kmp
 {
@@ -37,14 +34,14 @@ public:
   
   long apply(const char *szSrc, long iSrcLen, const char *szPattern, long iPLen);
   
-  long apply(const nsp_std::deque<char *> &vBuf, long iSrcLen, const char *szPattern, long iPLen);
+  long apply(const std::deque<char *> &vBuf, long iSrcLen, const char *szPattern, long iPLen);
   
   long apply(char **pszSrc, long iSLen, int iSCount, const char *szPattern, long iPLen);
 
 private:
   void cal_next(const char *szPattern, long iPLen);
   
-  nsp_std::vector<int> m_vNext;
+  std::vector<int> m_vNext;
 };
 
 }

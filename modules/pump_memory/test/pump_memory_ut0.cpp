@@ -24,42 +24,52 @@
 #include "pump_memory/smart_ptr/voidwptr.hpp"
 #include "pump_memory/smart_ptr/sharedptr.hpp"
 #include "pump_memory/smart_ptr/weakptr.hpp"
+#include "pump_test/pump_test.h"
 
 using namespace std;
 using namespace Pump;
 using namespace Pump::Core;
 using namespace Pump::Memory;
 using namespace Pump::Core::Thread;
+using namespace Pump::Test;
 
-bool test_Block() {
-    PUMP_CORE_INFO << ">>>>>>>> test_Block <<<<<<<<<";
+PTEST_C_SCENE_DEF(PumpMemoryUnitTestScene000, )
+
+PTEST_C_CASE_DEF(PumpMemoryUnitTestCase001, PumpMemoryUnitTestScene000, )
+{
+    PTEST_LOG(comment, "PumpMemoryUnitTestCase001 test_Block");
     Heap<> heap0;
     // test 1
-    PUMP_CORE_LOG_ASSERT(heap0.empty()) << "[ OK ] 1-1";
+    PTEST_ASSERT((heap0.empty() == true), "[ ERROR ] 1-1");
     heap0.allocate(0);
-    PUMP_CORE_LOG_ASSERT((heap0.block_segsz_ == 0 && heap0.empty())) << "[ OK ] 1-2";
+    PTEST_ASSERT((heap0.block_segsz_ == 0 && heap0.empty()), "[ ERROR ] 1-2");
     heap0.allocate(10);
-    PUMP_CORE_LOG_ASSERT((heap0.block_segsz_ == 10 && !heap0.empty())) << "[ OK ] 1-3";
+    PTEST_ASSERT((heap0.block_segsz_ == 10 && !heap0.empty()), "[ ERROR ] 1-3");
     heap0.deallocate();
-    PUMP_CORE_LOG_ASSERT((heap0.block_segsz_ == 0 && heap0.empty())) << "[ OK ] 1-4";
+    PTEST_ASSERT((heap0.block_segsz_ == 0 && heap0.empty()), "[ ERROR ] 1-4");
+    return 0;
+}
 
+PTEST_C_CASE_DEF(PumpMemoryUnitTestCase002, PumpMemoryUnitTestScene000, )
+{
+    PTEST_LOG(comment, "PumpMemoryUnitTestCase002 test_Block");
     // test 2
     std::allocator<char> a;
     HeapGuider<> bmgr0;
     HeapGuider<> bmgr1(sizeof(int), a);
     HeapGuider<> bmgr2(sizeof(int));
-    PUMP_CORE_LOG_ASSERT((bmgr0.empty())) << "[ OK ] 2-1";
+    PTEST_ASSERT((bmgr0.empty()), "[ ERROR ] 2-1");
     bmgr1.ref<int>() = 10;
     bmgr2.ref<int>() = 100;
-    PUMP_CORE_LOG_ASSERT((!bmgr1.empty() && bmgr1.ref<int>() == 10)) << "[ OK ] 2-2";
+    PTEST_ASSERT((!bmgr1.empty() && bmgr1.ref<int>() == 10), "[ ERROR ] 2-2");
     bmgr0 = bmgr1;
-    PUMP_CORE_LOG_ASSERT((bmgr0.relative(bmgr1) == RELATIVE_EQUAL)) << "[ OK ] 2-3";
+    PTEST_ASSERT((bmgr0.relative(bmgr1) == RELATIVE_EQUAL), "[ ERROR ] 2-3");
     HeapGuider<> bmgr1_2(bmgr1);
-    PUMP_CORE_LOG_ASSERT((bmgr1_2.relative(bmgr1) == RELATIVE_EQUAL)) << "[ OK ] 2-4";
+    PTEST_ASSERT((bmgr1_2.relative(bmgr1) == RELATIVE_EQUAL), "[ ERROR ] 2-4");
     bmgr1.swap(bmgr2);
-    PUMP_CORE_LOG_ASSERT((bmgr1.ref<int>() == 100 && bmgr2.ref<int>() == 10)) << "[ OK ] 2-5";
+    PTEST_ASSERT((bmgr1.ref<int>() == 100 && bmgr2.ref<int>() == 10), "[ ERROR ] 2-5");
 
-    return true;
+    return 0;
 }
 
 class test_del {
@@ -68,30 +78,31 @@ public:
         delete(this);
     }
     ~test_del() {
-        printf("sss\n");
+        PUMP_CORE_INFO("~test_del");
     }
 };
 
 class TDel : public _Del {
 public:
     virtual void pre_del(const Block *p) {
-        PUMP_CORE_INFO << "call [yangzheng] pre_del";
+        PUMP_CORE_INFO("call TDel::pre_del");
     }
     void post_del(void * data) {
-        PUMP_CORE_INFO << "call [yangzheng] post_del";
+        PUMP_CORE_INFO("call TDel::post_del");
     }
 };
 
-bool test_VoidSPtr_1() {
+PTEST_G_FN_DEF(TEST_VoidSPtr_1)
+{
     VoidSPtr sp1_1;
     VoidSPtr sp1_2;
     // test 1
-    PUMP_CORE_LOG_ASSERT((sp1_1 == PUMP_NULLPTR)
+    PTEST_ASSERT((sp1_1 == PUMP_NULLPTR)
         && (sp1_1.capacity() == 0)
         && (sp1_2 == PUMP_NULLPTR)
-        && (sp1_2 != sp1_1)) << "[ OK ] 1-1";
+        && (sp1_2 != sp1_1), "[ ERROR ] 1-1");
     VoidSPtr sp2(100000);
-    PUMP_CORE_LOG_ASSERT((sp2.capacity() == 100000)) << "[ OK ] 1-2";
+    PTEST_ASSERT((sp2.capacity() == 100000), "[ ERROR ] 1-2");
 
     // test 2
     TDel d0;
@@ -99,23 +110,32 @@ bool test_VoidSPtr_1() {
     VoidSPtr sp4(100000, PUMP_NULLPTR, d0);
     VoidSPtr sp5(100000, PUMP_NULLPTR, d0);
     VoidSPtr sp6(100000, PUMP_NULLPTR, d0);
-    PUMP_CORE_LOG_ASSERT((sp3.capacity() == 100000)) << "[ OK ] 1-2";
+    PTEST_ASSERT((sp3.capacity() == 100000), "[ ERROR ] 1-3");
     sp3.reset();
-    return true;
+    return 0;
 }
 
-bool test_voidwptr() {
+PTEST_C_CASE_DEF(PumpMemoryUnitTestCase003, PumpMemoryUnitTestScene000, )
+{
+    PTEST_LOG(comment, "PumpMemoryUnitTestCase003 test_VoidSPtr_1");
+    PTEST_G_FN_CALL(TEST_VoidSPtr_1);
+    return 0;
+}
+
+PTEST_C_CASE_DEF(PumpMemoryUnitTestCase004, PumpMemoryUnitTestScene000, )
+{
+    PTEST_LOG(comment, "PumpMemoryUnitTestCase004 test_voidwptr");
     VoidSPtr sp_0(10);
     VoidSPtr sp_1;
     VoidWPtr wp_0;
 
-    PUMP_CORE_LOG_ASSERT((wp_0.expired())) << "[ OK ] 1-1";
+    PTEST_ASSERT((wp_0.expired()), "[ ERROR ] 1-1");
     wp_0 = sp_0;
-    PUMP_CORE_LOG_ASSERT(!(wp_0.expired())) << "[ OK ] 1-2";
+    PTEST_ASSERT(!(wp_0.expired()), "[ ERROR ] 1-2");
     sp_1 = wp_0.lock_raw();
-    PUMP_CORE_LOG_ASSERT(sp_1 == sp_0) << "[ OK ] 1-3";
+    PTEST_ASSERT((sp_1 == sp_0), "[ ERROR ] 1-3");
     VoidWPtr wp_1(sp_1);
-    PUMP_CORE_LOG_ASSERT(wp_1 == wp_0) << "[ OK ] 1-4";
+    PTEST_ASSERT((wp_1 == wp_0), "[ ERROR ] 1-4");
     return true;
 }
 
@@ -132,10 +152,10 @@ const int thread_num = 5;
 class TDel : public _Del {
 public:
     virtual void pre_del(const Block *p) {
-        PUMP_CORE_INFO << "call [yangzheng] pre_del";
+        PUMP_CORE_INFO("call [yangzheng] pre_del");
     }
     virtual void post_del(size_t data) {
-        PUMP_CORE_INFO << "[Del] " << data;
+        PUMP_CORE_INFO ("[Del] %s",data);
     }
     TDel(size_t a) {
         data_ = a;
@@ -173,17 +193,25 @@ void destroy(size_t i) {
     g_mtx[i].Unlock();
 }
 
-void smoke_test1() {
+}
+
+PTEST_C_CASE_DEF(PumpMemoryUnitTestCase005, PumpMemoryUnitTestScene000, 
+private:
+    const int m_nBatch = 10000;
+)
+{
+    PTEST_LOG(comment, "PumpMemoryUnitTestCase005 smoke_test1");
     list<VoidSPtr> container;
-    while (1) {
-        for (int i = 0; i<thread_num; i++) {
-            container.push_back(VoidSPtr((rand() % 1000), PUMP_NULLPTR, TDel(container.size())));
+    for (int i = 0; i < m_nBatch; ++i) {
+        for (int i = 0; i<nm_test_VoidSPtr::thread_num; i++) {
+            container.push_back(VoidSPtr((rand() % 1000), PUMP_NULLPTR, nm_test_VoidSPtr::TDel(container.size())));
         }
-        for (int i = 0; i<thread_num; i++) {
+        for (int i = 0; i<nm_test_VoidSPtr::thread_num; i++) {
             container.pop_front();
         }
     }
-    getchar();
+    PTEST_ASSERT((container.size() == 0), "[ ERROR ] 1-1");
+    return 0;
 }
 
 class CTestProductorThread : public CThread
@@ -199,11 +227,11 @@ private:
     {
         m_bStop = PUMP_FALSE;
         while (!m_bStop) {
-            create(0);
-            create(1);
-            create(2);
-            create(3);
-            create(4);
+            nm_test_VoidSPtr::create(0);
+            nm_test_VoidSPtr::create(1);
+            nm_test_VoidSPtr::create(2);
+            nm_test_VoidSPtr::create(3);
+            nm_test_VoidSPtr::create(4);
         }
         return 0;
     }
@@ -224,11 +252,11 @@ private:
     {
         m_bStop = PUMP_FALSE;
         while (!m_bStop) {
-            destroy(0);
-            destroy(1);
-            destroy(2);
-            destroy(3);
-            destroy(4);
+            nm_test_VoidSPtr::destroy(0);
+            nm_test_VoidSPtr::destroy(1);
+            nm_test_VoidSPtr::destroy(2);
+            nm_test_VoidSPtr::destroy(3);
+            nm_test_VoidSPtr::destroy(4);
         }
         return 0;
     }
@@ -236,16 +264,17 @@ private:
     pump_bool_t m_bStop;
 };
 
-void smoke_test2() 
+PTEST_C_CASE_DEF(PumpMemoryUnitTestCase006, PumpMemoryUnitTestScene000,)
 {
+    PTEST_LOG(comment, "PumpMemoryUnitTestCase006 smoke_test2");
     std::vector<CTestProductorThread *> vecProductorThread;
     std::vector<CTestComsumerThread *> vecComsumerThread;
-    for (int i = 0; i<thread_num; i++) {
+    for (int i = 0; i<nm_test_VoidSPtr::thread_num; i++) {
         CTestProductorThread * thx = new CTestProductorThread();
         thx->Start();
         vecProductorThread.push_back(thx);
     }
-    for (int i = 0; i<thread_num * 2; i++) {
+    for (int i = 0; i<nm_test_VoidSPtr::thread_num * 2; i++) {
         CTestComsumerThread * thx = new CTestComsumerThread();
         thx->Start();
         vecComsumerThread.push_back(thx);
@@ -259,62 +288,57 @@ void smoke_test2()
     {
         vecComsumerThread[i]->Stop();
     }
+    return 0;
 }
 
-}
 /////////////////////////////////////
 //    </>VoidSPtr TestCase</>
 /////////////////////////////////////
 
-bool test_VoidSPtr()
+PTEST_C_CASE_DEF(PumpMemoryUnitTestCase007, PumpMemoryUnitTestScene000, )
 {
+    PTEST_LOG(comment, "PumpMemoryUnitTestCase007 test_VoidSPtr");
     NullPtr null;
     VoidSPtr wsptr_0(PUMP_NULLPTR);
-    PUMP_CORE_LOG_ASSERT(wsptr_0.get()==NULL) << "[ OK ] 1-1";
-    return true;
+    PTEST_ASSERT(wsptr_0.get() == NULL, "[ ERROR ] 1-1");
+    return 0;
 }
 
-bool smoke_test_VoidSPtr()
+PTEST_C_CASE_DEF(PumpMemoryUnitTestCase008, PumpMemoryUnitTestScene000, 
+private:
+    const int m_nBatch = 1000;
+)
 {
-    while (1) {
-        test_VoidSPtr_1();
+    PTEST_LOG(comment, "PumpMemoryUnitTestCase008 smoke_test_VoidSPtr");
+    for (int i = 0; i < m_nBatch;++i) {
+        PTEST_G_FN_CALL(TEST_VoidSPtr_1);
     }
-    nm_test_VoidSPtr::smoke_test2();
-    test_del * a = new test_del;
-    return true;
+    return 0;
 }
 
-bool test_SharedPtr() {
+PTEST_C_CASE_DEF(PumpMemoryUnitTestCase009, PumpMemoryUnitTestScene000,)
+{
+    PTEST_LOG(comment, "PumpMemoryUnitTestCase009 test_SharedPtr");
     SharedPtr<int> sp_0(PUMP_NULLPTR);
     sp_0.construct(2);
     sp_0.construct(2);
-    PUMP_CORE_LOG_ASSERT(sp_0.ref() == 2) << "[ OK ] 1-1";
-    return true;
+    PTEST_ASSERT((sp_0.ref() == 2), "[ ERROR ] 1-1");
+    return 0;
 }
 
-bool test_WeakPtr() {
+PTEST_C_CASE_DEF(PumpMemoryUnitTestCase010, PumpMemoryUnitTestScene000, )
+{
+    PTEST_LOG(comment, "PumpMemoryUnitTestCase010 test_WeakPtr");
     SharedPtr<int> sp_0(PUMP_NULLPTR);
     sp_0.construct(2);
     WeakPtr<int> wp_0;
-    PUMP_CORE_LOG_ASSERT(wp_0.expired()) << "[ OK ] 1-1";
+    PTEST_ASSERT(wp_0.expired(), "[ ERROR ] 1-1");
     wp_0 = sp_0;
-    PUMP_CORE_LOG_ASSERT(!wp_0.expired()) << "[ OK ] 1-2";
-    return true;
+    PTEST_ASSERT(!wp_0.expired(), "[ ERROR ] 1-2");
+    return 0;
 }
 
-int main(int argc, char** argv) {
-    PUMP_CORE_LOG_CONF struLogCong;
-    memset(&struLogCong, 0, sizeof(struLogCong));
-    //struLogCong.szFilePath = argv[0];
-    struLogCong.emLogLevel = PUMP_LOG_INFO;
-    //PUMP_CORE_InitLogger(&struLogCong);
-    PUMP_CORE_LOG_ASSERT(test_Block()) << "[ OK ] test_Block()";
-    PUMP_CORE_LOG_ASSERT(test_voidwptr()) << "[ OK ] test_voidwptr()";
-    PUMP_CORE_LOG_ASSERT(test_SharedPtr()) << "[ OK ] test_SharedPtr()";
-    PUMP_CORE_LOG_ASSERT(test_WeakPtr()) << "[ OK ] test_WeakPtr()";
-    PUMP_CORE_LOG_ASSERT(test_VoidSPtr()) << "[ OK ] test_VoidSPtr()";
-
-    //smoke_test_VoidSPtr();
+PTEST_MAIN_BEGINE(int argc, char** argv)
     return getchar();
-}
+PTEST_MAIN_END
 

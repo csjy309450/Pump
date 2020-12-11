@@ -2,14 +2,10 @@
 // Created by yz on 18-10-21.
 //
 
-#ifndef LIBPUMP_POLICY_HPP
-#define LIBPUMP_POLICY_HPP
+#ifndef PUMP_MEMORY_POLICY_HPP
+#define PUMP_MEMORY_POLICY_HPP
 #include "pump_macro/pump_pre.h"
 #include <utility>
-//#ifdef WIN32
-///*TODO 原子操作全部换成pump_core*/
-//#include <boost/smart_ptr/detail/spinlock_pool.hpp>
-//#endif // WIN32
 #include <memory>
 #include "pump_core/logger/pump_core_logger.h"
 #include "pump_core/pump_core_noncopyable.h"
@@ -17,8 +13,6 @@
 #include "pump_function/pump_function.hpp"
 #include "pump_memory/pump_memory_def.h"
 #include "pump_memory/smart_ptr/block.hpp"
-
-//namespace nsp_b_detail = ::boost::detail;
 
 namespace Pump {
 namespace Memory {
@@ -209,7 +203,6 @@ public:
   {
     return static_cast<int const volatile &>( use_count_ );
   }
-  
 };
 
 template<class _Ax, class _D>
@@ -702,4 +695,4 @@ inline SHeapPolicyGuider<_Ax>::SHeapPolicyGuider(WHeapPolicyGuider<_Ax> const & 
 }
 }
 
-#endif //LIBPUMP_POLICY_HPP
+#endif //PUMP_MEMORY_POLICY_HPP

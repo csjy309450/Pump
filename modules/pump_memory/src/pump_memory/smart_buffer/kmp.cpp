@@ -72,7 +72,7 @@ long kmp::apply(char **pszSrc, long iSLen, int iSCount, const char *szPattern, l
   return -1;
 }
 
-long kmp::apply(const nsp_std::deque<char *> &vBuf, long iSrcLen, const char *szPattern, long iPLen)
+long kmp::apply(const std::deque<char *> &vBuf, long iSrcLen, const char *szPattern, long iPLen)
 {
   cal_next(szPattern, iPLen);//¼ÆËãnextÊý×é
   int k = -1;

@@ -28,6 +28,7 @@ const unsigned short MEM_PACK_LEN = 8;
 
 class _Del {
 public:
+    _Del() {}
     void operator()(Block *p) 
     {
         if (p != 0) {
@@ -136,7 +137,7 @@ public:
 
     virtual ~VoidSPtr() {
 #ifdef _TEST_LEVEL_INFO
-        PUMP_CORE_INFO << "~VoidSPtr()";
+        PUMP_CORE_INFO("~VoidSPtr()");
 #endif //_TEST_LEVEL_INFO
     }
 

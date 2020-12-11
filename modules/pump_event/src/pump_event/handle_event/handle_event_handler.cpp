@@ -79,7 +79,7 @@ pump_int32_t CTCPSockAcceptHandler::Close(pump_pvoid_t pParam)
 
 pump_int32_t CTCPSockAcceptHandler::OnAccept(::Pump::Core::Net::CSock * pSock, CHandleCap * handleCap, pump_pvoid_t pData)
 {
-    PUMP_CORE_INFO << "CTCPSockAcceptHandler::OnAccept";
+    PUMP_CORE_INFO ( "CTCPSockAcceptHandler::OnAccept");
     // 允许读事件,投递读事件
     CTCPSockRecv *pSockRecv = new CTCPSockRecv();
     pSockRecv->m_fd = pSock->GetHandle();

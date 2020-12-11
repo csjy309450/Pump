@@ -41,7 +41,7 @@ int CEventCollector::insert_newly_event(CEvent *pEv)
         return -1;
     }
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "CEventRegister::insert_event() in with pump_ev == " << pEv;
+    PUMP_CORE_INFO("CEventRegister::insert_event() in with pump_ev == %ul" , pEv);
 #endif //_TEST_LEVEL_DEBUG
     int ret = -1;
     if (pEv->m_bAsync)
@@ -54,7 +54,7 @@ int CEventCollector::insert_newly_event(CEvent *pEv)
     }
 
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "CEventRegister::insert_event() out";
+    PUMP_CORE_INFO("CEventRegister::insert_event() out");
 #endif //_TEST_LEVEL_DEBUG
     return ret;
 }
@@ -62,7 +62,7 @@ int CEventCollector::insert_newly_event(CEvent *pEv)
 int CEventCollector::__process_sync_newly_event(CEvent *pEv)
 {
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "CEventRegister::process_sync_event() in";
+    PUMP_CORE_INFO("CEventRegister::process_sync_event() in");
 #endif //_TEST_LEVEL_DEBUG
 
     if (pEv == NULL)
@@ -73,13 +73,13 @@ int CEventCollector::__process_sync_newly_event(CEvent *pEv)
 
 //ret_good:
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "CEventRegister::process_sync_event() out with " << 1;
+    PUMP_CORE_INFO("CEventRegister::process_sync_event() out with 1");
 #endif //_TEST_LEVEL_DEBUG
     return pEv->_on_newed(this->get_event_engine(), CEvent::EvData());
 
 ret_bad:
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "CEventRegister::process_sync_event() out with " << -1;
+    PUMP_CORE_INFO("CEventRegister::process_sync_event() out with -1");
 #endif //_TEST_LEVEL_DEBUG
     return -1;
 }
@@ -87,7 +87,7 @@ ret_bad:
 int CEventCollector::__process_async_newly_event(CEvent *pEv)
 {
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "CEventRegister::process_async_event() in";
+    PUMP_CORE_INFO("CEventRegister::process_async_event() in");
 #endif //_TEST_LEVEL_DEBUG
     CNewlyEvMgrGuiderForInner ne_mgr_guider(this->m_objNewlyEvMgr);
     if (pEv == NULL)
@@ -104,13 +104,13 @@ int CEventCollector::__process_async_newly_event(CEvent *pEv)
 
 //ret_good:
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "CEventRegister::process_async_event() out with " << 1;
+    PUMP_CORE_INFO("CEventRegister::process_async_event() out with 1");
 #endif //_TEST_LEVEL_DEBUG
     return 0;
 
 ret_bad:
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "CEventRegister::process_async_event() out with " << -1;
+    PUMP_CORE_INFO("CEventRegister::process_async_event() out with -1");
 #endif //_TEST_LEVEL_DEBUG
     return -1;
 }

@@ -33,7 +33,7 @@ CEventRegister::~CEventRegister()
 //    return -1;
 //  }
 //#ifdef _TEST_LEVEL_DEBUG
-//  PUMP_CORE_INFO << "CEventRegister::insert_event() in with pump_event == " << __p_ev;
+//  PUMP_CORE_INFO("CEventRegister::insert_event() in with pump_event == " << __p_ev;
 //#endif //_TEST_LEVEL_DEBUG
 //  int ret = -1;
 //  if (__p_ev->m_bAsync)
@@ -45,7 +45,7 @@ CEventRegister::~CEventRegister()
 //  }
 //
 //#ifdef _TEST_LEVEL_DEBUG
-//  PUMP_CORE_INFO << "CEventRegister::insert_event() out";
+//  PUMP_CORE_INFO("CEventRegister::insert_event() out";
 //#endif //_TEST_LEVEL_DEBUG
 //  return ret;
 //}
@@ -65,7 +65,7 @@ int CEventRegister::register_events()
         if (!(*it)->m_bAsync)
         {
             // 此函数中只处理异步事件,打印错误
-            PUMP_CORE_ERR << "同步事件 " << (pump_ev_handle)*it << " 插入错误";
+            PUMP_CORE_ERR("同步事件 %ul 插入错误", (pump_ev_handle)*it);
             // 删除非法事件
             container.erase(it);
             continue;
@@ -93,7 +93,7 @@ int CEventRegister::register_events()
             if (!m_refEvCollector.get_listened_event_mgr().insert_event(*it))
             {
                 // TODO: err 事件插入错误
-                PUMP_CORE_ERR << "条件事件 " << (pump_ev_handle)*it << " 插入错误";
+                PUMP_CORE_ERR("条件事件 %ul 插入错误" , (pump_ev_handle)*it);
             }
             else
             { // 注册条件事件成功
@@ -117,7 +117,7 @@ int CEventRegister::register_events()
     }
 
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_LOG_ASSERT(container.size() == 0) << "Newly pump_event work container size expect:0 actual:" << container.size();
+    PUMP_CORE_LOG_ASSERT(container.size() == 0, "Newly pump_event work container size expect:0 actual: %d", container.size());
 #endif //_TEST_LEVEL_DEBUG
 
     m_objNewEvMgrGuider.unlock_work();
@@ -127,7 +127,7 @@ int CEventRegister::register_events()
 //int CEventRegister::process_sync_event(CEvent *__p_ev)
 //{
 //#ifdef _TEST_LEVEL_DEBUG
-//  PUMP_CORE_INFO << "CEventRegister::process_sync_event() in";
+//  PUMP_CORE_INFO("CEventRegister::process_sync_event() in";
 //#endif //_TEST_LEVEL_DEBUG
 //
 //  CEvent::EvData data = {0};
@@ -140,13 +140,13 @@ int CEventRegister::register_events()
 //
 //ret_good:
 //#ifdef _TEST_LEVEL_DEBUG
-//  PUMP_CORE_INFO << "CEventRegister::process_sync_event() out with " << 1;
+//  PUMP_CORE_INFO("CEventRegister::process_sync_event() out with " << 1;
 //#endif //_TEST_LEVEL_DEBUG
 //  return __p_ev->_on_actived(*m_pEvEngine, data);
 //
 //ret_bad:
 //#ifdef _TEST_LEVEL_DEBUG
-//  PUMP_CORE_INFO << "CEventRegister::process_sync_event() out with " << -1;
+//  PUMP_CORE_INFO("CEventRegister::process_sync_event() out with " << -1;
 //#endif //_TEST_LEVEL_DEBUG
 //  return -1;
 //}
@@ -154,7 +154,7 @@ int CEventRegister::register_events()
 //int CEventRegister::process_async_event(CEvent *__p_ev)
 //{
 //#ifdef _TEST_LEVEL_DEBUG
-//  PUMP_CORE_INFO << "CEventRegister::process_async_event() in";
+//  PUMP_CORE_INFO("CEventRegister::process_async_event() in";
 //#endif //_TEST_LEVEL_DEBUG
 //  if (__p_ev == NULL)
 //  {
@@ -169,13 +169,13 @@ int CEventRegister::register_events()
 //
 //ret_good:
 //#ifdef _TEST_LEVEL_DEBUG
-//  PUMP_CORE_INFO << "CEventRegister::process_async_event() out with " << 1;
+//  PUMP_CORE_INFO("CEventRegister::process_async_event() out with " << 1;
 //#endif //_TEST_LEVEL_DEBUG
 //  return 0;
 //
 //ret_bad:
 //#ifdef _TEST_LEVEL_DEBUG
-//  PUMP_CORE_INFO << "CEventRegister::process_async_event() out with " << -1;
+//  PUMP_CORE_INFO("CEventRegister::process_async_event() out with " << -1;
 //#endif //_TEST_LEVEL_DEBUG
 //  return -1;
 //}

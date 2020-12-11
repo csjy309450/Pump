@@ -46,9 +46,10 @@ namespace TestCase
 {
 #define NULLSTR ""
 #define TEST_CASE(case_id_, cond_, pass_, block_) \
-do { \
-PUMP_CORE_LOG_ASSERT(cond_)<<"<test_case> [block] "<< case_id_ <<" "<< pass_; \
-PUMP_CORE_INFO<<"<test_case> [pass] " << case_id_ << block_; \
+do \
+{ \
+    PUMP_CORE_LOG_ASSERT(cond_ ,"<test_case> [block] %d %s",case_id_ , pass_); \
+    PUMP_CORE_INFO("<test_case> [pass] %d %s", case_id_ , block_); \
 } while(0);
 
 
@@ -57,7 +58,7 @@ PUMP_CORE_INFO<<"<test_case> [pass] " << case_id_ << block_; \
 // </test-0>
 bool test_0()
 {
-    PUMP_CORE_INFO << "***** test-0 *****";
+    PUMP_CORE_INFO ( "***** test-0 *****" );
     Pump::Event::CNewlyEventMgr NEMgr;
     Pump::Event::CNewlyEvMgrGuiderForInner oNEMGuider4Collector(NEMgr);
     Pump::Event::CNewlyEvMgrGuiderForUser oNEMGuider4User(NEMgr);
@@ -76,19 +77,19 @@ bool test_0()
     iLen = oNEMGuider4User.get_offscreen_locked().get()->size();
     oNEMGuider4User.unlock_offscreen();
     
-    TEST_CASE("test-0-0", iLen == 4, "\texpect 4 actual" << iLen, NULLSTR);
+    TEST_CASE("test-0-0", iLen==4, ("\texpect 4 actual %d", iLen), NULLSTR);
     
     oNEMGuider4Collector.swap();
     
     iLen = oNEMGuider4User.get_offscreen_locked().get()->size();
     oNEMGuider4User.unlock_offscreen();
     
-    TEST_CASE("test-0-1", iLen == 0, "\texpect 0 actual" << iLen, NULLSTR);
+    TEST_CASE("test-0-1", iLen == 0, ("\texpect 0 actual %d",iLen), NULLSTR);
     
     iLen = oNEMGuider4Collector.get_work_locked().get()->size();
     oNEMGuider4Collector.unlock_work();
     
-    TEST_CASE("test-0-2", iLen == 4, "\texpect 4 actual" << iLen, NULLSTR);
+    TEST_CASE("test-0-2", iLen == 4, ("\texpect 4 actual %d", iLen), NULLSTR);
     
     return true;
 }
@@ -98,7 +99,7 @@ bool test_0()
 // </test-1>
 bool test_1()
 {
-    PUMP_CORE_INFO << "***** test-1 *****";
+    PUMP_CORE_INFO ( "***** test-1 *****");
     Pump::Event::CEventEngine eventEngine;
     Pump::Event::CEventRegister eventRegister(&eventEngine);
     Pump::Event::HandleEvent::CHandleEventListener::HandleEventListenerArg arg;
@@ -121,7 +122,7 @@ bool test_1()
     ret += eventEngine.get_event_collector().insert_newly_event(sockCreate2);
     ret += eventEngine.get_event_collector().insert_newly_event(sockCreate3);
     ret += eventEngine.get_event_collector().insert_newly_event(sockCreate4);
-    TEST_CASE("test-1-0", ret == 4, "\texpect 4 actual " << ret, NULLSTR);
+    TEST_CASE("test-1-0", ret == 4, ("\texpect 4 actual %d", ret), NULLSTR);
     return true;
 }
 
@@ -132,28 +133,28 @@ bool test_2()
 {
     Pump::Event::CEventLoop * loop1 = new Pump::Event::CEventLoop();
     TEST_CASE("test-2", loop1->Start() == 0, NULLSTR, NULLSTR);
-    PUMP_CORE_INFO<<"loop1->start()";
+    PUMP_CORE_INFO ("loop1->start()");
 #ifdef __linux__
     sleep(3);
 #elif (defined _WIN32)
     ::Sleep(3000);
 #endif // __linux__
     loop1->Pause();
-    PUMP_CORE_INFO<<"loop1->pause()";
+    PUMP_CORE_INFO("loop1->pause()");
 #ifdef __linux__
     sleep(3);
 #elif (defined _WIN32)
     ::Sleep(3000);
 #endif // __linux__
     loop1->Resume();
-    PUMP_CORE_INFO<<"loop1->resume()";
+    PUMP_CORE_INFO("loop1->resume()");
 #ifdef __linux__
     sleep(3);
 #elif (defined _WIN32)
     ::Sleep(3000);
 #endif // __linux__
     loop1->Stop();
-    PUMP_CORE_INFO<<"loop1->stop()";
+    PUMP_CORE_INFO( "loop1->stop()");
     return true;
 }
 
@@ -177,8 +178,8 @@ bool test_3()
     sockaddr_in servaddr;
     fd = ::socket(AF_INET, SOCK_STREAM, 0);
     if (fd == -1) {
-        PUMP_CORE_INFO << stderr << "create socket fail, erron: %d ,reason: %s\n" <<
-            errno << strerror(errno);
+        PUMP_CORE_INFO ( "create socket fail, erron: %d ,reason: %s\n" ,
+            errno , strerror(errno));
         return false;
     }
     /*一个端口释放后会等待两分钟之后才能再被使用，SO_REUSEADDR是让端口释放后立即就可以被再次使用*/
@@ -192,7 +193,7 @@ bool test_3()
     servaddr.sin_port = ::htons(iPort);
 
     if (::bind(fd, (struct sockaddr *) &servaddr, sizeof(servaddr)) == -1) {
-        PUMP_CORE_INFO << "bind() error: " << errno;
+        PUMP_CORE_INFO ( "bind() error: %d" , errno);
         return -1;
     }
     //</create_socket>
@@ -360,7 +361,7 @@ public:
     virtual ~CMyTCPAcceptHandler() {}
     virtual pump_int32_t OnAccept(::Pump::Core::Net::CSock * pSock, CHandleCap * handleCap, pump_pvoid_t pData)
     {
-        PUMP_CORE_INFO << "CMyTCPAccept::OnAccept";
+        PUMP_CORE_INFO ( "CMyTCPAccept::OnAccept");
         // 允许读事件,投递读事件
         CMyTCPRecvHandler * pRecvHandler = new (std::nothrow)CMyTCPRecvHandler();
         if (!pRecvHandler)

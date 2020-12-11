@@ -66,57 +66,10 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_LoggerDestroy(pump_handle_t h
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_LoggerConfig(pump_handle_t hLog, const LPPUMP_CORE_LOG_CONF pConf);
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_LoggerWrite(pump_handle_t hLog, const char* szFormat, ...);
 
-namespace Pump
-{
-namespace Core
-{
-
-///*
-// * @brief deprecated after 20200703
-// */
-//class PUMP_CORE_CLASS CLogger
-//    : public CNonCopyable
-//{
-//public:
-//    CLogger(const char* szFile, int nLine, PUMP_CORE_LOG_LEVEL emLogLevel);
-//
-//    ~CLogger();
-//
-//public:
-//    CLogger& operator<< (bool val);
-//    CLogger& operator<< (short val);
-//    CLogger& operator<< (char val);
-//    CLogger& operator<< (unsigned short val);
-//    CLogger& operator<< (int val);
-//    CLogger& operator<< (unsigned int val);
-//    CLogger& operator<< (long val);
-//    CLogger& operator<< (unsigned long val);
-//    CLogger& operator<< (float val);
-//    CLogger& operator<< (double val);
-//    CLogger& operator<< (long double val);
-//    CLogger& operator<< (void* val);
-//    CLogger& operator<< (const char* val);
-//    CLogger& operator<< (const std::string & val);
-//
-//private:
-//    void * m_pLogMessage;
-//};
-
-}
-}
-
-///*
-// * @brief deprecated after 20200703
-// */
-//#define PUMP_CORE_INFO ::Pump::Core::CLogger(__FILE__,__LINE__,PUMP_LOG_INFO)
-//#define PUMP_CORE_WARING ::Pump::Core::CLogger(__FILE__,__LINE__,PUMP_LOG_WARNING)
-//#define PUMP_CORE_ERR ::Pump::Core::CLogger(__FILE__,__LINE__,PUMP_LOG_ERROR)
-//#define PUMP_CORE_LOG_ASSERT(exp) assert(exp);PUMP_CORE_INFO
-
-#define PUMP_CORE_INFO std::cout
-#define PUMP_CORE_WARING std::cout
-#define PUMP_CORE_ERR std::cout
-#define PUMP_CORE_LOG_ASSERT(exp) assert(exp);PUMP_CORE_INFO
+#define PUMP_CORE_INFO(form_, ...) ::Pump::Core::CLogGuide().WriteLine(PUMP_LOG_INFO, __FILE__,__LINE__, form_,__VA_ARGS__)
+#define PUMP_CORE_WARING(form_, ...) ::Pump::Core::CLogGuide().WriteLine(PUMP_LOG_WARNING, __FILE__,__LINE__, form_,__VA_ARGS__)
+#define PUMP_CORE_ERR(form_, ...) ::Pump::Core::CLogGuide().WriteLine(PUMP_LOG_ERROR, __FILE__,__LINE__, form_,__VA_ARGS__)
+#define PUMP_CORE_LOG_ASSERT(exp_,form_, ...) assert(exp_);PUMP_CORE_INFO(form_, __VA_ARGS__)
 
 namespace Pump
 {

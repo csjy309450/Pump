@@ -143,7 +143,7 @@ pump_int32_t CPipeHandle::OpenAnonyPipe()
     struSA.lpSecurityDescriptor = NULL;
     if (!::CreatePipe(&arrPipe[0], &arrPipe[1], &struSA, 0))  // create read in pipe
     {
-        PUMP_CORE_ERR << "[0x01]Read 流创建失效";
+        PUMP_CORE_ERR("[0x01]Read 流创建失效");
         return PUMP_ERROR;
     }
     PUMP_RAW_PIPE * pHandle = static_cast<PUMP_RAW_PIPE *>(m_handle);
@@ -200,10 +200,10 @@ pump_int32_t CPipeHandle::OpenNamedPipeServer(
         NMPWAIT_USE_DEFAULT_WAIT, NULL);
     if (INVALID_HANDLE_VALUE == hPipe)
     {
-        PUMP_CORE_ERR << "server failed to create named pipe";
+        PUMP_CORE_ERR ( "server failed to create named pipe");
         return PUMP_ERROR;
     }
-    PUMP_CORE_INFO << "server succed to create named pipe";
+    PUMP_CORE_INFO("server succed to create named pipe");
     PUMP_RAW_PIPE * pHandle = static_cast<PUMP_RAW_PIPE *>(m_handle);
     pHandle->hNamedPipe_ = hPipe;
 #elif (defined PUMP_OS_POSIX)
@@ -274,7 +274,7 @@ pump_int32_t CPipeHandle::ConnectNamedPipeServer()
             break;
         default:
         {
-            PUMP_CORE_ERR << "ConnectNamedPipe failed, err = " << dwError;
+            PUMP_CORE_ERR("ConnectNamedPipe failed, err = %d",dwError);
             return PUMP_ERROR;
         }
         }
@@ -290,7 +290,7 @@ pump_int32_t CPipeHandle::OpenNamedPipeClient(
 #ifdef PUMP_OS_WINDOWS
     if (!::WaitNamedPipeA(szName, 20000))
     {
-        PUMP_CORE_ERR << "Client Wait pipe failed: 20 second timed out." << PUMP_CORE_GetSystemError();
+        PUMP_CORE_ERR("Client Wait pipe failed: 20 second timed out. %d" , PUMP_CORE_GetSystemError());
         return PUMP_ERROR;
     }
     if ((dwOpenMode == PUMP_PIPE_READ))
@@ -308,7 +308,7 @@ pump_int32_t CPipeHandle::OpenNamedPipeClient(
     }
     if (strlen(szName) >= sizeof(m_szPipeName))
     {
-        PUMP_CORE_ERR << "pipe name cannot exceed" << sizeof(m_szPipeName);
+        PUMP_CORE_ERR("pipe name cannot exceed %d" , sizeof(m_szPipeName));
         return PUMP_ERROR;
     }
     strncpy(m_szPipeName, szName, sizeof(m_szPipeName));
@@ -322,10 +322,10 @@ pump_int32_t CPipeHandle::OpenNamedPipeClient(
         NULL);          // no template file 
     if (hPipe == INVALID_HANDLE_VALUE)
     {
-        PUMP_CORE_ERR << "Could not open pipe. Sys Err=" << ::GetLastError();
+        PUMP_CORE_ERR("Could not open pipe. Sys Err=%d" , ::GetLastError());
         return PUMP_ERROR;
     }
-    PUMP_CORE_INFO << "client connect pipe succed";
+    PUMP_CORE_INFO("client connect pipe succed");
     PUMP_RAW_PIPE * pHandle = static_cast<PUMP_RAW_PIPE *>(m_handle);
     pHandle->hNamedPipe_ = hPipe;
     //// Exit if an error other than ERROR_PIPE_BUSY occurs. 
@@ -438,7 +438,7 @@ pump_int32_t CPipeHandle::Read(pump_void_t * szBuff, pump_uint32_t dwSize, pump_
         , (m_bAsynic ? &m_struOverlapped : NULL));
     if (!ret)
     {
-        PUMP_CORE_ERR << "CPipeHandle::Read() failed " << PUMP_CORE_GetSystemError();
+        PUMP_CORE_ERR("CPipeHandle::Read() failed %d", PUMP_CORE_GetSystemError());
         if (pNRead)
         {
             *pNRead = dwNRead;

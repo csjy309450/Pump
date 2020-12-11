@@ -42,7 +42,7 @@ CTimerCreate::~CTimerCreate()
 int CTimerCreate::_on_newed(CEventEngine &refEvEngine, EvData objData)
 {
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "timer_create::_on_newed() in";
+    PUMP_CORE_INFO("timer_create::_on_newed() in");
 #endif //_TEST_LEVEL_DEBUG
     CHandleCap fDescriptor;
     CListenedEventContainer *pLEContainer = NULL;
@@ -83,7 +83,7 @@ int CTimerCreate::_on_newed(CEventEngine &refEvEngine, EvData objData)
         goto ret_bad;
     }
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "pHashContainer size == " << pHashContainer->size() << " before insert";
+    PUMP_CORE_INFO("pHashContainer size == %d before insert" , pHashContainer->size() );
 #endif //_TEST_LEVEL_DEBUG
     // 创建一个FileDescriptor对象,并插入到pHashContainer
 
@@ -104,14 +104,14 @@ int CTimerCreate::_on_newed(CEventEngine &refEvEngine, EvData objData)
 
 ret_good:
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "pHashContainer size == " << pHashContainer->size() << " after insert";
-    PUMP_CORE_INFO << "timer_create::_on_newed() out with " << 1;
+    PUMP_CORE_INFO("pHashContainer size == %d after insert" , pHashContainer->size() );
+    PUMP_CORE_INFO("timer_create::_on_newed() out with 1" );
 #endif //_TEST_LEVEL_DEBUG
     return 0;
 
 ret_bad:
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "timer_create::_on_newed() out with " << -1;
+    PUMP_CORE_INFO("timer_create::_on_newed() out with -1");
 #endif //_TEST_LEVEL_DEBUG
     return -1;
 }
@@ -119,7 +119,7 @@ ret_bad:
 int CTimerCreate::_on_actived(CEventEngine &refEvEngine, EvData objData)
 {
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "timer_create::_on_actived() in";
+    PUMP_CORE_INFO("timer_create::_on_actived() in");
 #endif //_TEST_LEVEL_DEBUG
 #ifdef __linux__
     uint64_t exp;
@@ -134,13 +134,13 @@ int CTimerCreate::_on_actived(CEventEngine &refEvEngine, EvData objData)
 
 ret_good:
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "timer_create::_on_actived() out with " << 1;
+    PUMP_CORE_INFO("timer_create::_on_actived() out with 1" );
 #endif //_TEST_LEVEL_DEBUG
     return 0;
 
 ret_bad:
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "timer_create::_on_actived() out with " << -1;
+    PUMP_CORE_INFO("timer_create::_on_actived() out with -1");
 #endif //_TEST_LEVEL_DEBUG
     return -1;
 }
@@ -149,7 +149,7 @@ int CTimerCreate::_on_destroyed(CEventEngine &refEvEngine, EvData objData)
 {
 
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "fd_close::_on_actived() in";
+    PUMP_CORE_INFO("fd_close::_on_actived() in");
 #endif //_TEST_LEVEL_DEBUG
     CHandleEventListener *pEvListener = NULL;
     ::Pump::Core::Net::CFdCtl change;
@@ -174,13 +174,13 @@ int CTimerCreate::_on_destroyed(CEventEngine &refEvEngine, EvData objData)
     {
         /* FIXME 设置错误码 */
         refEvEngine.unlock_listener_by_uuid(this->m_szUuid);
-        PUMP_CORE_INFO << "fd 跟新到 MutiplexBackend 失败";
+        PUMP_CORE_INFO("fd 跟新到 MutiplexBackend 失败");
         goto ret_bad;
     }
 
 
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "call ::close() " << this->m_fd;
+    PUMP_CORE_INFO("call ::close() %ul", this->m_fd);
 #endif //_TEST_LEVEL_DEBUG
 
     // 1.关闭文件描述符
@@ -215,21 +215,21 @@ int CTimerCreate::_on_destroyed(CEventEngine &refEvEngine, EvData objData)
         goto ret_bad;
     }
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "pHashContainer size == " << pHashContainer->size() << " before remove";
+    PUMP_CORE_INFO("pHashContainer size == %d before remove" , pHashContainer->size());
 #endif //_TEST_LEVEL_DEBUG
     // 重置 pFDescriptor 状态为未初始化
     pHashContainer->remove(pFDescriptor);
 
 ret_good:
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "pHashContainer size == " << pHashContainer->size() << " after remove";
-    PUMP_CORE_INFO << "fd_close::_on_actived() out with " << 1;
+    PUMP_CORE_INFO("pHashContainer size == %d after remove" , pHashContainer->size() );
+    PUMP_CORE_INFO("fd_close::_on_actived() out with 1" );
 #endif //_TEST_LEVEL_DEBUG
     return 0;
 
 ret_bad:
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "fd_close::_on_actived() out with " << -1;
+    PUMP_CORE_INFO("fd_close::_on_actived() out with -1");
 #endif //_TEST_LEVEL_DEBUG
     return -1;
 }

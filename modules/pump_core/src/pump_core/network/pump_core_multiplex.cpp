@@ -80,7 +80,7 @@ int CSelect::init()
 int CSelect::update(const CFdCtl &refChange)
 {
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "_select::update() in";
+    PUMP_CORE_INFO("_select::update() in");
 #endif //_TEST_LEVEL_DEBUG
     switch (refChange.type_)
     {
@@ -173,13 +173,13 @@ int CSelect::update(const CFdCtl &refChange)
 
 ret_good:
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "_select::update() out with 0";
+    PUMP_CORE_INFO("_select::update() out with 0");
 #endif //_TEST_LEVEL_DEBUG
     return 0;
 
 ret_bad:
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "_select::update() out with -1";
+    PUMP_CORE_INFO("_select::update() out with -1");
 #endif //_TEST_LEVEL_DEBUG
     return -1;
 }
@@ -192,7 +192,7 @@ pump_fd_t CSelect::Max()
 int CSelect::wait(CFdRetList &refIoFdRet, timeval &tmv)
 {
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "_select::wait() in";
+    PUMP_CORE_INFO("_select::wait() in");
 #endif //_TEST_LEVEL_DEBUG
 
     int ret_count = 0;
@@ -201,7 +201,7 @@ int CSelect::wait(CFdRetList &refIoFdRet, timeval &tmv)
     if (m_fds.empty())
     {
 #ifdef _TEST_LEVEL_DEBUG
-        PUMP_CORE_INFO << "_M_fds.empty() == true";
+        PUMP_CORE_INFO("_M_fds.empty() == true");
 #endif //_TEST_LEVEL_DEBUG
         goto ret_good;
     }
@@ -209,7 +209,7 @@ int CSelect::wait(CFdRetList &refIoFdRet, timeval &tmv)
     // 2.recover working fd_set from backup fd_set
     recover();
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "::select() will block " << tmv.tv_sec << "(s) and " << tmv.tv_usec << "(us)";
+    PUMP_CORE_INFO("::select() will block %l(s) and %l(us)", tmv.tv_sec, tmv.tv_usec );
 #endif //_TEST_LEVEL_DEBUG
     // 3.call ::select()
     ret_select = ::select((int)Max() + 1,
@@ -224,7 +224,7 @@ int CSelect::wait(CFdRetList &refIoFdRet, timeval &tmv)
     }
     else if (ret_select == -1)
     { // function error
-        PUMP_CORE_INFO << "[Error]: " << PUMP_CORE_GetSystemError();
+        PUMP_CORE_INFO("[Error]: %d", PUMP_CORE_GetSystemError());
         // TODO add error process
         goto ret_bad;
     }
@@ -265,13 +265,13 @@ int CSelect::wait(CFdRetList &refIoFdRet, timeval &tmv)
 
 ret_good:
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "_select::wait() out with " << ret_count;
+    PUMP_CORE_INFO("_select::wait() out with %d", ret_count);
 #endif //_TEST_LEVEL_DEBUG
     return ret_count;
 
 ret_bad:
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "_select::wait() out with " << -1;
+    PUMP_CORE_INFO("_select::wait() out with %d", -1);
 #endif //_TEST_LEVEL_DEBUG
     return -1;
 }

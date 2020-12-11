@@ -240,7 +240,7 @@ int smart_buffer<_Elem, _Alloc>::append(const char *szSrc, size_t iSLen)
     m_aOpBufSize += iSLen;
     unlockAppend();
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "new op cost: " << tDiff1;
+    PUMP_CORE_INFO("new op cost: %f", tDiff1);
 #endif // _TEST_LEVEL_DEBUG
 
 #ifdef _TEST_LEVEL_DEBUG
@@ -377,7 +377,7 @@ public:
      * @param iLen 待拷贝长度
      * @return 实际拷贝长度
      */
-    long long IoBuffer::clone(nsp_std::string &strOBuf, size_t iLen)
+    long long IoBuffer::clone(std::string &strOBuf, size_t iLen)
     {
         if (iLen <= 0)
         {
@@ -394,7 +394,7 @@ public:
         {
             iRestLen = iGetSize = (long long)m_aOpBufSize.Value();
         }
-        nsp_std::deque<char *>::iterator it = m_vBufs.begin();
+        std::deque<char *>::iterator it = m_vBufs.begin();
         char *pszBegin = (*it) + m_iBegin;
         if (iRestLen < (m_iChunkSize - m_iBegin))
         {

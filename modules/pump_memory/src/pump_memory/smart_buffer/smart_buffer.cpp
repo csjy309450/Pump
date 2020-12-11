@@ -48,7 +48,7 @@ long long IoBuffer::clone(char * pOBuf, size_t dwSize)
     {
         iRestLen = dwSize;
     }
-    nsp_std::deque<char *>::iterator it = m_vBufs.begin();
+    std::deque<char *>::iterator it = m_vBufs.begin();
     char *pszBegin = (*it) + m_iBegin;
     if (iRestLen < (m_iChunkSize - m_iBegin))
     {

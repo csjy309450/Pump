@@ -78,7 +78,7 @@ const CUnidimEventContainer *CHandleEventHashContainer::cprior()
 bool CHandleEventHashContainer::insert(CUnidimEventContainer *pEvContainer, const Condition *pCond)
 {
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "CFdEventHashContainer::insert() in";
+    PUMP_CORE_INFO("CFdEventHashContainer::insert() in");
 #endif //_TEST_LEVEL_DEBUG
     CHandleCap *pWork = dynamic_cast<CHandleCap *>(pEvContainer);
     if ((size_t)pWork->m_pHandle->GetHandle() < 0 || (size_t)pWork->m_pHandle->GetHandle() > g_nFd
@@ -92,15 +92,15 @@ bool CHandleEventHashContainer::insert(CUnidimEventContainer *pEvContainer, cons
 
 ret_good:
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "insert fd == " << pWork->m_pHandle->GetHandle();
-    PUMP_CORE_INFO << "CFdEventHashContainer::insert() out with " << true;
+    PUMP_CORE_INFO("insert fd == %ul",pWork->m_pHandle->GetHandle());
+    PUMP_CORE_INFO("CFdEventHashContainer::insert() out with true");
 #endif //_TEST_LEVEL_DEBUG
     return true;
 
 ret_bad:
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "insert fd == " << pWork->m_pHandle->GetHandle();
-    PUMP_CORE_INFO << "CFdEventHashContainer::insert() out with" << false;
+    PUMP_CORE_INFO("insert fd == %ul" , pWork->m_pHandle->GetHandle());
+    PUMP_CORE_INFO("CFdEventHashContainer::insert() out with false");
 #endif //_TEST_LEVEL_DEBUG
     return false;
 }
@@ -144,7 +144,7 @@ bool CHandleEventHashContainer::remove(CUnidimEventContainer *pEvContainer, cons
         return false;
     }
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "CFdEventHashContainer::remove() remove fd == " << pWork->m_pHandle->GetHandle();
+    PUMP_CORE_INFO("CFdEventHashContainer::remove() remove fd == %ul" , pWork->m_pHandle->GetHandle());
 #endif //_TEST_LEVEL_DEBUG
     m_arrFd[(size_t)pWork->m_pHandle->GetHandle()].clear();
     --m_dwSize;
@@ -314,7 +314,7 @@ const CUnidimEventContainer *CHandleEventMapContainer::cprior()
 bool CHandleEventMapContainer::insert(CUnidimEventContainer *pEvContainer, const Condition *pCond)
 {
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "CHandleEventMapContainer::insert() in";
+    PUMP_CORE_INFO("CHandleEventMapContainer::insert() in");
 #endif //_TEST_LEVEL_DEBUG
     CHandleCap *pWork = dynamic_cast<CHandleCap *>(pEvContainer);
     if (pWork == NULL
@@ -331,15 +331,15 @@ bool CHandleEventMapContainer::insert(CUnidimEventContainer *pEvContainer, const
 
 //ret_good:
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "insert fd == " << pWork->m_pHandle->GetHandle();
-    PUMP_CORE_INFO << "CHandleEventMapContainer::insert() out with " << true;
+    PUMP_CORE_INFO("insert fd == %ul" , pWork->m_pHandle->GetHandle());
+    PUMP_CORE_INFO("CHandleEventMapContainer::insert() out with true");
 #endif //_TEST_LEVEL_DEBUG
     return true;
 
 ret_bad:
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "insert fd == " << pWork->m_pHandle->GetHandle();
-    PUMP_CORE_INFO << "CHandleEventMapContainer::insert() out with" << false;
+    PUMP_CORE_INFO("insert fd == %ul" , pWork->m_pHandle->GetHandle());
+    PUMP_CORE_INFO("CHandleEventMapContainer::insert() out with false" ) ;
 #endif //_TEST_LEVEL_DEBUG
     return false;
 }
@@ -385,7 +385,7 @@ bool CHandleEventMapContainer::remove(CUnidimEventContainer *pEvContainer, const
         return false;
     }
 #ifdef _TEST_LEVEL_DEBUG
-    PUMP_CORE_INFO << "CHandleEventMapContainer::remove() remove fd == " << pWork->m_pHandle->GetHandle();
+    PUMP_CORE_INFO("CHandleEventMapContainer::remove() remove fd == %ul" , pWork->m_pHandle->GetHandle());
 #endif //_TEST_LEVEL_DEBUG
     it->second.clear();
     if (it==m_pWork)
