@@ -10,7 +10,7 @@ extern "C"
 #include "SLB3/namespace.h"
 #include "SLB3/internal/class.h"
 #include "SLB3/implementation.h"
-#include "pump_plugin/pump_plugin_lua_context.h"
+#include "pump_plugin/pump_pslot_lua_context.h"
 
 namespace Pump
 {

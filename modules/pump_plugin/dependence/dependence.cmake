@@ -40,6 +40,7 @@ message("<pump::pump_plugin> pump_plugin_INNER_DEP_LIBS> ${pump_plugin_INNER_DEP
 set(pump_plugin_INNER_TEST_DEP_INC_DIRS
         ${pump_plugin_INNER_PROJECT_ROOT_DIR}/dependence/include/${pump_OS_PLATFORM}
         ${pump_plugin_INNER_PROJECT_ROOT_DIR}/include
+        ${pump_plugin_INNER_PROJECT_ROOT_DIR}/src
         ${pump_macro_INCLUDE_DIRS}
         ${pump_core_INCLUDE_DIRS}
         ${pump_function_INCLUDE_DIRS}

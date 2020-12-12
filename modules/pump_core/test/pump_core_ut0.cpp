@@ -322,6 +322,41 @@ PTEST_C_CASE_DEF(PumpCoreUnitTestCase011, PumpCoreUnitTestScene000, )
     return 0;
 }
 
+void Test_CB_WriteLog (
+    PUMP_CORE_LOG_LEVEL emLogLevel,
+    const char *szFileName,
+    pump_uint32_t nLineNo,
+    const char *szModularName,
+    const char *szMessage,
+    pump_uint32_t nMsgLen)
+{
+    printf("[TestLog] %s\n", szMessage);
+}
+
+PTEST_C_CASE_DEF(PumpCoreUnitTestCase012, PumpCoreUnitTestScene000, )
+{
+    PTEST_LOG(comment, "PumpCoreUnitTestCase012 test user log api");
+    PTEST_ASSERT((PUMP_CORE_Init() == PUMP_OK), "PUMP_CORE_Init failed 3");
+    PUMP_CORE_LOG_CONF struLogCong;
+    memset(&struLogCong, 0, sizeof(struLogCong));
+    struLogCong.bPrintConsole = PUMP_TRUE;
+    struLogCong.bWriteFile = PUMP_TRUE;
+    struLogCong.emLogLevel = PUMP_LOG_INFO;
+    strcpy(struLogCong.szFilePath, "yz_log_text");
+    struLogCong.emLogLevel = PUMP_LOG_INFO;
+    pump_handle_t hLog = PUMP_CORE_LoggerCreate(PUMP_CORE_LOG_RECORED_USER);
+    PTEST_ASSERT(hLog != PUMP_NULL, "PUMP_CORE_LoggerCreate failed 3");
+    struLogCong.pfnLog = Test_CB_WriteLog;
+    PTEST_ASSERT((PUMP_CORE_LoggerConfig(hLog, &struLogCong) == PUMP_OK), "PUMP_CORE_LoggerConfig failed 3");
+    PTEST_ASSERT((PUMP_CORE_InjectLocalLogger(hLog) == PUMP_OK), "PUMP_CORE_InjectLocalLogger failed 2");
+
+    PUMP_CORE_INFO("=_=");
+    PUMP_CORE_INFO("T_T");
+
+    PTEST_ASSERT((PUMP_CORE_Cleanup() == PUMP_OK), "PUMP_CORE_Cleanup failed 1");
+    return 0;
+}
+
 PTEST_MAIN_BEGINE(int argc, char** argv)
     return getchar();
 PTEST_MAIN_END

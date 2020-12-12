@@ -32,6 +32,8 @@
 
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_Init();
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_Cleanup();
+/** Inject logger to pump_core */
+PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_InjectLocalLogger(pump_handle_t hLogger);
 PUMP_CORE_API pump_void_t PUMP_CALLBACK PUMP_CORE_SetSystemError(pump_int32_t iError);
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_GetSystemError();
 PUMP_CORE_API pump_void_t PUMP_CALLBACK PUMP_CORE_Sleep(pump_int32_t iMilliseconds);

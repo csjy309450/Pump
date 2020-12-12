@@ -27,7 +27,10 @@ if(${pump_plugin_BUILD_FLAG} MATCHES "static")
         ${pump_plugin_INNER_SRCS}
         )
     target_include_directories(pump_plugin_sll PRIVATE ${pump_plugin_INNER_INCLUDE_DIR})
-    target_compile_definitions(pump_plugin_sll PRIVATE PUMP_PLUGIN_BUILD_SLL=1)
+    target_compile_definitions(pump_plugin_sll PRIVATE 
+        PUMP_PLUGIN_BUILD_SLL=1
+        PUMP_PLUGIN_LUA_MODE=0
+        )
     target_compile_options(pump_plugin_sll PRIVATE ${pump_plugin_INNER_COMPILE_FLAG})
     set_target_properties(pump_plugin_sll PROPERTIES OUTPUT_NAME ${pump_plugin_INNER_SLIB_NAME})
     set_target_properties(pump_plugin_sll PROPERTIES FOLDER "pump_plugin/target")

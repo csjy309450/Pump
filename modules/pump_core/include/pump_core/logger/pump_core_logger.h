@@ -30,7 +30,6 @@
 #include "pump_core/pump_core_noncopyable.h"
 #include "pump_core/thread/pump_core_mutex.h"
 
-
 typedef enum tagPUMP_CORE_LOG_LEVEL
 {
     PUMP_LOG_INFO = 0,
@@ -38,12 +37,31 @@ typedef enum tagPUMP_CORE_LOG_LEVEL
     PUMP_LOG_ERROR
 } PUMP_CORE_LOG_LEVEL;
 
+/**
+ * user log callback
+ * @param emLogLevel
+ * @param szFileName
+ * @param nLineNo
+ * @param szFuncName
+ * @param szModular
+ * @param szMessage
+ * @param nMsgLen
+ */
+typedef void(*PUMP_CORE_CB_WriteLog) (
+    PUMP_CORE_LOG_LEVEL emLogLevel,
+    const char *szFileName,
+    pump_uint32_t nLineNo,
+    const char *szModularName,
+    const char *szMessage,
+    pump_uint32_t nMsgLen);
+
 typedef enum tagPUMP_CORE_LOG_RECORED_TYPE
 {
     PUMP_CORE_LOG_RECORED_DEFAULT = 0,
     PUMP_CORE_LOG_RECORED_TEXT,
     PUMP_CORE_LOG_RECORED_GLOG,
     PUMP_CORE_LOG_RECORED_SQLITE,
+    PUMP_CORE_LOG_RECORED_USER,
 } PUMP_CORE_LOG_RECORED_TYPE;
 
 typedef struct tagPUMP_CORE_LOG_CONF
@@ -53,10 +71,9 @@ typedef struct tagPUMP_CORE_LOG_CONF
     pump_bool_t bNotPrintFileInfo;
     pump_bool_t bWriteFile;
     char szFilePath[260];
+    char szRes[4];
+    PUMP_CORE_CB_WriteLog pfnLog;
 }PUMP_CORE_LOG_CONF, *LPPUMP_CORE_LOG_CONF;
-
-/** Inject logger to pump_core */
-PUMP_CORE_API int PUMP_CALLBACK PUMP_CORE_InjectLocalLogger(pump_handle_t hLogger);
 
 //PUMP_CORE_API void PUMP_CALLBACK  __PUMP_CORE_Test_new_logger();
 
@@ -66,10 +83,12 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_LoggerDestroy(pump_handle_t h
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_LoggerConfig(pump_handle_t hLog, const LPPUMP_CORE_LOG_CONF pConf);
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_LoggerWrite(pump_handle_t hLog, const char* szFormat, ...);
 
-#define PUMP_CORE_INFO(form_, ...) ::Pump::Core::CLogGuide().WriteLine(PUMP_LOG_INFO, __FILE__,__LINE__, form_,__VA_ARGS__)
-#define PUMP_CORE_WARING(form_, ...) ::Pump::Core::CLogGuide().WriteLine(PUMP_LOG_WARNING, __FILE__,__LINE__, form_,__VA_ARGS__)
-#define PUMP_CORE_ERR(form_, ...) ::Pump::Core::CLogGuide().WriteLine(PUMP_LOG_ERROR, __FILE__,__LINE__, form_,__VA_ARGS__)
+#ifdef PUMP_COMPILER_CXX
+#define PUMP_CORE_INFO(form_, ...) ::Pump::Core::CPumpCoreLogGuide().WriteLine(PUMP_LOG_INFO, __FILE__,__LINE__, form_,__VA_ARGS__)
+#define PUMP_CORE_WARING(form_, ...) ::Pump::Core::CPumpCoreLogGuide().WriteLine(PUMP_LOG_WARNING, __FILE__,__LINE__, form_,__VA_ARGS__)
+#define PUMP_CORE_ERR(form_, ...) ::Pump::Core::CPumpCoreLogGuide().WriteLine(PUMP_LOG_ERROR, __FILE__,__LINE__, form_,__VA_ARGS__)
 #define PUMP_CORE_LOG_ASSERT(exp_,form_, ...) assert(exp_);PUMP_CORE_INFO(form_, __VA_ARGS__)
+#endif // PUMP_COMPILER_CXX
 
 namespace Pump
 {
@@ -109,6 +128,7 @@ public:
         va_list args);
     void ResetMessage();
     const char * GetMessage();
+    pump_uint32_t GetMessageSize() const;
 
 public:
     static void __Time2Str(char * pBuf, size_t dwSize);
@@ -127,6 +147,7 @@ private:
  * @brief The base class of log recorder, writing log message to file.
  */
 class PUMP_CORE_CLASS CLogRecorderBase
+    : public CNonCopyable
 {
 public:
     CLogRecorderBase();
@@ -193,34 +214,34 @@ public:
     pump_int32_t Destroy(CLogRecorderBase * pLogRecorder);
 };
 
-class PUMP_CORE_CLASS CLogGuide
+class PUMP_CORE_CLASS CLogGuideBase
     : public CNonCopyable
 {
 public:
-    CLogGuide();
-    ~CLogGuide();
+    CLogGuideBase();
+    virtual ~CLogGuideBase();
+    virtual pump_int32_t WriteLine(
+        PUMP_CORE_LOG_LEVEL emLevel,
+        const char* szFile,
+        unsigned int nLine,
+        const char* szFormate,
+        ...) = 0;
+};
+
+class PUMP_CORE_CLASS CPumpCoreLogGuide
+    : public CLogGuideBase
+{
+public:
+    CPumpCoreLogGuide();
+    virtual ~CPumpCoreLogGuide();
 
 public:
-    pump_int32_t WriteLine(
+    virtual pump_int32_t WriteLine(
         PUMP_CORE_LOG_LEVEL emLevel, 
         const char* szFile, 
         unsigned int nLine,
         const char* szFormate, 
         ...);
-    //CLogGuide& operator<< (bool val);
-    //CLogGuide& operator<< (short val);
-    //CLogGuide& operator<< (char val);
-    //CLogGuide& operator<< (unsigned short val);
-    //CLogGuide& operator<< (int val);
-    //CLogGuide& operator<< (unsigned int val);
-    //CLogGuide& operator<< (long val);
-    //CLogGuide& operator<< (unsigned long val);
-    //CLogGuide& operator<< (float val);
-    //CLogGuide& operator<< (double val);
-    //CLogGuide& operator<< (long double val);
-    //CLogGuide& operator<< (void* val);
-    //CLogGuide& operator<< (const char* val);
-    //CLogGuide& operator<< (const std::string & val);
 };
 
 }

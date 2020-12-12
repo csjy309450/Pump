@@ -28,7 +28,7 @@ if(${CMAKE_GENERATOR} STREQUAL "Unix Makefiles")
             -fPIC)
     if(${pump_plugin_BUILD_FLAG} MATCHES "shared")
         set(pump_plugin_INNER_COMPILE_FLAG ${pump_plugin_INNER_COMPILE_FLAG}
-            -DPUMP_PLUGIN_BUILD_DLL)
+            -DPUMP_CORE_USING_DLL)
     endif()
     set(pump_plugin_INNER_LINK_FLAG ${pump_plugin_INNER_LINK_FLAG}
         -lpthread 
@@ -44,9 +44,7 @@ elseif(${CMAKE_GENERATOR} MATCHES "Visual Studio")
     set_property(GLOBAL PROPERTY USE_FOLDERS On)
     if(${pump_plugin_BUILD_FLAG} MATCHES "shared")
         set(pump_plugin_INNER_COMPILE_FLAG ${pump_plugin_INNER_COMPILE_FLAG}
-            -DPUMP_PLUGIN_BUILD_DLL 
-            -DPUMP_CORE_BUILD_DLL
-            -DPUMP_EVENT_BUILD_DLL)
+            -DPUMP_CORE_USING_DLL)
     endif()
     if(${CMAKE_GENERATOR} STREQUAL "Visual Studio 14 2015")
     elseif(${CMAKE_GENERATOR} STREQUAL "Visual Studio 14 2015 Win64")
