@@ -464,8 +464,29 @@ bool test_x()
 
 using namespace TestCase;
 
+void test_init()
+{
+    PUMP_CORE_Init();
+    PUMP_CORE_LOG_CONF struLogCong;
+    memset(&struLogCong, 0, sizeof(struLogCong));
+    struLogCong.bPrintConsole = PUMP_TRUE;
+    struLogCong.bWriteFile = PUMP_TRUE;
+    struLogCong.emLogLevel = PUMP_LOG_INFO;
+    strcpy(struLogCong.szFilePath, "yz_log_text");
+    struLogCong.emLogLevel = PUMP_LOG_INFO;
+    pump_handle_t hLog = PUMP_CORE_LoggerCreate();
+    PUMP_CORE_LoggerConfig(hLog, &struLogCong);
+    PUMP_CORE_InjectLocalLogger(hLog);
+}
+
+void test_cleanup()
+{
+    PUMP_CORE_Cleanup();
+}
+
 int main(int argc, char** argv)
 {
+    test_init();
     PUMP_CORE_InitNetwork();
     PUMP_CORE_LOG_CONF struLogCong;
     memset(&struLogCong, 0, sizeof(struLogCong));
@@ -479,5 +500,6 @@ int main(int argc, char** argv)
     //TEST_CASE("test-4", TestCase::test_4(), NULLSTR, NULLSTR);
     //TEST_CASE("test-5", TestCase::test_5(), NULLSTR, NULLSTR);
     TEST_CASE("test-6", TestCase::test_6(), NULLSTR, NULLSTR);
+    test_cleanup();
     return getchar();
 }

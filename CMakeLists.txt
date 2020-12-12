@@ -106,5 +106,11 @@ if(${pump_event_BUILD_FLAG} MATCHES "(shared)|(static)|(code)")
    find_package(pump_event)
 endif()
 
+//set(pump_plugin_BUILD_FLAG "shared,static")
+//message(${pump_plugin_BUILD_FLAG})
+//if(${pump_plugin_BUILD_FLAG} MATCHES "(shared)|(static)|(code)")
+//   find_package(pump_plugin)
+//endif()
+
 include(${PROJECT_SOURCE_DIR}/example/CMakeLists.txt)
 set("<pump> CMakeLists.txt out")

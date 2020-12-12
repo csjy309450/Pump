@@ -37,10 +37,10 @@ CTCPSockAcceptHandler::~CTCPSockAcceptHandler()
 
 pump_int32_t CTCPSockAcceptHandler::Open(pump_pvoid_t pParam)
 {
-    //if (!pParam)
-    //{
-    //    return PUMP_ERROR;
-    //}
+    if (!pParam)
+    {
+        return PUMP_ERROR;
+    }
     CTCPSockAcceptArgs * pArgs = static_cast<CTCPSockAcceptArgs *>(pParam);
     m_pListenSock = ::Pump::Core::Net::CSock::CreateSock(PUMP_AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (!m_pListenSock)
