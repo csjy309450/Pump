@@ -15,6 +15,7 @@
  * </table>
  */
 
+#include <set>
 #include "pump_core/pump_core_global_ctrl_base.h"
 #include "pump_core/pump_core_object.h"
 #include "pump_core/thread/pump_core_mutex.h"
@@ -25,29 +26,7 @@ namespace Pump
 namespace Core
 {
 
-//CLogRecorderKeeper::CLogRecorderKeeper(CLogRecorderBase * pLogRecorder)
-//    : m_pLogRecorder(pLogRecorder)
-//{
-//    CGlobalCtrlBase::ReadLock();
-//}
-//
-//CLogRecorderKeeper::CLogRecorderKeeper(const CLogRecorderKeeper & other)
-//    : m_pLogRecorder(other.m_pLogRecorder)
-//{
-//    CGlobalCtrlBase::ReadLock();
-//}
-//
-//CLogRecorderKeeper::~CLogRecorderKeeper() 
-//{ 
-//    m_pLogRecorder = NULL;
-//    CGlobalCtrlBase::ReadUnlock();
-//}
-//CLogRecorderBase * CLogRecorderKeeper::GetLogger() { return m_pLogRecorder; }
 
-//CLogRecorderKeeper::CLogRecorderKeeper() {}
-
-CGlobalCtrlBase * CGlobalCtrlBase::s_pGlobalCtrl = PUMP_NULL;
-::Pump::Core::Thread::CRWLocker CGlobalCtrlBase::s_csGlobalCtrl;
 //::Pump::Core::Thread::CMutex CGlobalCtrlBase::s_wcsGlobalCtrl;
 
 CGlobalCtrlBase::CGlobalCtrlBase()
@@ -64,26 +43,6 @@ CGlobalCtrlBase::~CGlobalCtrlBase()
     m_pLogRecorder = (PUMP_NULL);
 }
 
-void CGlobalCtrlBase::ReadLock()
-{
-    s_csGlobalCtrl.readLock();
-}
-
-void CGlobalCtrlBase::ReadUnlock()
-{
-    s_csGlobalCtrl.readUnlock();
-}
-
-void CGlobalCtrlBase::WriteLock()
-{
-    s_csGlobalCtrl.writeLock();
-}
-
-void CGlobalCtrlBase::WriteUnlock()
-{
-    s_csGlobalCtrl.writeUnlock();
-}
-
 void CGlobalCtrlBase::SetInitFlag(pump_bool_t bInit)
 {
     if (bInit == m_bInit)
@@ -98,44 +57,33 @@ void CGlobalCtrlBase::SetInitFlag(pump_bool_t bInit)
     m_csInit.Unlock();
 }
 
-pump_bool_t CGlobalCtrlBase::IsInit()
+pump_bool_t CGlobalCtrlBase::GetInitFlag() const
 {
-    CGlobalCtrlBase::ReadLock();
-    if (!s_pGlobalCtrl)
-    {
-        CGlobalCtrlBase::ReadUnlock();
-        return PUMP_FALSE;
-    }
-    pump_bool_t bInit = s_pGlobalCtrl->m_bInit;
-    CGlobalCtrlBase::ReadUnlock();
-    return bInit;
+    return m_bInit;
 }
 
-/** Set private logger. */
-pump_int32_t CGlobalCtrlBase::SetLogger(pump_handle_t hLogger)
+pump_int32_t CGlobalCtrlBase::SetLoggerPtr(pump_handle_t hLogger)
 {
-    if (!hLogger)
-    {
-        return PUMP_ERROR;
-    }
-    CGlobalCtrlBase::ReadLock();
-    if (!s_pGlobalCtrl)
-    {
-        CGlobalCtrlBase::ReadLock();
-        return PUMP_OK;
-    }
     CLogRecorderBase * pLogRecoreder = static_cast<CLogRecorderBase *>(hLogger);
-    s_pGlobalCtrl->m_csLogRecorder.writeLock();
-    s_pGlobalCtrl->m_pLogRecorder = pLogRecoreder;
-    s_pGlobalCtrl->m_csLogRecorder.writeUnlock();
-    CGlobalCtrlBase::ReadUnlock();
+    m_csLogRecorder.writeLock();
+    m_pLogRecorder = pLogRecoreder;
+    m_csLogRecorder.writeUnlock();
     return PUMP_OK;
 }
 
-/** Get private logger. */
-CLogRecorderKeeper CGlobalCtrlBase::GetLogger()
+::Pump::Core::CLogRecorderBase * CGlobalCtrlBase::GetLoggerPtr()
 {
-    return CLogRecorderKeeper((CLogRecorderBase*)(!s_pGlobalCtrl ? NULL : s_pGlobalCtrl->m_pLogRecorder));
+    return m_pLogRecorder;
+}
+
+void CGlobalCtrlBase::LogRecorderReadLock()
+{
+    m_csLogRecorder.readLock();
+}
+
+void CGlobalCtrlBase::LogRecorderReadUnlock()
+{
+    m_csLogRecorder.readUnlock();
 }
 
 }

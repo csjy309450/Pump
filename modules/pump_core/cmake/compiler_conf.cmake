@@ -28,7 +28,7 @@ if(${CMAKE_GENERATOR} STREQUAL "Unix Makefiles")
             -fPIC)
     if(${pump_core_BUILD_FLAG} MATCHES "shared")
         set(pump_core_INNER_COMPILE_FLAG ${pump_core_INNER_COMPILE_FLAG}
-            -DPUMP_CORE_BUILD_DLL)
+            )
     endif()
     set(pump_core_INNER_LINK_FLAG ${pump_core_INNER_LINK_FLAG}
         -lpthread 
@@ -44,7 +44,6 @@ elseif(${CMAKE_GENERATOR} MATCHES "Visual Studio")
     set_property(GLOBAL PROPERTY USE_FOLDERS On)
     if(${pump_core_BUILD_FLAG} MATCHES "shared")
         set(pump_core_INNER_COMPILE_FLAG ${pump_core_INNER_COMPILE_FLAG}
-            -DPUMP_CORE_BUILD_DLL 
             -DPUMP_CORE_HAVE_BOOST
             -DGLOG_NO_ABBREVIATED_SEVERITIES)
     endif()

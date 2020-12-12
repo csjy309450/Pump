@@ -20,8 +20,9 @@
 #include "pump_macro/pump_pre.h"
 #include "pump_core/pump_core_types.h"
 #include "pump_core/pump_core_global_ctrl_base.h"
-#include "pump_core/logger/pump_core_logger.h"
 #include "pump_core/pump_core_cmder.h"
+#include "pump_core/pump_core_global_resouce_keeper.hpp"
+#include "pump_core/logger/pump_core_logger.h"
 #include "pump_core/logger/__pump_core_inner_logger.h"
 
 namespace Pump
@@ -31,17 +32,46 @@ namespace Core
 
 class __CPumpCoreGlobalCtrl;
 
-class PUMP_CORE_CLASS __CPumpCoreGlobalCtrlGuider
+PUMP_CORE_CXXAPI void PUMP_CALLBACK PUMP_CORE_INNER_GlobalCtrlReadLock();
+PUMP_CORE_CXXAPI void PUMP_CALLBACK PUMP_CORE_INNER_GlobalCtrlReadUnlock();
+
+template <class T>
+class __CPumpCoreGlobalResouceKeeper
+    : public CGlobalResouceKeeperBase<T>
 {
 public:
-    explicit __CPumpCoreGlobalCtrlGuider(__CPumpCoreGlobalCtrl * pLogRecorder);
-    ~__CPumpCoreGlobalCtrlGuider();
-    __CPumpCoreGlobalCtrlGuider(__CPumpCoreGlobalCtrlGuider & other);
-    __CPumpCoreGlobalCtrl * GetPumpCoreGlobalCtrl();
-private:
-    __CPumpCoreGlobalCtrlGuider();
-private:
-    __CPumpCoreGlobalCtrl * m_pPumpCoreGlobalCtrl;
+    explicit __CPumpCoreGlobalResouceKeeper(T * ptr)
+        : CGlobalResouceKeeperBase<T>(ptr)
+    {
+        PUMP_CORE_INNER_GlobalCtrlReadLock();
+    }
+    __CPumpCoreGlobalResouceKeeper(const __CPumpCoreGlobalResouceKeeper & other)
+        : CGlobalResouceKeeperBase<T>(other)
+    {
+        PUMP_CORE_INNER_GlobalCtrlReadLock();
+    }
+    virtual ~__CPumpCoreGlobalResouceKeeper()
+    {
+        PUMP_CORE_INNER_GlobalCtrlReadUnlock();
+    }
+};
+
+class PUMP_CORE_CLASS __CPumpCoreGlobalCtrlKeeper
+    : public __CPumpCoreGlobalResouceKeeper<__CPumpCoreGlobalCtrl>
+{
+public:
+    explicit __CPumpCoreGlobalCtrlKeeper(__CPumpCoreGlobalCtrl * pGlobalCtrl);
+    ~__CPumpCoreGlobalCtrlKeeper();
+    __CPumpCoreGlobalCtrlKeeper(__CPumpCoreGlobalCtrlKeeper & other);
+};
+
+class PUMP_CORE_CLASS __CPumpCoreLogRecorderKeeper
+    : public __CPumpCoreGlobalResouceKeeper<CLogRecorderBase>
+{
+public:
+    explicit __CPumpCoreLogRecorderKeeper(CLogRecorderBase* pLogRecorder);
+    __CPumpCoreLogRecorderKeeper(__CPumpCoreLogRecorderKeeper & other);
+    virtual ~__CPumpCoreLogRecorderKeeper();
 };
 
 /**
@@ -56,55 +86,69 @@ class PUMP_CORE_CLASS __CPumpCoreGlobalCtrl
     : public CGlobalCtrlBase
 {
 public:
-    friend class __CPumpCoreGlobalCtrlGuider;
+    friend class __CPumpCoreLogRecorderKeeper;
+    friend class __CPumpCoreGlobalCtrlKeeper;
 public:
     /** Object Create. */
     static pump_int32_t Create();
 
     /** Object Destroy. */
     static pump_int32_t Destroy();
+
     /** Object initialize. */
     static pump_int32_t Init();
+
+    static pump_bool_t IsInit();
 
     /** Object cleanup. */
     static pump_int32_t Cleanup();
 
     /** Get pointer of global resource controler. */
-    static __CPumpCoreGlobalCtrlGuider GetGlobalCtrl();
+    static __CPumpCoreGlobalCtrlKeeper GetGlobalCtrl();
 
-    /** Get logger manager. */
+    /** Get logger manager.
+     * [FXIME] refer to __CPumpCoreLogRecorderKeeper
+     */
     static CLogRecorderMgr * GetLoggerMgr();
 
-    /** Get CMD session manager. */
+    /** CMD session manager. 
+     * [FXIME] refer to __CPumpCoreLogRecorderKeeperGet 
+     */
     static ::Pump::Core::Cmder::CCmdSessionMgr * GetCmdSessionMgr();
+
+    static void GlobalCtrlReadLock();
+    static void GlobalCtrlReadUnlock();
+    static void GlobalCtrlWriteLock();
+    static void GlobalCtrlWriteUnlock();
+
+    static pump_int32_t SetLogger(pump_handle_t hLogger);
+    static __CPumpCoreLogRecorderKeeper GetLogger();
 private:
     __CPumpCoreGlobalCtrl();
     virtual ~__CPumpCoreGlobalCtrl();
-    pump_int32_t __Init();
-    pump_int32_t __Cleanup();
+    virtual pump_int32_t __Init();
+    virtual pump_int32_t __Cleanup();
 private:
-    //pump_bool_t m_bInit;
-    //::Pump::Core::Thread::CMutex m_csInit;
-
     CLogRecorderMgr * m_pRecorderMgr; ///< Log recorder manager.
     ::Pump::Core::Thread::CMutex m_csRecorderMgr;
 
-    //CLogRecorderBase * m_pPumpCoreLogRecorder; ///< pump_core private log recorder.
-    //::Pump::Core::Thread::CMutex m_csPumpCoreLogRecorder;
-
     ::Pump::Core::Cmder::CCmdSessionMgr * m_pCmdSessionMgr; ///< CMD session manager.
     ::Pump::Core::Thread::CMutex m_csCmdSessionMgr;
-//private:
-//    static __CPumpCoreGlobalCtrl * s_pGlobalCtrl; ///< Global resource instance.
-//    static ::Pump::Core::Thread::CMutex s_csGlobalCtrl; ///< Global resource instance locker.
+private:
+    static __CPumpCoreGlobalCtrl * s_pGlobalCtrl; ///< Global resource instance.
+    /**
+     * Global instance RW locker. <b>s_csGlobalCtrl<\b> prevent to free s_pGlobalCtrl \
+     * while other threads reference s_pGlobalCtrl.
+     * - When using s_pGlobalCtrl on read locker.
+     * - When assign/delete s_pGlobalCtrl on write locker.
+     */
+    static ::Pump::Core::Thread::CRWLocker s_csGlobalCtrl;
 };
 
-#define __PUMP_CORE_GLOBAL_CTRL2() (static_cast<__CPumpCoreGlobalCtrl *>(__CPumpCoreGlobalCtrl::s_pGlobalCtrl))
-
 }
 }
 
-#define __PUMP_CORE_GLOBAL_CTRL() (::Pump::Core::__CPumpCoreGlobalCtrl::GetGlobalCtrl().GetPumpCoreGlobalCtrl())
+#define __PUMP_CORE_GLOBAL_CTRL() (::Pump::Core::__CPumpCoreGlobalCtrl::GetGlobalCtrl().GetPtr())
 
 #endif // __PUMP_CORE_GLOBAL_CTRL_H
 

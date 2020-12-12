@@ -630,35 +630,6 @@ pump_int32_t CLogRecorderMgr::Destroy(CLogRecorderBase * pLogRecorder)
     return PUMP_OK;
 }
 
-CLogRecorderKeeper::CLogRecorderKeeper(CLogRecorderBase* pLogRecorder)
-    : ::Pump::Core::CGlobalResouceKeeper<CLogRecorderBase>(pLogRecorder)
-{
-    if (!::Pump::Core::CGlobalCtrlBase::s_pGlobalCtrl || !pLogRecorder)
-    {
-        return;
-    }
-    ::Pump::Core::CGlobalCtrlBase::s_pGlobalCtrl->m_csLogRecorder.readLock();
-}
-
-CLogRecorderKeeper::CLogRecorderKeeper(CLogRecorderKeeper & other)
-    : ::Pump::Core::CGlobalResouceKeeper<CLogRecorderBase>(other)
-{
-    if (!::Pump::Core::CGlobalCtrlBase::s_pGlobalCtrl || !other.GetPtr())
-    {
-        return;
-    }
-    ::Pump::Core::CGlobalCtrlBase::s_pGlobalCtrl->m_csLogRecorder.readLock();
-}
-
-CLogRecorderKeeper::~CLogRecorderKeeper()
-{
-    if (!::Pump::Core::CGlobalCtrlBase::s_pGlobalCtrl || !this->GetPtr())
-    {
-        return;
-    }
-    ::Pump::Core::CGlobalCtrlBase::s_pGlobalCtrl->m_csLogRecorder.readUnlock();
-}
-
 CLogGuide::CLogGuide()
 {
     //if (m_refLogRecorder.GetPtr())
@@ -690,7 +661,7 @@ pump_int32_t CLogGuide::WriteLine(
     va_start(argv, szFormate);
     logData.SetMessage(emLevel, szFile, nLine, szFormate, argv);
     va_end(argv);
-    CLogRecorderKeeper logKeeper = ::Pump::Core::__CPumpCoreGlobalCtrl::GetLogger();
+    __CPumpCoreLogRecorderKeeper logKeeper = ::Pump::Core::__CPumpCoreGlobalCtrl::GetLogger();
     if (!logKeeper.GetPtr())
     {
         return PUMP_ERROR;

@@ -25,34 +25,26 @@ namespace Pump
 namespace Core
 {
 
-PUMP_CORE_CXXAPI void PUMP_CALLBACK PUMP_CORE_INNER_GlobalCtrlReadLock();
-PUMP_CORE_CXXAPI void PUMP_CALLBACK PUMP_CORE_INNER_GlobalCtrlReadUnlock();
-
 template <class T>
-class CGlobalResouceKeeper
+class CGlobalResouceKeeperBase
 {
 public:
-    explicit CGlobalResouceKeeper(T * ptr)
+    explicit CGlobalResouceKeeperBase(T * ptr)
         : m_ptr(ptr)
-    {
-        PUMP_CORE_INNER_GlobalCtrlReadLock();
-    }
-    virtual ~CGlobalResouceKeeper()
+    {}
+    virtual ~CGlobalResouceKeeperBase()
     {
         m_ptr = (NULL);
-        PUMP_CORE_INNER_GlobalCtrlReadUnlock();
     }
-    CGlobalResouceKeeper(const CGlobalResouceKeeper & other)
+    CGlobalResouceKeeperBase(const CGlobalResouceKeeperBase & other)
         : m_ptr(other.m_ptr)
-    {
-        PUMP_CORE_INNER_GlobalCtrlReadLock();
-    }
+    {}
     T * GetPtr()
     {
         return m_ptr;
     }
 private:
-    CGlobalResouceKeeper();
+    CGlobalResouceKeeperBase();
 private:
     T * m_ptr;
 };

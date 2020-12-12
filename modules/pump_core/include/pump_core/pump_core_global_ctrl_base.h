@@ -21,7 +21,6 @@
 #include "pump_core/pump_core_noncopyable.h"
 #include "pump_core/thread/pump_core_rwlocker.h"
 #include "pump_core/logger/pump_core_logger.h"
-#include "pump_core/pump_core_global_resouce_guider.hpp"
 
 #ifdef PUMP_COMPILER_CXX
 namespace Pump
@@ -35,21 +34,19 @@ class PUMP_CORE_CLASS CGlobalCtrlBase
   : public ::Pump::Core::CNonCopyable
 {
 public:
-    friend class CLogRecorderKeeper;
-public:
     CGlobalCtrlBase();
     virtual ~CGlobalCtrlBase();
 
-    static pump_bool_t IsInit();
-    static pump_int32_t SetLogger(pump_handle_t hLogger);
-    static CLogRecorderKeeper GetLogger();
-    static void ReadLock();
-    static void ReadUnlock();
-    static void WriteLock();
-    static void WriteUnlock();
-
 protected:
+    virtual pump_int32_t __Init() = 0;
+    virtual pump_int32_t __Cleanup() = 0;
+
+    pump_int32_t SetLoggerPtr(pump_handle_t hLogger);
+    ::Pump::Core::CLogRecorderBase * GetLoggerPtr();
+    void LogRecorderReadLock();
+    void LogRecorderReadUnlock();
     void SetInitFlag(pump_bool_t bInit);
+    pump_bool_t GetInitFlag() const;
 
 private:
     pump_bool_t m_bInit;
@@ -57,17 +54,6 @@ private:
 
     ::Pump::Core::CLogRecorderBase * m_pLogRecorder; ///< private log recorder, [Not Owner]
     ::Pump::Core::Thread::CRWLocker m_csLogRecorder; ///< log recorder locker
-
-protected:
-    static CGlobalCtrlBase * s_pGlobalCtrl; ///< Global resource instance.
-    /**
-     * Global instance RW locker. <b>s_csGlobalCtrl<\b> prevent to free s_pGlobalCtrl \
-     * while other threads reference s_pGlobalCtrl.
-     * - When using s_pGlobalCtrl on read locker.
-     * - When assign/delete s_pGlobalCtrl on write locker.
-     */
-    static ::Pump::Core::Thread::CRWLocker s_csGlobalCtrl;
-    //static ::Pump::Core::Thread::CMutex s_wcsGlobalCtrl; // FIXME 需要改成递归锁
 };
 
 }

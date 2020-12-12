@@ -26,7 +26,7 @@
 #include <cassert>
 #include "pump_core/pump_core_config.h"
 #include "pump_core/pump_core_types.h"
-#include "pump_core/pump_core_global_resouce_guider.hpp"
+#include "pump_core/pump_core_global_resouce_keeper.hpp"
 #include "pump_core/pump_core_noncopyable.h"
 #include "pump_core/thread/pump_core_mutex.h"
 
@@ -191,15 +191,6 @@ public:
     ~CLogRecorderMgr();
     CLogRecorderBase * Create(PUMP_CORE_LOG_RECORED_TYPE emType);
     pump_int32_t Destroy(CLogRecorderBase * pLogRecorder);
-};
-
-class PUMP_CORE_CLASS CLogRecorderKeeper
-    : public ::Pump::Core::CGlobalResouceKeeper<CLogRecorderBase>
-{
-public:
-    CLogRecorderKeeper(CLogRecorderBase* pLogRecorder);
-    CLogRecorderKeeper(CLogRecorderKeeper & other);
-    virtual ~CLogRecorderKeeper();
 };
 
 class PUMP_CORE_CLASS CLogGuide
