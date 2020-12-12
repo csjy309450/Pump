@@ -35,7 +35,30 @@ using namespace Pump::Memory;
 using namespace Pump::Core::Thread;
 using namespace Pump::Test;
 
-PTEST_C_SCENE_DEF(PumpMemoryUnitTestScene000, )
+PTEST_C_SCENE_DEF(PumpMemoryUnitTestScene000, 
+public:
+    virtual int Init()
+    {
+        PTEST_ASSERT((PUMP_CORE_Init() == PUMP_OK), "PUMP_CORE_Init failed 3");
+        PUMP_CORE_LOG_CONF struLogCong;
+        memset(&struLogCong, 0, sizeof(struLogCong));
+        struLogCong.bPrintConsole = PUMP_TRUE;
+        struLogCong.bWriteFile = PUMP_TRUE;
+        struLogCong.emLogLevel = PUMP_LOG_INFO;
+        strcpy(struLogCong.szFilePath, "yz_log_text");
+        struLogCong.emLogLevel = PUMP_LOG_INFO;
+        pump_handle_t hLog = PUMP_CORE_LoggerCreate();
+        PTEST_ASSERT(hLog != PUMP_NULL, "PUMP_CORE_LoggerCreate failed 3");
+        PTEST_ASSERT((PUMP_CORE_LoggerConfig(hLog, &struLogCong) == PUMP_OK), "PUMP_CORE_LoggerConfig failed 3");
+        PTEST_ASSERT((PUMP_CORE_InjectLocalLogger(hLog) == PUMP_OK), "PUMP_CORE_InjectLocalLogger failed 2");
+        return 0;
+    }
+    virtual int Cleanup()
+    {
+        PTEST_ASSERT((PUMP_CORE_Cleanup() == PUMP_OK), "PUMP_CORE_Cleanup failed 1");
+        return 0;
+    }
+)
 
 PTEST_C_CASE_DEF(PumpMemoryUnitTestCase001, PumpMemoryUnitTestScene000, )
 {
@@ -344,14 +367,14 @@ PTEST_C_CASE_DEF(PumpMemoryUnitTestCase011, PumpMemoryUnitTestScene000, )
 {
     PTEST_LOG(comment, "PumpMemoryUnitTestCase011 test_trie");
     trie<int> t;
-    //∞—µ•¥  ‰»Î◊÷µ‰ ˜
+    // insert dictionary key.
     t.insert("proc/pid/mem", 10298);
     t.insert("proc/pid/meminfo", 2);
     t.insert("proc/pid/smaps", 3);
     t.insert("proc/pid/maps", 41);
     PTEST_LOG(log, "----print tree elements----");
     t.print_all();
-    //≤È’“≤‚ ‘
+    //search test
     PTEST_LOG(log, "---search test---");
     trie<int>::iterator it1 = t.find("proc/pid/mem");
     PTEST_ASSERT(!it1.is_null(), "unexist \"proc/pid/mem\"");
@@ -377,6 +400,7 @@ PTEST_C_CASE_DEF(PumpMemoryUnitTestCase012, PumpMemoryUnitTestScene000, )
     const char * szMsg = "AAAAAAAAAAAAAAAAAAAAAAAAA";
     smart_buffer<char> buf(8, NULL);
     buf.append(szMsg, strlen(szMsg));
+    PTEST_ASSERT(buf.size() == strlen(szMsg), "buf.size() != strlen(szMsg)");
     return 0;
 }
 

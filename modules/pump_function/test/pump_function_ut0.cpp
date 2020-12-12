@@ -4,7 +4,7 @@
 using namespace Pump::Function;
 using namespace Pump::Test;
 
-PTEST_C_SCENE_DEF(FUNCTION_USING_SCAN,
+PTEST_C_SCENE_DEF(PumpFunctionUnitTestScene000,
  // TODO 可以定义一些私有成员
  )
 
@@ -47,7 +47,7 @@ void fn_void_arg1_0(char * p) {
     PTEST_LOG(log, "call %s", __FUNCTION__);
 }
 
-PTEST_C_CASE_DEF(CLOSURE_IT_TEST0, FUNCTION_USING_SCAN,)
+PTEST_C_CASE_DEF(PumpFunctionUnitTestCase001, PumpFunctionUnitTestScene000, )
 {
     PTEST_LOG(msg, "%s", "测试各种类型闭包兼容情况");
     CTest objTest;
@@ -65,7 +65,7 @@ PTEST_C_CASE_DEF(CLOSURE_IT_TEST0, FUNCTION_USING_SCAN,)
 }
 
 
-PTEST_C_CASE_DEF(CLOSURE_IT_TEST1, FUNCTION_USING_SCAN,)
+PTEST_C_CASE_DEF(PumpFunctionUnitTestCase002, PumpFunctionUnitTestScene000, )
 {
     PTEST_LOG(msg, "%s", "测试闭包调用队列情况");
     CTest objTest;
@@ -92,7 +92,7 @@ PTEST_C_CASE_DEF(CLOSURE_IT_TEST1, FUNCTION_USING_SCAN,)
     return 0;
 }
 
-PTEST_C_CASE_DEF(FUNCTION_IT_TEST1, FUNCTION_USING_SCAN,)
+PTEST_C_CASE_DEF(PumpFunctionUnitTestCase003, PumpFunctionUnitTestScene000, )
 {
     PTEST_LOG(msg, "%s", "测试回调对象情况");
     CTest objTest;

@@ -19,11 +19,11 @@ endif()
 set(pump_function_INNER_TEST_COMPILE_FLAG ${pump_function_INNER_TEST_COMPILE_FLAG}
         -DPUMP_FUNCTION_USING_DLL)
 
-add_executable(pump_function_test_fixture0
+add_executable(pump_function_ut0
         ${pump_function_INNER_HEADERS}
-${pump_function_INNER_PROJECT_ROOT_DIR}/test/pump_function_test_fixture0.cpp)
-target_include_directories(pump_function_test_fixture0 PRIVATE ${pump_function_INNER_TEST_DEP_INC_DIRS})
-target_link_libraries(pump_function_test_fixture0 ${pump_function_INNER_TEST_DEP_LIBS})
-target_compile_definitions(pump_function_test_fixture0 PRIVATE ${pump_function_INNER_TEST_DEFINE_FLAG})
-target_compile_options(pump_function_test_fixture0 PRIVATE ${pump_function_INNER_TEST_COMPILE_FLAG})
-set_target_properties(pump_function_test_fixture0 PROPERTIES FOLDER "pump_function/test")
+${pump_function_INNER_PROJECT_ROOT_DIR}/test/pump_function_ut0.cpp)
+target_include_directories(pump_function_ut0 PRIVATE ${pump_function_INNER_TEST_DEP_INC_DIRS})
+target_link_libraries(pump_function_ut0 ${pump_function_INNER_TEST_DEP_LIBS})
+target_compile_definitions(pump_function_ut0 PRIVATE ${pump_function_INNER_TEST_DEFINE_FLAG})
+target_compile_options(pump_function_ut0 PRIVATE ${pump_function_INNER_TEST_COMPILE_FLAG})
+set_target_properties(pump_function_ut0 PROPERTIES FOLDER "pump_function/test")
