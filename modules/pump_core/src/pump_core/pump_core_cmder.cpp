@@ -138,7 +138,7 @@ pump_void_t * CCmderClient::CThxRead::ThreadCallback(pump_void_t * pData)
             emLastState = PUMP_CMDER_CLIENT_CB_CLOSE;
             strBuff = PUMP_CORE_StringTrim(strBuff);
             pClient->ReadCallback(PUMP_CMDER_CLIENT_CB_CLOSE, strBuff.c_str(), strBuff.size(), NULL);
-            PUMP_CORE_ERR << "CCmderClient::CThxRead::ThreadCallback() fail to read data from pipe";
+            PUMP_CORE_ERR("CCmderClient::CThxRead::ThreadCallback() fail to read data from pipe");
             break;
         }
         else {
@@ -262,13 +262,13 @@ pump_int32_t CCmderServer::__CInnerCmdService::Open()
     m_pHPipeIn = CPipeHandle::CreateAnonyPipe();
     if (!m_pHPipeIn)  // create in pipe
     {
-        PUMP_CORE_ERR << "fail to create read pipe";
+        PUMP_CORE_ERR ( "fail to create read pipe");
         return PUMP_ERROR;
     }
     m_pHPipeOut = CPipeHandle::CreateAnonyPipe();
     if (!m_pHPipeOut)  // create out pipe
     {
-        PUMP_CORE_ERR << "fail to create write pipe";
+        PUMP_CORE_ERR ( "fail to create write pipe");
         CPipeHandle::DestroyPipe(m_pHPipeIn);
         m_pHPipeIn = PUMP_NULL;
         return PUMP_ERROR;
@@ -285,19 +285,19 @@ pump_int32_t CCmderServer::__CInnerCmdService::Open()
     m_struStartupInfo.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
     if (!(::CreateProcessA(NULL, (char*)kWinCmdx64, NULL, NULL, true, NULL, NULL, NULL, &m_struStartupInfo, &m_struProcInfo)))      //创建隐藏的CMD进程
     {
-        PUMP_CORE_ERR << "CreateProcess() run failed";
+        PUMP_CORE_ERR ( "CreateProcess() run failed");
         return PUMP_ERROR;
     }
 
     DWORD dwThread = FALSE;
     m_hThxRead = ::CreateThread(NULL, 0, __ThxReadCB, this, 0, &dwThread);
     if (m_hThxRead == false) {
-         PUMP_CORE_ERR << "create __ThxReadCB thread failed";
+         PUMP_CORE_ERR ( "create __ThxReadCB thread failed");
         return PUMP_ERROR;
     }
     m_hThxWaitExit = ::CreateThread(NULL, 0, __ThxWaitExitCB, this, 0, &dwThread);
     if (m_hThxWaitExit == false) {
-        PUMP_CORE_ERR << "create __ThxWaitExitCB thread failed";
+        PUMP_CORE_ERR ( "create __ThxWaitExitCB thread failed");
         return PUMP_ERROR;
     }
     return PUMP_OK;
@@ -341,13 +341,13 @@ void CCmderServer::__CInnerCmdService::Loop()
             if (byteread==0)
             {
                 m_pHPipeIn->Close();
-                PUMP_CORE_INFO << "__CInnerCmdService::Loop() remote pipe close";
+                PUMP_CORE_INFO("__CInnerCmdService::Loop() remote pipe close");
                 break;
             }
             else
             {
                 m_pHPipeIn->Close();
-                PUMP_CORE_ERR << "__CInnerCmdService::Loop() Read Error!";
+                PUMP_CORE_ERR("__CInnerCmdService::Loop() Read Error!");
                 break;
             }
         }
@@ -363,7 +363,7 @@ void CCmderServer::__CInnerCmdService::Loop()
             m_pfnReadCB(outbuff, byteread, m_pOuterPip);
         }
     }
-    PUMP_CORE_INFO << "Pipe Stoped!";
+    PUMP_CORE_INFO("Pipe Stoped!");
 }
 
 void CCmderServer::__CInnerCmdService::IsLoop()
@@ -378,7 +378,7 @@ void CCmderServer::__CInnerCmdService::IsLoop()
 
     if (dwRet == WAIT_OBJECT_0 || dwRet == WAIT_ABANDONED)
     {
-        PUMP_CORE_INFO<< "[END] Pipe Stoped!";
+        PUMP_CORE_INFO( "[END] Pipe Stoped!");
     }
 }
 
@@ -420,7 +420,7 @@ pump_int32_t CCmderServer::Open()
         , PUMP_FALSE);
     if (!m_pHPipeOut)
     {
-        PUMP_CORE_ERR << strPipeName.c_str() << " Create Failed";
+        PUMP_CORE_ERR("%s Create Failed", strPipeName.c_str());
         return PUMP_ERROR;
     }
     m_pHPipeOut->ConnectNamedPipeServer();
@@ -432,7 +432,7 @@ pump_int32_t CCmderServer::Open()
         , PUMP_FALSE);
     if (!m_pHPipeIn)
     {
-        PUMP_CORE_ERR << strPipeName.c_str() << " Create Failed" << PUMP_CORE_GetSystemError();
+        PUMP_CORE_ERR("%s Create Failed %l", strPipeName.c_str(), PUMP_CORE_GetSystemError());
         CPipeHandle::DestroyPipe(m_pHPipeOut);
         return PUMP_ERROR;
     }
@@ -440,7 +440,7 @@ pump_int32_t CCmderServer::Open()
 
     if (!__CPumpCoreGlobalCtrl::GetCmdSessionMgr())
     {
-        PUMP_CORE_ERR << "__CPumpCoreGlobalCtrl::GetCmdSessionMgr() is NULL";
+        PUMP_CORE_ERR( "__CPumpCoreGlobalCtrl::GetCmdSessionMgr() is NULL");
         CPipeHandle::DestroyPipe(m_pHPipeIn);
         CPipeHandle::DestroyPipe(m_pHPipeOut);
         return PUMP_ERROR;
@@ -482,7 +482,7 @@ DWORD __stdcall  CCmderServer::__ReadCB(void *pData)
         if (pthis->m_pHPipeIn->Read(szBuf, sizeof(szBuf) - 1, &ReadNum)  == PUMP_ERROR)
         {
             pthis->m_pHPipeIn->Close();
-            PUMP_CORE_ERR<<"CCmderServer::__ReadCB() fail to read data from pipe";
+            PUMP_CORE_ERR("CCmderServer::__ReadCB() fail to read data from pipe");
             break;
         }
         else {
@@ -496,14 +496,14 @@ DWORD __stdcall  CCmderServer::__ReadCB(void *pData)
             pthis->__ProcRecvedData(szBuf, ReadNum);
         }
     }
-    PUMP_CORE_ERR << "CCmderServer::__ReadCB() finished";
+    PUMP_CORE_ERR("CCmderServer::__ReadCB() finished");
     return 0;
 }
 
 void CCmderServer::__ProcRecvedData(const char* szBuf, DWORD dwSize)
 {
     //m_strCmdCatch += szBuf;
-    PUMP_CORE_INFO << "CCmderServer Recv: " << szBuf;
+    PUMP_CORE_INFO("CCmderServer Recv: %s", szBuf);
     if (!m_innerCmdService.InputCommand(szBuf))
     {
         

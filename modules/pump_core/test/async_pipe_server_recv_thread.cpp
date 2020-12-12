@@ -18,14 +18,14 @@ pump_void_t * CAsyncPipeServerRecvThread::ThreadCallback(pump_void_t * pData)
         dwErr = GetLastError();
         if (pOverlapped == NULL)
         {
-            PUMP_CORE_ERR << "[Test] *******pOverlapped nulll: " << GetLastError();
+            PUMP_CORE_ERR("[Test] *******pOverlapped nulll: %d" , GetLastError());
             continue;
         }
 
         // 外部主动发起退出信号
         if ((int)pipeNode == -1)
         {
-            PUMP_CORE_ERR << "[Test] 工作线程退出信号: " << GetLastError();
+            PUMP_CORE_ERR("[Test] 工作线程退出信号: %d", GetLastError());
             break;
         }
         if (!bOK)
@@ -33,14 +33,13 @@ pump_void_t * CAsyncPipeServerRecvThread::ThreadCallback(pump_void_t * pData)
             if (dwErr == ERROR_INVALID_HANDLE)
             {
 
-                PUMP_CORE_ERR << "[Test] 完成端口失效: " << GetLastError();
+                PUMP_CORE_ERR("[Test] 完成端口失效: %d", GetLastError());
                 break;
             }
-            PUMP_CORE_ERR << "[Test] 有管道出错, err code: " << dwErr << ", threadid: " \
-                << GetCurrentThreadId() << "node addr: " << (int)pipeNode;
+            PUMP_CORE_ERR("[Test] 有管道出错, err code: %d, threadid: %d node addr: %d" , dwErr , GetCurrentThreadId() , (int)pipeNode);
             if (pipeNode != pPipeServer->m_pHPipe)
             {
-                PUMP_CORE_ERR << "[Test] 管道不存在！！！！！";
+                PUMP_CORE_ERR("[Test] 管道不存在！！！！！");
             }
             continue;
         }
@@ -54,20 +53,20 @@ pump_void_t * CAsyncPipeServerRecvThread::ThreadCallback(pump_void_t * pData)
         {
             //虽然有数据，但是不能在本次处理 ???
             //因为完成端口会再下次触发事件，所以不再在这里处理数据，这是完成端口的关键点
-            PUMP_CORE_INFO << "[Test] bSuccess-----iopending:len:" << dwRead << ", Thread id : " << GetCurrentThreadId();
+            PUMP_CORE_INFO("[Test] bSuccess-----iopending:len: %d, Thread id : %d" , dwRead , GetCurrentThreadId());
             continue;
         }
         // The read operation is still pending. 
         dwErr = GetLastError();
         if (!fSuccess && (dwErr == ERROR_IO_PENDING))
         {
-            PUMP_CORE_INFO << "[Test] -----iopending:len: " << dwTrans << ",  Thread id:" << GetCurrentThreadId();
+            PUMP_CORE_INFO("[Test] -----iopending:len: %d,  Thread id: %d" , dwTrans ,GetCurrentThreadId());
             continue;
         }
         else
         {
             //TODO:
-            PUMP_CORE_INFO << "[Test] other error, error code: " << GetLastError() << ", Thread id:" << GetCurrentThreadId();
+            PUMP_CORE_INFO("[Test] other error, error code: %d, Thread id: %d" , GetLastError() , GetCurrentThreadId());
         }
     }
     return PUMP_NULL;

@@ -523,9 +523,10 @@ public:
         {
             strMsg += data.GetSrcPos();
             pump_uint32_t line = data.GetSrcLine();
-            strMsg += ":" + PUMP_CORE_Other2Str<pump_uint32_t>(line) +" {";
+            strMsg += ":" + PUMP_CORE_Other2Str<pump_uint32_t>(line);
             strMsg += " <TID:" + PUMP_CORE_Other2Str(tid) + "> ";
             strMsg += m_szTime;
+            strMsg += " { ";
             strMsg += data.GetMessage();
             strMsg += "\n";
         }

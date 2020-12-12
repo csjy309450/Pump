@@ -15,10 +15,10 @@ private:
         switch (iCBType)
         {
         case PUMP_CMDER_CLIENT_CB_RECV:
-            PUMP_CORE_INFO << "[YZ] CTestCmdClient::ReadCallback() Recv:\n" << szBuff;
+            PUMP_CORE_INFO("[YZ] CTestCmdClient::ReadCallback() Recv:\n%s" , szBuff);
             break;
         case PUMP_CMDER_CLIENT_CB_CLOSE:
-            PUMP_CORE_INFO << "[YZ] CTestCmdClient::ReadCallback() cmd server closed" << szBuff;
+            PUMP_CORE_INFO("[YZ] CTestCmdClient::ReadCallback() cmd server closed %s", szBuff);
             g_stopCThxCmdClient = true;
             break;
         }
@@ -33,7 +33,7 @@ private:
     {
         if (m_cmdClient.Open()==PUMP_ERROR)
         {
-            PUMP_CORE_ERR << "m_cmdClient.Open() failed";
+            PUMP_CORE_ERR("m_cmdClient.Open() failed");
             return NULL;
         }
         while (!g_stopCThxCmdClient)
@@ -52,7 +52,7 @@ private:
                 int ntime = 0;
                 while (m_cmdClient.Write(szCmd[i], strlen(szCmd[i]))!=PUMP_OK)
                 {
-                    PUMP_CORE_ERR << "wirte : " << szCmd[i] << " failed";
+                    PUMP_CORE_ERR("wirte : %s failed",szCmd[i]);
                     PUMP_CORE_Sleep(100);
                     ntime++;
                     if (ntime==10)
@@ -104,7 +104,7 @@ int test_logger()
     strcpy(struLogCong.szFilePath, "");
     struLogCong.emLogLevel = PUMP_LOG_INFO;
     //PUMP_CORE_InitLogger(&struLogCong);
-    PUMP_CORE_INFO << "-------test begin-------";
+    PUMP_CORE_INFO("-------test begin-------");
     return  0;
 }
 

@@ -1,5 +1,3 @@
-set(CMAKE_CXX_STANDARD 98)
-
 # set(pump_core_INNER_INCLUDE_DIR ${pump_core_INNER_INCLUDE_DIR} ${pump_core_INNER_PROJECT_ROOT_DIR}/src/)
 # message("<pump_core-pump_core_INNER_INCLUDE_DIR> ${pump_core_INNER_INCLUDE_DIR}")
 # include_directories(${pump_core_INNER_INCLUDE_DIR})
@@ -18,6 +16,7 @@ endif()
 
 set(pump_core_INNER_TEST_COMPILE_FLAG ${pump_core_INNER_TEST_COMPILE_FLAG}
         -DPUMP_CORE_USING_DLL)
+set(CMAKE_CXX_STANDARD 98)
 
 add_executable(pump_core_ut0 ${pump_core_INNER_PROJECT_ROOT_DIR}/test/pump_core_ut0.cpp)
 target_include_directories(pump_core_ut0 PRIVATE ${pump_core_INNER_TEST_DEP_INC_DIRS})

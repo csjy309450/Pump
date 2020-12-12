@@ -1003,7 +1003,7 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_GetBinaryFileArch(const char*
     pump_handle_t hFile = PUMP_CORE_FileOpen(szPath, PUMP_READ, PUMP_ATTR_READONLY);
     if (hFile == PUMP_INVALID_FILE)
     {
-        PUMP_CORE_ERR << "PUMP_CORE_GetBinaryFileArch() failed " << PUMP_CORE_GetSystemError();
+        PUMP_CORE_ERR("PUMP_CORE_GetBinaryFileArch() failed %d", PUMP_CORE_GetSystemError());
         return PUMP_ERROR;
     }
     unsigned char szBuff[2048] = { 0 };
