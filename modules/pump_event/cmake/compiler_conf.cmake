@@ -30,7 +30,6 @@ if(${CMAKE_GENERATOR} STREQUAL "Unix Makefiles")
             -fPIC)
     if(${pump_event_BUILD_FLAG} MATCHES "shared")
         set(pump_event_INNER_COMPILE_FLAG ${pump_event_INNER_COMPILE_FLAG}
-                -DPUMP_EVENT_BUILD_DLL
                 -DPUMP_CORE_USING_DLL
                 -DPUMP_MEMORY_USING_SLL
                 )
@@ -53,7 +52,6 @@ elseif(${CMAKE_GENERATOR} MATCHES "Visual Studio")
         )
     if(${pump_event_BUILD_FLAG} MATCHES "shared")
         set(pump_event_INNER_COMPILE_FLAG ${pump_event_INNER_COMPILE_FLAG}
-                -DPUMP_EVENT_BUILD_DLL 
                 -DPUMP_CORE_USING_DLL
                 -DPUMP_MEMORY_USING_SLL
                 )

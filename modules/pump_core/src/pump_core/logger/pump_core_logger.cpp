@@ -175,6 +175,11 @@ const char * CLogData::GetMessage()
     return m_strMsg.c_str();
 }
 
+pump_uint32_t CLogData::GetMessageSize() const
+{
+    return (pump_uint32_t)m_strMsg.size();
+}
+
 void CLogData::__Time2Str(char * pBuf, size_t dwSize)
 {
     if (pBuf == NULL || dwSize < 17)
@@ -219,90 +224,6 @@ PUMP_CORE_LOG_CONF CLogRecorderBase::GetConfig() const
 {
     return m_struConf;
 }
-
-//class CLoggerManagment
-//    : public CNonCopyable
-//{
-//public:
-//    static int CreateLoggerManagment(LPPUMP_CORE_LOG_CONF pConf)
-//    {
-//        if (sm_pLogMgr != NULL && sm_bInit)
-//        {
-//            // TODO error: reinit
-//            return -1;
-//        }
-//        sm_pLogMgr = new(std::nothrow) CLoggerManagment();
-//        if (sm_pLogMgr == NULL)
-//        {
-//            // TODO error: failed init
-//            return -1;
-//        }
-//        sm_pLogMgr->Init(pConf);
-//        return 0;
-//    }
-//
-//    static bool IsLoggerInit()
-//    {
-//        return sm_bInit;
-//    }
-//
-//private:
-//    CLoggerManagment() {}
-//
-//    ~CLoggerManagment() {}
-//
-//    static void Init(LPPUMP_CORE_LOG_CONF pConf)
-//    {
-//        if (pConf)
-//        {
-//            google::InitGoogleLogging("debug");
-//            switch (pConf->emLogLevel)
-//            {
-//            case PUMP_LOG_INFO:
-//                google::SetStderrLogging(google::GLOG_INFO);
-//                if (pConf->szFilePath)
-//                {
-//                    google::SetLogDestination(google::GLOG_INFO, pConf->szFilePath);
-//                }
-//                break;
-//            case PUMP_LOG_WARNING:
-//                google::SetStderrLogging(google::GLOG_WARNING);
-//                if (pConf->szFilePath)
-//                {
-//                    google::SetLogDestination(google::GLOG_WARNING, pConf->szFilePath);
-//                }
-//                break;
-//            case PUMP_LOG_ERROR:
-//                google::SetStderrLogging(google::GLOG_ERROR);
-//                if (pConf->szFilePath)
-//                {
-//                    google::SetLogDestination(google::GLOG_ERROR, pConf->szFilePath);
-//                }
-//                break;
-//            default:
-//                google::SetStderrLogging(google::GLOG_ERROR);
-//                if (pConf->szFilePath)
-//                {
-//                    google::SetLogDestination(google::GLOG_ERROR, pConf->szFilePath);
-//                }
-//                break;
-//            }
-//        }
-//        else
-//        {
-//            google::InitGoogleLogging("anonym");
-//            google::SetStderrLogging(google::GLOG_ERROR);
-//        }
-//        sm_bInit = true;
-//    }
-//
-//private:
-//    static CLoggerManagment *sm_pLogMgr;
-//    static bool sm_bInit;
-//};
-//
-//CLoggerManagment *CLoggerManagment::sm_pLogMgr = NULL;
-//bool CLoggerManagment::sm_bInit = false;
 
 #ifdef PUMP_USING_GLOG
 class CGLogRecorder
@@ -593,6 +514,51 @@ public:
     char m_szTime[17];
 };
 
+class CUserLogRecordor
+    : public CLogRecorderBase
+{
+public:
+    CUserLogRecordor()
+        : CLogRecorderBase(PUMP_CORE_LOG_RECORED_USER)
+        , m_hFile(PUMP_INVALID_FILE)
+    {
+    }
+    virtual ~CUserLogRecordor()
+    {
+    }
+    virtual int Init(const PUMP_CORE_LOG_CONF & refConf)
+    {
+        m_csConf.Lock();
+        m_struConf = refConf;
+        m_csConf.Unlock();
+        return 0;
+    }
+    virtual int Destroy()
+    {
+        return 0;
+    }
+    virtual int WriteLine(CLogData & data)
+    {
+        if (m_struConf.pfnLog)
+        {
+            m_struConf.pfnLog(
+                (PUMP_CORE_LOG_LEVEL)data.GetLevel()
+                , data.GetSrcPos()
+                , data.GetSrcLine()
+                , data.GetModular()
+                , data.GetMessage()
+                , data.GetMessageSize());
+        }
+        return 0;
+    }
+
+    //static CTextLogRecordor * GetLogger();
+public:
+    pump_handle_t m_hFile;
+    ::Pump::Core::Thread::CMutex m_csFile;
+    char m_szTime[17];
+};
+
 CLogRecorderMgr::CLogRecorderMgr()
 {
 
@@ -615,6 +581,8 @@ CLogRecorderBase * CLogRecorderMgr::Create(PUMP_CORE_LOG_RECORED_TYPE emType)
 #ifdef PUMP_USING_GLOG
         return new (std::nothrow) CGLogRecorder();
 #endif // PUMP_USING_GLOG
+    case PUMP_CORE_LOG_RECORED_USER:
+        return new (std::nothrow) CUserLogRecordor();
     default:
         return PUMP_NULL;
     }
@@ -630,52 +598,21 @@ pump_int32_t CLogRecorderMgr::Destroy(CLogRecorderBase * pLogRecorder)
     return PUMP_OK;
 }
 
-CLogRecorderKeeper::CLogRecorderKeeper(CLogRecorderBase* pLogRecorder)
-    : ::Pump::Core::CGlobalResouceKeeper<CLogRecorderBase>(pLogRecorder)
+CLogGuideBase::CLogGuideBase()
+{}
+
+CLogGuideBase::~CLogGuideBase()
+{}
+
+CPumpCoreLogGuide::CPumpCoreLogGuide()
 {
-    if (!::Pump::Core::CGlobalCtrlBase::s_pGlobalCtrl || !pLogRecorder)
-    {
-        return;
-    }
-    ::Pump::Core::CGlobalCtrlBase::s_pGlobalCtrl->m_csLogRecorder.readLock();
 }
 
-CLogRecorderKeeper::CLogRecorderKeeper(CLogRecorderKeeper & other)
-    : ::Pump::Core::CGlobalResouceKeeper<CLogRecorderBase>(other)
+CPumpCoreLogGuide::~CPumpCoreLogGuide()
 {
-    if (!::Pump::Core::CGlobalCtrlBase::s_pGlobalCtrl || !other.GetPtr())
-    {
-        return;
-    }
-    ::Pump::Core::CGlobalCtrlBase::s_pGlobalCtrl->m_csLogRecorder.readLock();
 }
 
-CLogRecorderKeeper::~CLogRecorderKeeper()
-{
-    if (!::Pump::Core::CGlobalCtrlBase::s_pGlobalCtrl || !this->GetPtr())
-    {
-        return;
-    }
-    ::Pump::Core::CGlobalCtrlBase::s_pGlobalCtrl->m_csLogRecorder.readUnlock();
-}
-
-CLogGuide::CLogGuide()
-{
-    //if (m_refLogRecorder.GetPtr())
-    //{
-    //    m_refLogRecorder.GetPtr()->Begin(szFile, nLine, emLogLevel);
-    //}
-}
-
-CLogGuide::~CLogGuide()
-{
-    //if (m_refLogRecorder.GetPtr())
-    //{
-    //    m_refLogRecorder.GetPtr()->End();
-    //}
-}
-
-pump_int32_t CLogGuide::WriteLine(
+pump_int32_t CPumpCoreLogGuide::WriteLine(
     PUMP_CORE_LOG_LEVEL emLevel,
     const char* szFile,
     unsigned int nLine,
@@ -690,222 +627,13 @@ pump_int32_t CLogGuide::WriteLine(
     va_start(argv, szFormate);
     logData.SetMessage(emLevel, szFile, nLine, szFormate, argv);
     va_end(argv);
-    CLogRecorderKeeper logKeeper = ::Pump::Core::__CPumpCoreGlobalCtrl::GetLogger();
+    __CPumpCoreLogRecorderKeeper logKeeper = ::Pump::Core::__CPumpCoreGlobalCtrl::GetLogger();
     if (!logKeeper.GetPtr())
     {
         return PUMP_ERROR;
     }
     return logKeeper.GetPtr()->WriteLine(logData);
 }
-
-//CLogGuide& CLogGuide::operator<< (bool val)
-//{
-//    if (m_refLogRecorder.GetPtr())
-//    {
-//        (*m_refLogRecorder.GetPtr()) << val;
-//    }
-//    return *this;
-//}
-//CLogGuide& CLogGuide::operator<< (short val)
-//{
-//    if (m_refLogRecorder.GetPtr())
-//    {
-//        (*m_refLogRecorder.GetPtr()) << val;
-//    }
-//    return *this;
-//}
-//CLogGuide& CLogGuide::operator<< (char val)
-//{
-//    if (m_refLogRecorder.GetPtr())
-//    {
-//        (*m_refLogRecorder.GetPtr()) << val;
-//    }
-//    return *this;
-//}
-//CLogGuide& CLogGuide::operator<< (unsigned short val)
-//{
-//    if (m_refLogRecorder.GetPtr())
-//    {
-//        (*m_refLogRecorder.GetPtr()) << val;
-//    }
-//    return *this;
-//}
-//CLogGuide& CLogGuide::operator<< (int val)
-//{
-//    if (m_refLogRecorder.GetPtr())
-//    {
-//        (*m_refLogRecorder.GetPtr()) << val;
-//    }
-//    return *this;
-//}
-//CLogGuide& CLogGuide::operator<< (unsigned int val)
-//{
-//    if (m_refLogRecorder.GetPtr())
-//    {
-//        (*m_refLogRecorder.GetPtr()) << val;
-//    }
-//    return *this;
-//}
-//CLogGuide& CLogGuide::operator<< (long val)
-//{
-//    if (m_refLogRecorder.GetPtr())
-//    {
-//        (*m_refLogRecorder.GetPtr()) << val;
-//    }
-//    return *this;
-//}
-//CLogGuide& CLogGuide::operator<< (unsigned long val)
-//{
-//    if (m_refLogRecorder.GetPtr())
-//    {
-//        (*m_refLogRecorder.GetPtr()) << val;
-//    }
-//    return *this;
-//}
-//CLogGuide& CLogGuide::operator<< (float val)
-//{
-//    if (m_refLogRecorder.GetPtr())
-//    {
-//        (*m_refLogRecorder.GetPtr()) << val;
-//    }
-//    return *this;
-//}
-//CLogGuide& CLogGuide::operator<< (double val)
-//{
-//    if (m_refLogRecorder.GetPtr())
-//    {
-//        (*m_refLogRecorder.GetPtr()) << val;
-//    }
-//    return *this;
-//}
-//CLogGuide& CLogGuide::operator<< (long double val)
-//{
-//    if (m_refLogRecorder.GetPtr())
-//    {
-//        (*m_refLogRecorder.GetPtr()) << val;
-//    }
-//    return *this;
-//}
-//CLogGuide& CLogGuide::operator<< (void* val)
-//{
-//    if (m_refLogRecorder.GetPtr())
-//    {
-//        (*m_refLogRecorder.GetPtr()) << val;
-//    }
-//    return *this;
-//}
-//CLogGuide& CLogGuide::operator<< (const char* val)
-//{
-//    if (m_refLogRecorder.GetPtr())
-//    {
-//        (*m_refLogRecorder.GetPtr()) << val;
-//    }
-//    return *this;
-//}
-//CLogGuide& CLogGuide::operator<< (const std::string & val)
-//{
-//    if (m_refLogRecorder.GetPtr())
-//    {
-//        (*m_refLogRecorder.GetPtr()) << val;
-//    }
-//    return *this;
-//}
-
-//#define ISLOGGERINIT(x) if(CLoggerManagment::IsLoggerInit()==false) return x;
-//
-//#define PUMP_CORE_LOG_OUTPUT(val) \
-//ISLOGGERINIT(*this); \
-//if(m_pLogMessage==NULL) \
-//  return *this; \
-//static_cast<google::LogMessage*>(m_pLogMessage)->stream()<<val; \
-//return *this;
-//
-//CLogger::CLogger(const char *szFile, int nLine, PUMP_CORE_LOG_LEVEL emLogLevel)
-//    : m_pLogMessage((!CLoggerManagment::IsLoggerInit()) ?
-//NULL :
-//     ((emLogLevel == PUMP_LOG_INFO) ?
-//     new(std::nothrow) google::LogMessage(szFile, nLine, google::GLOG_INFO) :
-//     ((emLogLevel == PUMP_LOG_WARNING) ?
-//     new(std::nothrow) google::LogMessage(szFile, nLine, google::GLOG_WARNING) :
-//     ((emLogLevel == PUMP_LOG_ERROR) ?
-//     new(std::nothrow) google::LogMessage(szFile, nLine, google::GLOG_ERROR) :
-//     new(std::nothrow) google::LogMessage(szFile, nLine, google::GLOG_INFO))))) {}
-//
-//CLogger::~CLogger()
-//{
-//    if (m_pLogMessage)
-//        delete static_cast<google::LogMessage *>(m_pLogMessage);
-//}
-//
-//CLogger &CLogger::operator<<(bool val)
-//{
-//    PUMP_CORE_LOG_OUTPUT(val);
-//}
-//
-//CLogger &CLogger::operator<<(short val)
-//{
-//    PUMP_CORE_LOG_OUTPUT(val);
-//}
-//
-//CLogger &CLogger::operator<<(char val)
-//{
-//    PUMP_CORE_LOG_OUTPUT(val);
-//}
-//
-//CLogger &CLogger::operator<<(unsigned short val)
-//{
-//    PUMP_CORE_LOG_OUTPUT(val);
-//}
-//
-//CLogger &CLogger::operator<<(int val)
-//{
-//    PUMP_CORE_LOG_OUTPUT(val);
-//}
-//
-//CLogger &CLogger::operator<<(unsigned int val)
-//{
-//    PUMP_CORE_LOG_OUTPUT(val);
-//}
-//
-//CLogger &CLogger::operator<<(long val)
-//{
-//    PUMP_CORE_LOG_OUTPUT(val);
-//}
-//
-//CLogger &CLogger::operator<<(unsigned long val)
-//{
-//    PUMP_CORE_LOG_OUTPUT(val);
-//}
-//
-//CLogger &CLogger::operator<<(float val)
-//{
-//    PUMP_CORE_LOG_OUTPUT(val);
-//}
-//
-//CLogger &CLogger::operator<<(double val)
-//{
-//    PUMP_CORE_LOG_OUTPUT(val);
-//}
-//
-//CLogger &CLogger::operator<<(long double val)
-//{
-//    PUMP_CORE_LOG_OUTPUT(val);
-//}
-//
-//CLogger &CLogger::operator<<(void *val)
-//{
-//    PUMP_CORE_LOG_OUTPUT(val);
-//}
-//
-//CLogger &CLogger::operator<<(const char *val)
-//{
-//    PUMP_CORE_LOG_OUTPUT(val);
-//}
-//
-//CLogger &CLogger::operator<<(const std::string &val)
-//{
-//    PUMP_CORE_LOG_OUTPUT(val);
-//}
 
 }
 }
@@ -923,7 +651,7 @@ pump_int32_t CLogGuide::WriteLine(
 /**
  * pump core log init API.  
  */
-PUMP_CORE_API int PUMP_CALLBACK PUMP_CORE_InjectLocalLogger(pump_handle_t hLogger)
+PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_InjectLocalLogger(pump_handle_t hLogger)
 {
     //::Pump::Core::CLoggerManagment::CreateLoggerManagment(pConf);
     if (!::Pump::Core::__CPumpCoreGlobalCtrl::IsInit())

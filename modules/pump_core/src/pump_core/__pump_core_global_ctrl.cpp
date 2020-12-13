@@ -22,35 +22,65 @@ namespace Pump
 namespace Core
 {
 
+__CPumpCoreGlobalCtrl * __CPumpCoreGlobalCtrl::s_pGlobalCtrl = PUMP_NULL;
+::Pump::Core::Thread::CRWLocker __CPumpCoreGlobalCtrl::s_csGlobalCtrl;
+
+#define __PUMP_CORE_GLOBAL_CTRL2() (__CPumpCoreGlobalCtrl::s_pGlobalCtrl)
+
+PUMP_CORE_CXXAPI void PUMP_CALLBACK PUMP_CORE_INNER_GlobalCtrlReadLock()
+{
+    __CPumpCoreGlobalCtrl::GlobalCtrlReadLock();
+}
+
+PUMP_CORE_CXXAPI void PUMP_CALLBACK PUMP_CORE_INNER_GlobalCtrlReadUnlock()
+{
+    __CPumpCoreGlobalCtrl::GlobalCtrlReadUnlock();
+}
+
 /***********************************************
-* __CPumpCoreGlobalCtrlGuider
+* __CPumpCoreGlobalCtrlKeeper
 ***********************************************/
-//__CPumpCoreGlobalCtrlGuider::__CPumpCoreGlobalCtrlGuider()
-//    : m_pPumpCoreGlobalCtrl(NULL)
-//{
-//    __CPumpCoreGlobalCtrl::ReadLock();
-//}
+__CPumpCoreGlobalCtrlKeeper::__CPumpCoreGlobalCtrlKeeper(__CPumpCoreGlobalCtrl * pGlobalCtrl)
+    : __CPumpCoreGlobalResouceKeeper<__CPumpCoreGlobalCtrl>(pGlobalCtrl)
+{}
 
-__CPumpCoreGlobalCtrlGuider::__CPumpCoreGlobalCtrlGuider(__CPumpCoreGlobalCtrl * pPumpCoreGlobalCtrl)
-    : m_pPumpCoreGlobalCtrl(pPumpCoreGlobalCtrl)
+__CPumpCoreGlobalCtrlKeeper::~__CPumpCoreGlobalCtrlKeeper()
+{}
+
+__CPumpCoreGlobalCtrlKeeper::__CPumpCoreGlobalCtrlKeeper(__CPumpCoreGlobalCtrlKeeper & other)
+    : __CPumpCoreGlobalResouceKeeper<__CPumpCoreGlobalCtrl>(other)
+{}
+
+/***********************************************
+* __CPumpCoreLogRecorderKeeper
+***********************************************/
+__CPumpCoreLogRecorderKeeper::__CPumpCoreLogRecorderKeeper(CLogRecorderBase* pLogRecorder)
+    : __CPumpCoreGlobalResouceKeeper<CLogRecorderBase>(pLogRecorder)
 {
-    __CPumpCoreGlobalCtrl::ReadLock();
+    if (!__PUMP_CORE_GLOBAL_CTRL2() || !pLogRecorder)
+    {
+        return;
+    }
+    __PUMP_CORE_GLOBAL_CTRL2()->LogRecorderReadLock();
 }
 
-__CPumpCoreGlobalCtrlGuider::~__CPumpCoreGlobalCtrlGuider()
+__CPumpCoreLogRecorderKeeper::__CPumpCoreLogRecorderKeeper(__CPumpCoreLogRecorderKeeper & other)
+    : __CPumpCoreGlobalResouceKeeper<CLogRecorderBase>(other)
 {
-    __CPumpCoreGlobalCtrl::ReadUnlock();
+    if (!__PUMP_CORE_GLOBAL_CTRL2() || !other.GetPtr())
+    {
+        return;
+    }
+    __PUMP_CORE_GLOBAL_CTRL2()->LogRecorderReadLock();
 }
 
-__CPumpCoreGlobalCtrlGuider::__CPumpCoreGlobalCtrlGuider(__CPumpCoreGlobalCtrlGuider & other)
-    : m_pPumpCoreGlobalCtrl(other.m_pPumpCoreGlobalCtrl)
+__CPumpCoreLogRecorderKeeper::~__CPumpCoreLogRecorderKeeper()
 {
-    __CPumpCoreGlobalCtrl::ReadUnlock();
-}
-
-__CPumpCoreGlobalCtrl * __CPumpCoreGlobalCtrlGuider::GetPumpCoreGlobalCtrl()
-{
-    return m_pPumpCoreGlobalCtrl;
+    if (!__PUMP_CORE_GLOBAL_CTRL2() || !this->GetPtr())
+    {
+        return;
+    }
+    __PUMP_CORE_GLOBAL_CTRL2()->LogRecorderReadUnlock();
 }
 
 /***********************************************
@@ -66,6 +96,31 @@ __CPumpCoreGlobalCtrl::__CPumpCoreGlobalCtrl()
 __CPumpCoreGlobalCtrl::~__CPumpCoreGlobalCtrl()
 {
     this->__Cleanup();
+}
+
+/** Set private logger. */
+pump_int32_t __CPumpCoreGlobalCtrl::SetLogger(pump_handle_t hLogger)
+{
+    if (!hLogger)
+    {
+        return PUMP_ERROR;
+    }
+    __CPumpCoreGlobalCtrl::GlobalCtrlReadLock();
+    if (!s_pGlobalCtrl)
+    {
+        __CPumpCoreGlobalCtrl::GlobalCtrlReadLock();
+        return PUMP_OK;
+    }
+    s_pGlobalCtrl->SetLoggerPtr(hLogger);
+
+    __CPumpCoreGlobalCtrl::GlobalCtrlReadUnlock();
+    return PUMP_OK;
+}
+
+/** Get private logger. */
+__CPumpCoreLogRecorderKeeper __CPumpCoreGlobalCtrl::GetLogger()
+{
+    return __CPumpCoreLogRecorderKeeper((CLogRecorderBase*)(!s_pGlobalCtrl ? NULL : s_pGlobalCtrl->GetLoggerPtr()));
 }
 
 pump_int32_t __CPumpCoreGlobalCtrl::__Init()
@@ -132,26 +187,26 @@ pump_int32_t __CPumpCoreGlobalCtrl::__Cleanup()
 /** Object Create. */
 pump_int32_t __CPumpCoreGlobalCtrl::Create()
 {
-    __CPumpCoreGlobalCtrl::ReadLock();
+    __CPumpCoreGlobalCtrl::GlobalCtrlReadLock();
     if (__CPumpCoreGlobalCtrl::s_pGlobalCtrl)
     {
-        __CPumpCoreGlobalCtrl::ReadUnlock();
+        __CPumpCoreGlobalCtrl::GlobalCtrlReadUnlock();
         return PUMP_OK;
     }
     // double protection lock, 
     if (!__CPumpCoreGlobalCtrl::s_pGlobalCtrl)
     {
-        __CPumpCoreGlobalCtrl::ReadUnlock();
-        __CPumpCoreGlobalCtrl::WriteLock();
+        __CPumpCoreGlobalCtrl::GlobalCtrlReadUnlock();
+        __CPumpCoreGlobalCtrl::GlobalCtrlWriteLock();
         if (__CPumpCoreGlobalCtrl::s_pGlobalCtrl)
         {
-            __CPumpCoreGlobalCtrl::WriteUnlock();
+            __CPumpCoreGlobalCtrl::GlobalCtrlWriteUnlock();
             return PUMP_OK;
         }
         else
         {
             __CPumpCoreGlobalCtrl::s_pGlobalCtrl = new (std::nothrow) ::Pump::Core::__CPumpCoreGlobalCtrl();
-            __CPumpCoreGlobalCtrl::WriteUnlock();
+            __CPumpCoreGlobalCtrl::GlobalCtrlWriteUnlock();
             if (!__CPumpCoreGlobalCtrl::s_pGlobalCtrl)
             {
                 return PUMP_ERROR;
@@ -164,27 +219,27 @@ pump_int32_t __CPumpCoreGlobalCtrl::Create()
 /** Object Destroy. */
 pump_int32_t __CPumpCoreGlobalCtrl::Destroy()
 {
-    __CPumpCoreGlobalCtrl::ReadLock();
+    __CPumpCoreGlobalCtrl::GlobalCtrlReadLock();
     if (!__CPumpCoreGlobalCtrl::s_pGlobalCtrl)
     {
-        __CPumpCoreGlobalCtrl::ReadUnlock();
+        __CPumpCoreGlobalCtrl::GlobalCtrlReadUnlock();
         return PUMP_OK;
     }
     // double protection lock, 
     if (__CPumpCoreGlobalCtrl::s_pGlobalCtrl)
     {
-        __CPumpCoreGlobalCtrl::ReadUnlock();
-        __CPumpCoreGlobalCtrl::WriteLock();
+        __CPumpCoreGlobalCtrl::GlobalCtrlReadUnlock();
+        __CPumpCoreGlobalCtrl::GlobalCtrlWriteLock();
         if (!__CPumpCoreGlobalCtrl::s_pGlobalCtrl)
         {
-            __CPumpCoreGlobalCtrl::WriteUnlock();
+            __CPumpCoreGlobalCtrl::GlobalCtrlWriteUnlock();
             return PUMP_OK;
         }
         else
         {
             delete __CPumpCoreGlobalCtrl::s_pGlobalCtrl;
             __CPumpCoreGlobalCtrl::s_pGlobalCtrl = NULL;
-            __CPumpCoreGlobalCtrl::WriteUnlock();
+            __CPumpCoreGlobalCtrl::GlobalCtrlWriteUnlock();
             if (__CPumpCoreGlobalCtrl::s_pGlobalCtrl)
             {
                 return PUMP_ERROR;
@@ -196,57 +251,70 @@ pump_int32_t __CPumpCoreGlobalCtrl::Destroy()
 
 pump_int32_t __CPumpCoreGlobalCtrl::Init()
 {
-    __CPumpCoreGlobalCtrl::ReadLock();
+    __CPumpCoreGlobalCtrl::GlobalCtrlReadLock();
     if (__CPumpCoreGlobalCtrl::IsInit())
     {
-        __CPumpCoreGlobalCtrl::ReadUnlock();
+        __CPumpCoreGlobalCtrl::GlobalCtrlReadUnlock();
         return PUMP_OK;
     }
 
     int ret = __PUMP_CORE_GLOBAL_CTRL2()->__Init();
-    __CPumpCoreGlobalCtrl::ReadUnlock();
+    __CPumpCoreGlobalCtrl::GlobalCtrlReadUnlock();
     return ret;
+}
+
+pump_bool_t __CPumpCoreGlobalCtrl::IsInit()
+{
+    __CPumpCoreGlobalCtrl::GlobalCtrlReadLock();
+    if (!s_pGlobalCtrl)
+    {
+        __CPumpCoreGlobalCtrl::GlobalCtrlReadUnlock();
+        return PUMP_FALSE;
+    }
+    pump_bool_t bInit = s_pGlobalCtrl->GetInitFlag();
+    __CPumpCoreGlobalCtrl::GlobalCtrlReadUnlock();
+    return bInit;
 }
 
 pump_int32_t __CPumpCoreGlobalCtrl::Cleanup()
 {
-    __CPumpCoreGlobalCtrl::ReadLock();
+    __CPumpCoreGlobalCtrl::GlobalCtrlReadLock();
     if (!__PUMP_CORE_GLOBAL_CTRL2()->IsInit())
     {
-        __CPumpCoreGlobalCtrl::ReadUnlock();
+        __CPumpCoreGlobalCtrl::GlobalCtrlReadUnlock();
         return PUMP_ERROR;
     }
     __PUMP_CORE_GLOBAL_CTRL2()->__Cleanup();
-    __CPumpCoreGlobalCtrl::ReadUnlock();
+    __CPumpCoreGlobalCtrl::GlobalCtrlReadUnlock();
     return PUMP_OK;
 }
 
-__CPumpCoreGlobalCtrlGuider __CPumpCoreGlobalCtrl::GetGlobalCtrl()
+__CPumpCoreGlobalCtrlKeeper __CPumpCoreGlobalCtrl::GetGlobalCtrl()
 {
-    __CPumpCoreGlobalCtrl::ReadLock();
+    __CPumpCoreGlobalCtrl::GlobalCtrlReadLock();
     if (__CPumpCoreGlobalCtrl::s_pGlobalCtrl && __CPumpCoreGlobalCtrl::s_pGlobalCtrl->IsInit())
     {
-        __CPumpCoreGlobalCtrl::ReadUnlock();
-        return __CPumpCoreGlobalCtrlGuider(__PUMP_CORE_GLOBAL_CTRL2());
+        __CPumpCoreGlobalCtrl::GlobalCtrlReadUnlock();
+        return __CPumpCoreGlobalCtrlKeeper(__PUMP_CORE_GLOBAL_CTRL2());
     }
     // double protection lock, 
     if (!__CPumpCoreGlobalCtrl::s_pGlobalCtrl)
     {
-        __CPumpCoreGlobalCtrl::WriteLock();
+        __CPumpCoreGlobalCtrl::GlobalCtrlWriteLock();
         if (__CPumpCoreGlobalCtrl::s_pGlobalCtrl)
         {
-            __CPumpCoreGlobalCtrl::WriteUnlock();
-            __CPumpCoreGlobalCtrl::ReadUnlock();
-            return __CPumpCoreGlobalCtrlGuider(__PUMP_CORE_GLOBAL_CTRL2());
+            __CPumpCoreGlobalCtrl::GlobalCtrlWriteUnlock();
+            __CPumpCoreGlobalCtrl::GlobalCtrlReadUnlock();
+            return __CPumpCoreGlobalCtrlKeeper(__PUMP_CORE_GLOBAL_CTRL2());
         }
         else
         {
             __CPumpCoreGlobalCtrl::s_pGlobalCtrl = new (std::nothrow) ::Pump::Core::__CPumpCoreGlobalCtrl();
-            __CPumpCoreGlobalCtrl::WriteUnlock();
+            __CPumpCoreGlobalCtrl::GlobalCtrlWriteUnlock();
             if (!__CPumpCoreGlobalCtrl::s_pGlobalCtrl)
             {
-                __CPumpCoreGlobalCtrl::ReadUnlock();
-                return __CPumpCoreGlobalCtrlGuider(NULL);
+                __CPumpCoreGlobalCtrl::GlobalCtrlReadUnlock();
+                return __CPumpCoreGlobalCtrlKeeper(NULL);
             }
             __PUMP_CORE_GLOBAL_CTRL2()->Init();
         }
@@ -255,33 +323,54 @@ __CPumpCoreGlobalCtrlGuider __CPumpCoreGlobalCtrl::GetGlobalCtrl()
     {
         __PUMP_CORE_GLOBAL_CTRL2()->Init();
     }
-    __CPumpCoreGlobalCtrl::ReadUnlock();
-    return __CPumpCoreGlobalCtrlGuider(__PUMP_CORE_GLOBAL_CTRL2());
+    __CPumpCoreGlobalCtrl::GlobalCtrlReadUnlock();
+    return __CPumpCoreGlobalCtrlKeeper(__PUMP_CORE_GLOBAL_CTRL2());
 }
 
 CLogRecorderMgr * __CPumpCoreGlobalCtrl::GetLoggerMgr()
 {
-    __CPumpCoreGlobalCtrl::ReadLock();
+    __CPumpCoreGlobalCtrl::GlobalCtrlReadLock();
     if (__PUMP_CORE_GLOBAL_CTRL2()->IsInit())
     {
-        __CPumpCoreGlobalCtrl::ReadUnlock();
+        __CPumpCoreGlobalCtrl::GlobalCtrlReadUnlock();
         return __PUMP_CORE_GLOBAL_CTRL2()->m_pRecorderMgr;
     }
-    __CPumpCoreGlobalCtrl::ReadUnlock();
+    __CPumpCoreGlobalCtrl::GlobalCtrlReadUnlock();
     return NULL;
 }
 
 ::Pump::Core::Cmder::CCmdSessionMgr * __CPumpCoreGlobalCtrl::GetCmdSessionMgr()
 {
-    __CPumpCoreGlobalCtrl::ReadLock();
+    __CPumpCoreGlobalCtrl::GlobalCtrlReadLock();
     if (__PUMP_CORE_GLOBAL_CTRL2()->IsInit())
     {
-        __CPumpCoreGlobalCtrl::ReadUnlock();
+        __CPumpCoreGlobalCtrl::GlobalCtrlReadUnlock();
         return __PUMP_CORE_GLOBAL_CTRL2()->m_pCmdSessionMgr;
     }
-    __CPumpCoreGlobalCtrl::ReadUnlock();
+    __CPumpCoreGlobalCtrl::GlobalCtrlReadUnlock();
     return NULL;
 }
+
+void __CPumpCoreGlobalCtrl::GlobalCtrlReadLock()
+{
+    s_csGlobalCtrl.readLock();
+}
+
+void __CPumpCoreGlobalCtrl::GlobalCtrlReadUnlock()
+{
+    s_csGlobalCtrl.readUnlock();
+}
+
+void __CPumpCoreGlobalCtrl::GlobalCtrlWriteLock()
+{
+    s_csGlobalCtrl.writeLock();
+}
+
+void __CPumpCoreGlobalCtrl::GlobalCtrlWriteUnlock()
+{
+    s_csGlobalCtrl.writeUnlock();
+}
+
 
 }
 }
