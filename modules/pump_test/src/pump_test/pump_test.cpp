@@ -139,6 +139,7 @@ int CTestCaseBase::Cleanup()
 
 int CTestCaseBase::Run(CTestSceneBase * pScene)
 {
+    m_pScene = pScene;
     if (Init() == -1)
     {
         PTEST_Printf("#CTestCase %s Init failed\n", m_pTestCaseId);

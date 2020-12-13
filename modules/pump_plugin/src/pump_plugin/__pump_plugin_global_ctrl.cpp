@@ -281,7 +281,7 @@ __CPumpPluginLogRecorderKeeper __CPumpPluginGlobalCtrl::GetLogger()
 void __CPumpPluginGlobalCtrl::SetPslotConfig(const PUMP_PSLOT_CONF & struConf)
 {
     __CPumpPluginGlobalCtrl::GlobalCtrlReadLock();
-    if (__CPumpPluginGlobalCtrl::IsInit())
+    if (!__CPumpPluginGlobalCtrl::IsInit())
     {
         __CPumpPluginGlobalCtrl::GlobalCtrlReadUnlock();
         return;
@@ -295,7 +295,7 @@ void __CPumpPluginGlobalCtrl::SetPslotConfig(const PUMP_PSLOT_CONF & struConf)
 PUMP_PSLOT_CONF __CPumpPluginGlobalCtrl::GetPslotConfig()
 {
     __CPumpPluginGlobalCtrl::GlobalCtrlReadLock();
-    if (__CPumpPluginGlobalCtrl::IsInit())
+    if (!__CPumpPluginGlobalCtrl::IsInit())
     {
         __CPumpPluginGlobalCtrl::GlobalCtrlReadUnlock();
         return PUMP_PSLOT_CONF(); // FIXME 

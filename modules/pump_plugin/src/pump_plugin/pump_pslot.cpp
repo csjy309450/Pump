@@ -18,6 +18,7 @@
 #include "pump_plugin/__pump_plugin_global_ctrl.h"
 #include "pump_plugin/pump_plugin_log.h"
 #include "pump_plugin/pump_pplug.h"
+#include "pump_plugin/pump_pslot_pclient.h"
 
 PUMP_PLUGIN_API int PUMP_CALLBACK PUMP_PSLOT_Init()
 {
@@ -95,6 +96,8 @@ PUMP_PLUGIN_API int PUMP_CALLBACK PUMP_PSLOT_GetInstalledPluginsInfo(char * pBuf
     return PUMP_OK;
 }
 
+static ::Pump::Plugin::CPluginClient * s_pclient =NULL;
+
 PUMP_PLUGIN_API pump_plugin_id PUMP_CALLBACK PUMP_PSLOT_PluginLoad(const char* szName, const char* szVersion)
 {
     PUMP_PLUGIN_INFO("PUMP_PSLOT_PluginLoad in");
@@ -120,6 +123,7 @@ PUMP_PLUGIN_API pump_plugin_id PUMP_CALLBACK PUMP_PSLOT_PluginLoad(const char* s
 #else
     std::string strEntry = strPluginDir + "/bin/entry.dll";
 #endif // (PUMP_PLUGIN_LUA_MODE == 1)
+    if (PUMP_CORE_FileIsExist(strEntry.c_str()) == PUMP_FALSE)
     {
         PUMP_PLUGIN_ERROR("Invalid plug-in");
         return -1;
@@ -157,22 +161,56 @@ PUMP_PLUGIN_API pump_plugin_id PUMP_CALLBACK PUMP_PSLOT_PluginLoad(const char* s
         return -1;
     }
     // 2. get and call plugin hello api
-    PUMP_PPLUG_CB_Hello pfnPUMP_PSLOT_Hello = (PUMP_PPLUG_CB_Hello)PUMP_CORE_GetDsoSym(hModule, "PUMP_PSLOT_Hello");
-    if (pfnPUMP_PSLOT_Hello==NULL)
+    PUMP_PPLUG_CB_Hello pfnPUMP_PPLUG_Hello = (PUMP_PPLUG_CB_Hello)PUMP_CORE_GetDsoSym(hModule, "PUMP_PPLUG_Hello");
+    if (pfnPUMP_PPLUG_Hello == NULL)
     {
-        PUMP_PLUGIN_ERROR("Get plug-in PUMP_PSLOT_Hello() failed");
+        PUMP_CORE_UnloadDSo(hModule);
+        PUMP_PLUGIN_ERROR("Get plug-in PUMP_PPLUG_Hello() failed");
         return -1;
     }
     // 3.call hello get plugin entry APIs.
-    PUMP_PPLUG_ENTRY_API struPCb;
-    memset(&struPCb, 0, sizeof(struPCb));
-    pfnPUMP_PSLOT_Hello(&struPCb);
+    PUMP_PPLUG_META struPMeta;
+    memset(&struPMeta, 0, sizeof(struPMeta));
+    if (pfnPUMP_PPLUG_Hello(&struPMeta) == PUMP_ERROR)
+    {
+        PUMP_CORE_UnloadDSo(hModule);
+        PUMP_PLUGIN_ERROR("Call plug-in PUMP_PPLUG_Hello() failed");
+        return -1;
+    }
+    PUMP_PLUGIN_INFO("Load %s@%s succed", struPMeta.struInfo.szPlugName, struPMeta.struInfo.szPlugVersion);
+    s_pclient = new ::Pump::Plugin::CPluginClient(hModule, struPMeta);
+    if (s_pclient->Init()== PUMP_ERROR)
+    {
+        delete s_pclient;
+        s_pclient = NULL;
+        PUMP_PLUGIN_ERROR("Call plug-in pfnPUMP_PPLUG_Init() failed");
+        return -1;
+    }
+    if (s_pclient->Start() == PUMP_ERROR)
+    {
+        s_pclient->Cleanup();
+        delete s_pclient;
+        s_pclient = NULL;
+        PUMP_PLUGIN_ERROR("Call plug-in pfnPUMP_PPLUG_Start() failed");
+        return -1;
+    }
+    PUMP_PLUGIN_INFO("Init %s@%s succed", struPMeta.struInfo.szPlugName, struPMeta.struInfo.szPlugVersion);
 #endif // PUMP_PLUGIN_LUA_MODE
     return 0;
 }
 
 PUMP_PLUGIN_API int PUMP_CALLBACK PUMP_PSLOT_PluginUnload(pump_plugin_id iPID)
 {
+    if (!s_pclient)
+    {
+        return -1;
+    }
+    if (s_pclient->Cleanup() == PUMP_ERROR)
+    {
+        PUMP_PLUGIN_ERROR("Call plug-in pfnPUMP_PPLUG_Cleanup() failed");
+    }
+    delete s_pclient;
+    s_pclient = NULL;
     return PUMP_OK;
 }
 
@@ -192,6 +230,15 @@ PUMP_PLUGIN_API void PUMP_CALLBACK PUMP_PSLOT_SetPluginResponceCallback(int iPID
 
 PUMP_PLUGIN_API int PUMP_CALLBACK PUMP_PSLOT_PluginRequest(int iPID, const PUMP_PPLUG_REQUEST * pRequest)
 {
+    if (!s_pclient)
+    {
+        return -1;
+    }
+    if (s_pclient->Request(pRequest) == PUMP_ERROR)
+    {
+        PUMP_PLUGIN_ERROR("Call plug-in pfnPUMP_PPLUG_Request() failed");
+        return PUMP_ERROR;
+    }
     return PUMP_OK;
 }
 

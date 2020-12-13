@@ -1,81 +1,72 @@
 // dyanamic_load_dll.cpp : 定义控制台应用程序的入口点。
 //
 
+#include "pump_core/pump_core_api.h"
 #include "pump_core/pump_core_string.h"
+#include "pump_core/thread/pump_core_thread.h"
 #include "pump_plugin/pump_plugin_config.h"
 #define PUMP_PPLUG_BUILD_DLL 1
 #include "pump_plugin/pump_pplug.h"
 #include "pump_plugin/pump_plugin_log.h"
 
-typedef struct tagPUMP_PLUGIN_REQUEST
+PUMP_PPLUG_DEF(test_plugin,9,0,0)
+
+class CMainThread 
+    : public ::Pump::Core::Thread::CThread
 {
-
-} PUMP_PLUGIN_REQUEST, *LPPUMP_PLUGIN_REQUEST;
-
-typedef struct tagPUMP_PLUGIN_RESPONSE
-{
-
-} PUMP_PLUGIN_RESPONSE, *LPPUMP_PLUGIN_RESPONSE;
-
-typedef void(*PUMP_PSLOT_CB_Responce)(const PUMP_PLUGIN_RESPONSE*);
-
-typedef struct tagPUMP_PLUGIN_ENTRY_API
-{
-    int(*fnPUMP_PLUGIN_Init)();
-    int(*fnPUMP_PLUGIN_Cleanup)();
-    int(*fnPUMP_PLUGIN_SetResponceCallback)(PUMP_PSLOT_CB_Responce);
-    int(*fnPUMP_PLUGIN_Request)(const PUMP_PLUGIN_REQUEST *);
-    int(*fnPUMP_PLUGIN_Start)();
-} PUMP_PLUGIN_ENTRY_API, *LPPUMP_PLUGIN_ENTRY_API;
-
-PUMP_PPLUG_API int PUMP_CALLBACK PUMP_PLUGIN_Hello(LPPUMP_PLUGIN_ENTRY_API pCb);
-PUMP_PPLUG_API int PUMP_CALLBACK PUMP_PLUGIN_Init();
-PUMP_PPLUG_API int PUMP_CALLBACK PUMP_PLUGIN_Cleanup();
-PUMP_PPLUG_API int PUMP_CALLBACK PUMP_PLUGIN_SetResponceCallback(PUMP_PSLOT_CB_Responce cb);
-PUMP_PPLUG_API int PUMP_CALLBACK PUMP_PLUGIN_Request(const PUMP_PLUGIN_REQUEST * req);
-PUMP_PPLUG_API int PUMP_CALLBACK PUMP_PLUGIN_Start();
-
-PUMP_PPLUG_API int PUMP_CALLBACK PUMP_PLUGIN_Hello(LPPUMP_PLUGIN_ENTRY_API pCb)
-{
-    PUMP_PLUGIN_INFO("PUMP_PLUGIN_Hello()");
-    if (!pCb)
+public:
+    virtual pump_int32_t Stop()
     {
-        return -1;
+        m_bStop = PUMP_TRUE;
+        return ::Pump::Core::Thread::CThread::Stop();
     }
-    pCb->fnPUMP_PLUGIN_Init = &PUMP_PLUGIN_Init;
-    pCb->fnPUMP_PLUGIN_Cleanup = &PUMP_PLUGIN_Cleanup;
-    pCb->fnPUMP_PLUGIN_SetResponceCallback = &PUMP_PLUGIN_SetResponceCallback;
-    pCb->fnPUMP_PLUGIN_Request = &PUMP_PLUGIN_Request;
-    pCb->fnPUMP_PLUGIN_Start = &PUMP_PLUGIN_Start;
+private:
+    virtual pump_void_t * ThreadCallback(pump_void_t * pData)
+    {
+        PUMP_PLUGIN_INFO(">>> loop in");
+        m_bStop = PUMP_FALSE;
+        while (!m_bStop)
+        {
+            PUMP_PLUGIN_INFO("one loop");
+            PUMP_CORE_Sleep(1000);
+        }
+        PUMP_PLUGIN_INFO(">>> loop out");
+        return 0;
+    }
+private:
+    pump_bool_t m_bStop;
+};
+
+static CMainThread thxMain;
+
+static int PUMP_PPLUG_FNAME(test_plugin, Init)()
+{
+    PUMP_PLUGIN_INFO("%s in", PUMP_PLUGIN_TOSTR(PUMP_PPLUG_FNAME(test_plugin, Init)));
+    PUMP_CORE_Init();
     return 0;
 }
 
-PUMP_PPLUG_API int PUMP_CALLBACK PUMP_PLUGIN_Init()
+static int PUMP_PPLUG_FNAME(test_plugin, Cleanup)()
 {
-    PUMP_PLUGIN_INFO("PUMP_PLUGIN_Init()");
+    PUMP_PLUGIN_INFO("%s in", PUMP_PLUGIN_TOSTR(PUMP_PPLUG_FNAME(test_plugin, Cleanup)));
+    thxMain.Stop();
+    PUMP_CORE_Cleanup();
     return 0;
 }
 
-PUMP_PPLUG_API int PUMP_CALLBACK PUMP_PLUGIN_Cleanup()
+static int PUMP_PPLUG_FNAME(test_plugin, Start)()
 {
-    PUMP_PLUGIN_INFO("PUMP_PLUGIN_Cleanup()");
+    PUMP_PLUGIN_INFO("%s in", PUMP_PLUGIN_TOSTR(PUMP_PPLUG_FNAME(test_plugin, Start)));
+    thxMain.Start();
     return 0;
 }
 
-PUMP_PPLUG_API int PUMP_CALLBACK PUMP_PLUGIN_SetResponceCallback(PUMP_PSLOT_CB_Responce cb)
+static int PUMP_PPLUG_FNAME(test_plugin, Request)(const PUMP_PPLUG_REQUEST * req)
 {
-    PUMP_PLUGIN_INFO("PUMP_PLUGIN_SetResponceCallback()");
-    return 0;
-}
-
-PUMP_PPLUG_API int PUMP_CALLBACK PUMP_PLUGIN_Request(const PUMP_PLUGIN_REQUEST * req)
-{
-    PUMP_PLUGIN_INFO("PUMP_PLUGIN_Request()");
-    return 0;
-}
-
-PUMP_PPLUG_API int PUMP_CALLBACK PUMP_PLUGIN_Start()
-{
-    PUMP_PLUGIN_INFO("PUMP_PLUGIN_Start()");
+    PUMP_PLUGIN_INFO("%s in", PUMP_PLUGIN_TOSTR(PUMP_PPLUG_FNAME(test_plugin, Request)));
+    if (strcmp(req->req_msg,"stop")==0)
+    {
+        thxMain.Stop();
+    }
     return 0;
 }

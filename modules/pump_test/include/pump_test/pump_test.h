@@ -130,6 +130,7 @@ private:
     CTestCaseBase();
 protected:
     const char* m_pTestCaseId;
+    CTestSceneBase * m_pScene;
 };
 
 class CTestSceneBase
@@ -167,22 +168,22 @@ private: \
         : CTestSceneBase(INTER_MAKE_STR(INTER_MAKE_TEST_CLASS_NAME(CTestScene_,indx_))) {} \
     ~INTER_MAKE_TEST_CLASS_NAME(CTestScene_,indx_)() {} \
 public: \
-    code_ \
     static INTER_MAKE_TEST_CLASS_NAME(CTestScene_,indx_) * GetTestScene() \
     { \
         if (!s_pScene) \
-                        { \
+        { \
             s_pScene = new INTER_MAKE_TEST_CLASS_NAME(CTestScene_,indx_)(); \
-                        } \
+        } \
         return s_pScene; \
     } \
     static void RegisterTestCase(CTestCaseBase * pCase) \
     { \
         if (pCase) \
-                        { \
+        { \
             GetTestScene()->_RegisterTestCase(pCase); \
-                        } \
+        } \
     } \
+code_ \
 private: \
     static INTER_MAKE_TEST_CLASS_NAME(CTestScene_,indx_) * s_pScene; \
 };\
@@ -200,7 +201,7 @@ public: \
     } \
     ~INTER_MAKE_TEST_CLASS_NAME(CTestCase_, indx_)() {} \
     virtual int operator()(CTestSceneBase * pScene); \
-    code_ \
+code_ \
 private: \
     static  INTER_MAKE_TEST_CLASS_NAME(CTestCase_, indx_) * s_pCase; \
 }; \
