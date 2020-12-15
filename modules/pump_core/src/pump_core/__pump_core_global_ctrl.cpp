@@ -169,15 +169,21 @@ pump_int32_t __CPumpCoreGlobalCtrl::__Cleanup()
     if(m_pCmdSessionMgr)
     {
         m_csCmdSessionMgr.Lock();
-        delete m_pCmdSessionMgr;
-        m_pCmdSessionMgr = NULL;
+        if (m_pCmdSessionMgr)
+        {
+            delete m_pCmdSessionMgr;
+            m_pCmdSessionMgr = NULL;
+        }
         m_csCmdSessionMgr.Unlock();
     }
     if (m_pRecorderMgr)
     {
         m_csRecorderMgr.Lock();
-        delete m_pRecorderMgr;
-        m_pRecorderMgr = NULL;
+        if (m_pRecorderMgr)
+        {
+            delete m_pRecorderMgr;
+            m_pRecorderMgr = NULL;
+        }
         m_csRecorderMgr.Unlock();
     }
     this->SetInitFlag(PUMP_FALSE);
