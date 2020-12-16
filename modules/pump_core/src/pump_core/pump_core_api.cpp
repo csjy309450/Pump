@@ -17,40 +17,40 @@
 
 #include "pump_macro/pump_pre.h"
 #include "pump_core/__pump_core_global_ctrl.h"
-#include "pump_core/pump_core_api.h"
-#include "pump_core/network/pump_core_addr.h"
+#include "pump_core/os_wrapper/pump_core_os_api.h"
+#include "pump_core/pump_core_addr.h"
 #ifdef PUMP_OS_WINDOWS
 #include <synchapi.h>
 #elif (defined PUMP_OS_POSIX)
 #include <unistd.h>
 #endif // PUMP_OS_WINDOWS
-
-PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_Init()
-{
-    if (::Pump::Core::__CPumpCoreGlobalCtrl::IsInit())
-    {
-        return PUMP_OK;
-    }
-    if (::Pump::Core::__CPumpCoreGlobalCtrl::Create() != PUMP_OK)
-    {
-        return PUMP_ERROR;
-    }
-    return ::Pump::Core::__CPumpCoreGlobalCtrl::Init();
-}
-
-PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_Cleanup()
-{
-    if (!::Pump::Core::__CPumpCoreGlobalCtrl::IsInit())
-    {
-        return PUMP_OK;
-    }
-    if (::Pump::Core::__CPumpCoreGlobalCtrl::Cleanup() != PUMP_OK)
-    {
-        return PUMP_ERROR;
-    }
-
-    return ::Pump::Core::__CPumpCoreGlobalCtrl::Destroy();
-}
+//
+//PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_Init()
+//{
+//    if (::Pump::Core::__CPumpCoreGlobalCtrl::IsInit())
+//    {
+//        return PUMP_OK;
+//    }
+//    if (::Pump::Core::__CPumpCoreGlobalCtrl::Create() != PUMP_OK)
+//    {
+//        return PUMP_ERROR;
+//    }
+//    return ::Pump::Core::__CPumpCoreGlobalCtrl::Init();
+//}
+//
+//PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_Cleanup()
+//{
+//    if (!::Pump::Core::__CPumpCoreGlobalCtrl::IsInit())
+//    {
+//        return PUMP_OK;
+//    }
+//    if (::Pump::Core::__CPumpCoreGlobalCtrl::Cleanup() != PUMP_OK)
+//    {
+//        return PUMP_ERROR;
+//    }
+//
+//    return ::Pump::Core::__CPumpCoreGlobalCtrl::Destroy();
+//}
 
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_GetSystemError()
 {

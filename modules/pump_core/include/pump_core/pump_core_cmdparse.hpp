@@ -28,7 +28,7 @@
 #include <cstring>
 #include <algorithm>
 #include <cstdlib>
-#include "pump_core/pump_core_api.h"
+#include "pump_core/os_wrapper/pump_core_os_api.h"
 
 namespace Pump
 {

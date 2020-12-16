@@ -4,16 +4,17 @@
 
 #include <cstdio>
 #include <cstring>
-#include "pump_core/pump_core_api.h"
-#include "pump_core/logger/pump_core_logger.h"
-#include "pump_core/thread/pump_core_mutex.h"
-#include "pump_core/thread/pump_core_atomic_op.hpp"
-#include "pump_core/network/pump_core_sock.h"
+#include "pump_core/os_wrapper/pump_core_os_api.h"
+#include "pump_core/pump_core_logger.h"
+#include "pump_core/pump_core_mutex.h"
+#include "pump_core/pump_core_atomic_op.hpp"
+#include "pump_core/pump_core_sock.h"
 #include "pump_core/pump_core_cmdparse.hpp"
 #include "pump_core/pump_core_environment.h"
-#include "pump_core/logger/__pump_core_inner_logger.h"
+#include "pump_core/__pump_core_inner_logger.h"
 #include "pump_core/pump_core_dllso.h"
-#include "pump_core/thread/pump_core_thread_pool.h"
+#include "pump_core/pump_core_thread_pool.h"
+#include "pump_core/pump_core_app.h"
 #include "pump_test/pump_test.h"
 
 using namespace Pump;
@@ -31,13 +32,16 @@ PTEST_C_SCENE_DEF(PumpCoreUnitTestScene000, )
 PTEST_C_CASE_DEF(PumpCoreUnitTestCase001, PumpCoreUnitTestScene000,)
 {
     PTEST_LOG(comment, "PumpCoreUnitTestCase001 repeatedly init-cleanup");
-    PTEST_ASSERT((PUMP_CORE_Init() == PUMP_OK), "PUMP_CORE_Init failed 1");
-    PTEST_ASSERT((PUMP_CORE_Init() == PUMP_OK), "PUMP_CORE_Init failed 1.1");
-    PTEST_ASSERT((PUMP_CORE_Cleanup() == PUMP_OK), "PUMP_CORE_Cleanup failed 1");
-    PTEST_ASSERT((PUMP_CORE_Init() == PUMP_OK), "PUMP_CORE_Init failed 2");
-    PTEST_ASSERT((PUMP_CORE_Cleanup() == PUMP_OK), "PUMP_CORE_Cleanup failed 2");
-    PTEST_ASSERT((PUMP_CORE_Init() == PUMP_OK), "PUMP_CORE_Init failed 3");
-    PTEST_ASSERT((PUMP_CORE_Cleanup() == PUMP_OK), "PUMP_CORE_Cleanup failed 3");
+    {
+        CApplication app;
+        PTEST_ASSERT((CApplication::IsInit() == PUMP_TRUE), "IsInit failed 1");
+    }
+    {
+        CApplication app;
+        CApplication app2;
+        PTEST_ASSERT((CApplication::IsInit() == PUMP_TRUE), "IsInit failed 1");
+        PTEST_ASSERT((app2.IsInit() == PUMP_TRUE), "IsInit failed 1");
+    }
     return PUMP_OK;
 }
 
@@ -48,25 +52,27 @@ PTEST_C_CASE_DEF(PumpCoreUnitTestCase002, PumpCoreUnitTestScene000,)
     PTEST_ASSERT((PUMP_CORE_LoggerCreate() == PUMP_NULL), "PUMP_CORE_LoggerCreate failed 1");
     PTEST_ASSERT((PUMP_CORE_LoggerConfig(PUMP_NULL, NULL) == PUMP_ERROR), "PUMP_CORE_LoggerConfig failed 1");
     // init call API
-    PTEST_ASSERT((PUMP_CORE_Init() == PUMP_OK), "PUMP_CORE_Init failed 1");
-    PUMP_CORE_LOG_CONF struLogCong;
-    memset(&struLogCong, 0, sizeof(struLogCong));
-    struLogCong.bPrintConsole = PUMP_TRUE;
-    struLogCong.bWriteFile = PUMP_TRUE;
-    struLogCong.emLogLevel = PUMP_LOG_INFO;
-    strcpy(struLogCong.szFilePath, "yz_log");
-    struLogCong.emLogLevel = PUMP_LOG_INFO;
-    pump_handle_t hLog = PUMP_CORE_LoggerCreate();
-    PTEST_ASSERT(hLog!=PUMP_NULL, "PUMP_CORE_LoggerCreate failed 1");
-    PTEST_ASSERT((PUMP_CORE_LoggerConfig(hLog, &struLogCong)==PUMP_OK), "PUMP_CORE_LoggerConfig failed 2");
-    __PUMP_CORE_INFO("-------PUMP_CORE_INFO bad1-------");
-    __PUMP_CORE_WARING("-------PUMP_CORE_WARING  bad1-------");
-    __PUMP_CORE_ERR("-------PUMP_CORE_ERR  bad1-------");
-    PTEST_ASSERT((PUMP_CORE_InjectLocalLogger(hLog)==PUMP_OK), "PUMP_CORE_InjectLocalLogger failed 2");
-    __PUMP_CORE_INFO("-------PUMP_CORE_INFO good-------");
-    __PUMP_CORE_WARING("-------PUMP_CORE_WARING good-------");
-    __PUMP_CORE_ERR("-------PUMP_CORE_ERR good-------");
-    PTEST_ASSERT((PUMP_CORE_Cleanup() == PUMP_OK), "PUMP_CORE_Cleanup failed 1");
+    {
+        CApplication app;
+        PTEST_ASSERT((CApplication::IsInit() == PUMP_TRUE), "IsInit failed 1");
+        PUMP_CORE_LOG_CONF struLogCong;
+        memset(&struLogCong, 0, sizeof(struLogCong));
+        struLogCong.bPrintConsole = PUMP_TRUE;
+        struLogCong.bWriteFile = PUMP_TRUE;
+        struLogCong.emLogLevel = PUMP_LOG_INFO;
+        strcpy(struLogCong.szFilePath, "yz_log");
+        struLogCong.emLogLevel = PUMP_LOG_INFO;
+        pump_handle_t hLog = PUMP_CORE_LoggerCreate();
+        PTEST_ASSERT(hLog != PUMP_NULL, "PUMP_CORE_LoggerCreate failed 1");
+        PTEST_ASSERT((PUMP_CORE_LoggerConfig(hLog, &struLogCong) == PUMP_OK), "PUMP_CORE_LoggerConfig failed 2");
+        __PUMP_CORE_INFO("-------PUMP_CORE_INFO bad1-------");
+        __PUMP_CORE_WARING("-------PUMP_CORE_WARING  bad1-------");
+        __PUMP_CORE_ERR("-------PUMP_CORE_ERR  bad1-------");
+        PTEST_ASSERT((PUMP_CORE_InjectLocalLogger(hLog) == PUMP_OK), "PUMP_CORE_InjectLocalLogger failed 2");
+        __PUMP_CORE_INFO("-------PUMP_CORE_INFO good-------");
+        __PUMP_CORE_WARING("-------PUMP_CORE_WARING good-------");
+        __PUMP_CORE_ERR("-------PUMP_CORE_ERR good-------");
+    }
     // cleanup call API
     __PUMP_CORE_INFO("-------PUMP_CORE_INFO bad2-------");
     __PUMP_CORE_WARING("-------PUMP_CORE_WARING bad2-------");
@@ -240,32 +246,34 @@ PTEST_C_CASE_DEF(PumpCoreUnitTestCase008, PumpCoreUnitTestScene000, )
 PTEST_C_CASE_DEF(PumpCoreUnitTestCase009, PumpCoreUnitTestScene000, )
 {
     PTEST_LOG(comment, "PumpCoreUnitTestCase009 test multi thread log <text>");
-    PTEST_ASSERT((PUMP_CORE_Init() == PUMP_OK), "PUMP_CORE_Init failed 3");
-    PUMP_CORE_LOG_CONF struLogCong;
-    memset(&struLogCong, 0, sizeof(struLogCong));
-    struLogCong.bPrintConsole = PUMP_TRUE;
-    struLogCong.bWriteFile = PUMP_TRUE;
-    struLogCong.emLogLevel = PUMP_LOG_INFO;
-    strcpy(struLogCong.szFilePath, "yz_log_text");
-    struLogCong.emLogLevel = PUMP_LOG_INFO;
-    pump_handle_t hLog = PUMP_CORE_LoggerCreate();
-    PTEST_ASSERT(hLog != PUMP_NULL, "PUMP_CORE_LoggerCreate failed 3");
-    PTEST_ASSERT((PUMP_CORE_LoggerConfig(hLog, &struLogCong) == PUMP_OK), "PUMP_CORE_LoggerConfig failed 3");
-    PTEST_ASSERT((PUMP_CORE_InjectLocalLogger(hLog) == PUMP_OK), "PUMP_CORE_InjectLocalLogger failed 2");
-    std::vector<CLogTestThread*> vecThx;
-    for (int i = 0; i < 2; ++i)
     {
-        CLogTestThread * pthx = new CLogTestThread();
-        pthx->Start();
-        vecThx.push_back(pthx);
+        CApplication app;
+        PTEST_ASSERT((CApplication::IsInit() == PUMP_TRUE), "IsInit failed 1");
+        PUMP_CORE_LOG_CONF struLogCong;
+        memset(&struLogCong, 0, sizeof(struLogCong));
+        struLogCong.bPrintConsole = PUMP_TRUE;
+        struLogCong.bWriteFile = PUMP_TRUE;
+        struLogCong.emLogLevel = PUMP_LOG_INFO;
+        strcpy(struLogCong.szFilePath, "yz_log_text");
+        struLogCong.emLogLevel = PUMP_LOG_INFO;
+        pump_handle_t hLog = PUMP_CORE_LoggerCreate();
+        PTEST_ASSERT(hLog != PUMP_NULL, "PUMP_CORE_LoggerCreate failed 3");
+        PTEST_ASSERT((PUMP_CORE_LoggerConfig(hLog, &struLogCong) == PUMP_OK), "PUMP_CORE_LoggerConfig failed 3");
+        PTEST_ASSERT((PUMP_CORE_InjectLocalLogger(hLog) == PUMP_OK), "PUMP_CORE_InjectLocalLogger failed 2");
+        std::vector<CLogTestThread*> vecThx;
+        for (int i = 0; i < 2; ++i)
+        {
+            CLogTestThread * pthx = new CLogTestThread();
+            pthx->Start();
+            vecThx.push_back(pthx);
+        }
+        PUMP_CORE_Sleep(3000);
+        for (size_t i = 0; i < vecThx.size(); ++i)
+        {
+            vecThx[i]->Stop();
+            delete vecThx[i];
+        }
     }
-    PUMP_CORE_Sleep(3000);
-    for (size_t i = 0; i < vecThx.size(); ++i)
-    {
-        vecThx[i]->Stop();
-        delete vecThx[i];
-    }
-    PTEST_ASSERT((PUMP_CORE_Cleanup() == PUMP_OK), "PUMP_CORE_Cleanup failed 1");
     return 0;
 }
 
@@ -295,30 +303,31 @@ pump_pvoid_t PUMP_CALLBACK My_ThreadPool_WorkRoutine(pump_pvoid_t pData)
 PTEST_C_CASE_DEF(PumpCoreUnitTestCase011, PumpCoreUnitTestScene000, )
 {
     PTEST_LOG(comment, "PumpCoreUnitTestCase011 test thread pool");
-    PTEST_ASSERT((PUMP_CORE_Init() == PUMP_OK), "PUMP_CORE_Init failed 3");
-    PUMP_CORE_LOG_CONF struLogCong;
-    memset(&struLogCong, 0, sizeof(struLogCong));
-    struLogCong.bPrintConsole = PUMP_TRUE;
-    struLogCong.bWriteFile = PUMP_TRUE;
-    struLogCong.emLogLevel = PUMP_LOG_INFO;
-    strcpy(struLogCong.szFilePath, "yz_log_text");
-    struLogCong.emLogLevel = PUMP_LOG_INFO;
-    pump_handle_t hLog = PUMP_CORE_LoggerCreate();
-    PTEST_ASSERT(hLog != PUMP_NULL, "PUMP_CORE_LoggerCreate failed 3");
-    PTEST_ASSERT((PUMP_CORE_LoggerConfig(hLog, &struLogCong) == PUMP_OK), "PUMP_CORE_LoggerConfig failed 3");
-    PTEST_ASSERT((PUMP_CORE_InjectLocalLogger(hLog) == PUMP_OK), "PUMP_CORE_InjectLocalLogger failed 2");
-
-    PUMP_CORE_InitThreadPool();
-    pump_handle_t hThxPool = PUMP_CORE_ThreadPool_Create(2, 10);
-    PTEST_ASSERT((hThxPool != PUMP_INVALID_THREADPOOL), "PUMP_CORE_ThreadPool_Create failed");
-    for (int i = 0; i < 10; i++)
     {
-        PTEST_ASSERT((PUMP_CORE_ThreadPool_Work(hThxPool, My_ThreadPool_WorkRoutine, (void*)i)!=PUMP_ERROR)
-            , "PUMP_CORE_ThreadPool_Work failed");
-    }
-    PTEST_ASSERT(PUMP_CORE_ThreadPool_Destroy(hThxPool)==PUMP_OK, "PUMP_CORE_ThreadPool_Destroy failed");
+        CApplication app;
+        PTEST_ASSERT((CApplication::IsInit() == PUMP_TRUE), "IsInit failed 1");
+        PUMP_CORE_LOG_CONF struLogCong;
+        memset(&struLogCong, 0, sizeof(struLogCong));
+        struLogCong.bPrintConsole = PUMP_TRUE;
+        struLogCong.bWriteFile = PUMP_TRUE;
+        struLogCong.emLogLevel = PUMP_LOG_INFO;
+        strcpy(struLogCong.szFilePath, "yz_log_text");
+        struLogCong.emLogLevel = PUMP_LOG_INFO;
+        pump_handle_t hLog = PUMP_CORE_LoggerCreate();
+        PTEST_ASSERT(hLog != PUMP_NULL, "PUMP_CORE_LoggerCreate failed 3");
+        PTEST_ASSERT((PUMP_CORE_LoggerConfig(hLog, &struLogCong) == PUMP_OK), "PUMP_CORE_LoggerConfig failed 3");
+        PTEST_ASSERT((PUMP_CORE_InjectLocalLogger(hLog) == PUMP_OK), "PUMP_CORE_InjectLocalLogger failed 2");
 
-    PTEST_ASSERT((PUMP_CORE_Cleanup() == PUMP_OK), "PUMP_CORE_Cleanup failed 1");
+        PUMP_CORE_InitThreadPool();
+        pump_handle_t hThxPool = PUMP_CORE_ThreadPool_Create(2, 10);
+        PTEST_ASSERT((hThxPool != PUMP_INVALID_THREADPOOL), "PUMP_CORE_ThreadPool_Create failed");
+        for (int i = 0; i < 10; i++)
+        {
+            PTEST_ASSERT((PUMP_CORE_ThreadPool_Work(hThxPool, My_ThreadPool_WorkRoutine, (void*)i) != PUMP_ERROR)
+                , "PUMP_CORE_ThreadPool_Work failed");
+        }
+        PTEST_ASSERT(PUMP_CORE_ThreadPool_Destroy(hThxPool) == PUMP_OK, "PUMP_CORE_ThreadPool_Destroy failed");
+    }
     return 0;
 }
 
@@ -336,24 +345,67 @@ void Test_CB_WriteLog (
 PTEST_C_CASE_DEF(PumpCoreUnitTestCase012, PumpCoreUnitTestScene000, )
 {
     PTEST_LOG(comment, "PumpCoreUnitTestCase012 test user log api");
-    PTEST_ASSERT((PUMP_CORE_Init() == PUMP_OK), "PUMP_CORE_Init failed 3");
-    PUMP_CORE_LOG_CONF struLogCong;
-    memset(&struLogCong, 0, sizeof(struLogCong));
-    struLogCong.bPrintConsole = PUMP_TRUE;
-    struLogCong.bWriteFile = PUMP_TRUE;
-    struLogCong.emLogLevel = PUMP_LOG_INFO;
-    strcpy(struLogCong.szFilePath, "yz_log_text");
-    struLogCong.emLogLevel = PUMP_LOG_INFO;
-    pump_handle_t hLog = PUMP_CORE_LoggerCreate(PUMP_CORE_LOG_RECORED_USER);
-    PTEST_ASSERT(hLog != PUMP_NULL, "PUMP_CORE_LoggerCreate failed 3");
-    struLogCong.pfnLog = Test_CB_WriteLog;
-    PTEST_ASSERT((PUMP_CORE_LoggerConfig(hLog, &struLogCong) == PUMP_OK), "PUMP_CORE_LoggerConfig failed 3");
-    PTEST_ASSERT((PUMP_CORE_InjectLocalLogger(hLog) == PUMP_OK), "PUMP_CORE_InjectLocalLogger failed 2");
+    {
+        CApplication app;
+        PTEST_ASSERT((CApplication::IsInit() == PUMP_TRUE), "IsInit failed 1");
+        PUMP_CORE_LOG_CONF struLogCong;
+        memset(&struLogCong, 0, sizeof(struLogCong));
+        struLogCong.bPrintConsole = PUMP_TRUE;
+        struLogCong.bWriteFile = PUMP_TRUE;
+        struLogCong.emLogLevel = PUMP_LOG_INFO;
+        strcpy(struLogCong.szFilePath, "yz_log_text");
+        struLogCong.emLogLevel = PUMP_LOG_INFO;
+        pump_handle_t hLog = PUMP_CORE_LoggerCreate(PUMP_CORE_LOG_RECORED_USER);
+        PTEST_ASSERT(hLog != PUMP_NULL, "PUMP_CORE_LoggerCreate failed 3");
+        struLogCong.pfnLog = Test_CB_WriteLog;
+        PTEST_ASSERT((PUMP_CORE_LoggerConfig(hLog, &struLogCong) == PUMP_OK), "PUMP_CORE_LoggerConfig failed 3");
+        PTEST_ASSERT((PUMP_CORE_InjectLocalLogger(hLog) == PUMP_OK), "PUMP_CORE_InjectLocalLogger failed 2");
 
-    PUMP_CORE_INFO("=_=");
-    PUMP_CORE_INFO("T_T");
+        PUMP_CORE_INFO("=_=");
+        PUMP_CORE_INFO("T_T");
 
-    PTEST_ASSERT((PUMP_CORE_Cleanup() == PUMP_OK), "PUMP_CORE_Cleanup failed 1");
+    }
+    return 0;
+}
+
+class CTestThreadInitCleanup
+    : public ::Pump::Core::Thread::CThread
+{
+public:
+    virtual pump_int32_t Stop()
+    {
+        m_bStop = PUMP_TRUE;
+        return::Pump::Core::Thread::CThread::Stop();
+    }
+    virtual pump_void_t * ThreadCallback(pump_void_t * pData)
+    {
+        while (!m_bStop)
+        {
+            CApplication app;
+        }
+        return 0;
+    }
+private:
+    pump_bool_t m_bStop = FALSE;
+};
+
+PTEST_C_CASE_DEF(PumpCoreUnitTestCase013, PumpCoreUnitTestScene000, )
+{
+    PTEST_LOG(comment, "PumpCoreUnitTestCase013 test muti-thread init cleanup");
+    std::vector<CTestThreadInitCleanup *> vecThread;
+    int nTestBatch = 50;
+    for (int i = 0; i < nTestBatch; ++i)
+    {
+        CTestThreadInitCleanup * pthx = new CTestThreadInitCleanup();
+        pthx->Start();
+        vecThread.push_back(pthx);
+    }
+    PUMP_CORE_Sleep(10000);
+    for (int i = 0; i < nTestBatch; ++i)
+    {
+        vecThread[i]->Stop();
+        delete vecThread[i];
+    }
     return 0;
 }
 

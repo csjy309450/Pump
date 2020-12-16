@@ -18,7 +18,7 @@
 #ifndef PUMP_CORE_GLOBAL_RESOURCE_GUIDER_HPP
 #define PUMP_CORE_GLOBAL_RESOURCE_GUIDER_HPP
 
-#include "pump_core/pump_core_config.h"
+#include "pump_core/os_wrapper/pump_core_os_config.h"
 
 namespace Pump
 {

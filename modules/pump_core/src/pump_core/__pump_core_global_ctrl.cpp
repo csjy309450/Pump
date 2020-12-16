@@ -108,7 +108,7 @@ pump_int32_t __CPumpCoreGlobalCtrl::SetLogger(pump_handle_t hLogger)
     __CPumpCoreGlobalCtrl::GlobalCtrlReadLock();
     if (!s_pGlobalCtrl)
     {
-        __CPumpCoreGlobalCtrl::GlobalCtrlReadLock();
+        __CPumpCoreGlobalCtrl::GlobalCtrlReadUnlock();
         return PUMP_OK;
     }
     s_pGlobalCtrl->SetLoggerPtr(hLogger);

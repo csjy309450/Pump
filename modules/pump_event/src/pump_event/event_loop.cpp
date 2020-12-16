@@ -8,8 +8,8 @@
 #elif (defined _WIN32)
 #include <synchapi.h>
 #endif // __linux__
-#include "pump_core/logger/pump_core_logger.h"
-#include "pump_core/pump_core_api.h"
+#include "pump_core/pump_core_logger.h"
+#include "pump_core/os_wrapper/pump_core_os_api.h"
 #include "pump_event/event_interface.h"
 #include "pump_event/event_loop.h"
 

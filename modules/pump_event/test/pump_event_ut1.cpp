@@ -7,7 +7,7 @@
 
 #include <cstdio>
 #include <vector>
-#include "pump_core/thread/pump_core_rwlocker.h"
+#include "pump_core/pump_core_rwlocker.h"
 
 using namespace std;
 

@@ -1,6 +1,6 @@
 #include "async_pipe_server_thread.h"
 #include "async_pipe_server_recv_thread.h"
-#include "pump_core/logger/__pump_core_inner_logger.h"
+#include "pump_core/__pump_core_inner_logger.h"
 
 using namespace ::Pump;
 using namespace ::Pump::Core;

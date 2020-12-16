@@ -19,10 +19,10 @@
 #define PUMP_CORE_CMDER_H
 #include "pump_macro/pump_pre.h"
 #include <list>
-#include "pump_core/pump_core_types.h"
+#include "pump_core/os_wrapper/pump_core_os_types.h"
 #include "pump_core/pump_core_pipe.h"
-#include "pump_core/thread/pump_core_thread.h"
-#include "pump_core/thread/pump_core_mutex.h"
+#include "pump_core/pump_core_thread.h"
+#include "pump_core/pump_core_mutex.h"
 #include "pump_core/pump_core_statemachine.h"
 //#include "pump_core/pump_core_global_ctrl_base.h"
 #include "pump_core/pump_core_uuid.h"

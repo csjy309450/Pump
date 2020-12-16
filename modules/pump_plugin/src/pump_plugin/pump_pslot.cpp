@@ -8,9 +8,9 @@
 #else
 #include "pump_core/pump_core_dllso.h"
 #endif // PUMP_PSLOT_LUA_MODE
-#include "pump_core/pump_core_types.h"
-#include "pump_core/file/pump_core_file.h"
-#include "pump_core/pump_core_api.h"
+#include "pump_core/os_wrapper/pump_core_os_types.h"
+#include "pump_core/pump_core_file.h"
+#include "pump_core/os_wrapper/pump_core_os_api.h"
 #include "pump_plugin/pump_pslot.h"
 #include "pump_plugin/pump_plugin_config.h"
 #include "pump_plugin/pump_pslot_lua_context.h"

@@ -6,7 +6,7 @@
 
 #include <list>
 #include "pump_core/pump_core_noncopyable.h"
-#include "pump_core/thread/pump_core_mutex.h"
+#include "pump_core/pump_core_mutex.h"
 #include "pump_memory/smart_buffer/circular_buffer_interface.hpp"
 #include "pump_event/ev_def.h"
 #include "pump_event/event.h"

@@ -12,8 +12,8 @@ extern "C"
 #include "SLB3/internal/class.h"
 #include "SLB3/implementation.h"
 #include "pump_core/pump_core_noncopyable.h"
-#include "pump_core/thread/pump_core_thread.h"
-#include "pump_core/thread/pump_core_mutex.h"
+#include "pump_core/pump_core_thread.h"
+#include "pump_core/pump_core_mutex.h"
 
 struct lua_State;
 

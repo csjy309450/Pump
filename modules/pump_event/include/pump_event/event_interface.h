@@ -5,7 +5,7 @@
 #ifndef PUMP_EVENT_INTERFACE_H
 #define PUMP_EVENT_INTERFACE_H
 #include "pump_macro/pump_pre.h"
-#include "pump_core/thread/pump_core_thread.h"
+#include "pump_core/pump_core_thread.h"
 #include "pump_event/ev_def.h"
 
 namespace Pump

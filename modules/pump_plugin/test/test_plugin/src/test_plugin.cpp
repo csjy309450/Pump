@@ -11,6 +11,28 @@
 
 PUMP_PPLUG_DEF(test_plugin,9,0,0)
 
+class CMemoryLeackTest
+{
+public:
+    CMemoryLeackTest()
+    { 
+        PUMP_PLUGIN_INFO("ctest"); 
+        for (int i = 0; i < 256; i++)
+        {
+            s[i] = new char[1024*1024];
+        }
+    }
+    ~CMemoryLeackTest()
+    { 
+        PUMP_PLUGIN_INFO("~ctest"); 
+        for (int i = 0; i < 256; i++)
+        {
+            delete[] s[i];
+        }
+    }
+    char *s[256];
+};
+
 class CMainThread 
     : public ::Pump::Core::Thread::CThread
 {
@@ -38,11 +60,13 @@ private:
 };
 
 static CMainThread thxMain;
+static CMemoryLeackTest * ptest = NULL;
 
 static int PUMP_PPLUG_FNAME(test_plugin, Init)()
 {
     PUMP_PLUGIN_INFO("%s in", PUMP_PLUGIN_TOSTR(PUMP_PPLUG_FNAME(test_plugin, Init)));
-    PUMP_CORE_Init();
+    PUMP_CORE_Init(); 
+    ptest = new CMemoryLeackTest();
     return 0;
 }
 
@@ -51,6 +75,7 @@ static int PUMP_PPLUG_FNAME(test_plugin, Cleanup)()
     PUMP_PLUGIN_INFO("%s in", PUMP_PLUGIN_TOSTR(PUMP_PPLUG_FNAME(test_plugin, Cleanup)));
     thxMain.Stop();
     PUMP_CORE_Cleanup();
+    delete ptest;
     return 0;
 }
 

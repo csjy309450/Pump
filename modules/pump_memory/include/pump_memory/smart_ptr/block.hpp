@@ -15,7 +15,7 @@
 #endif // (defined __linux__)
 
 #include "pump_core/pump_core_noncopyable.h"
-#include "pump_core/logger/pump_core_logger.h"
+#include "pump_core/pump_core_logger.h"
 
 //namespace nsp_std = ::std;
 //using namespace Pump::Core;

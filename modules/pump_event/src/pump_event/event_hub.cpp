@@ -2,8 +2,8 @@
 // Created by yz on 19-7-21.
 //
 
-#include "pump_core/thread/pump_core_mutex.h"
-#include "pump_core/thread/pump_core_rwlocker.h"
+#include "pump_core/pump_core_mutex.h"
+#include "pump_core/pump_core_rwlocker.h"
 #include "pump_event/event_interface.h"
 #include "pump_event/event_engine.h"
 #include "pump_event/utils/shared_mutex.h"

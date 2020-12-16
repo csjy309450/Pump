@@ -18,7 +18,7 @@
 #ifndef PUMP_EVENT_STATEMACHINE_H
 #define PUMP_EVENT_STATEMACHINE_H
 #include "pump_macro/pump_pre.h"
-#include "pump_core/thread/pump_core_mutex.h"
+#include "pump_core/pump_core_mutex.h"
 
 namespace Pump
 {

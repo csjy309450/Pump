@@ -5,7 +5,7 @@
 #define PUMP_EVENT_NEWLYEVENTMGR_H
 #include <list>
 #include "pump_event/pump_event_config.h"
-#include "pump_core/thread/pump_core_mutex.h"
+#include "pump_core/pump_core_mutex.h"
 #include "pump_memory/smart_buffer/circular_buffer_interface.hpp"
 
 //class CNewlyEvMgrGuiderForInner;

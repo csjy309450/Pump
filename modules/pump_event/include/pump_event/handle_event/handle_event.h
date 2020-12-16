@@ -4,9 +4,9 @@
 #ifndef PUMP_EVENT_FDEVENT_H
 #define PUMP_EVENT_FDEVENT_H
 #include "pump_macro/pump_pre.h"
-#include "pump_core/pump_core_types.h"
+#include "pump_core/os_wrapper/pump_core_os_types.h"
 #include "pump_core/pump_core_handle.h"
-#include "pump_core/network/pump_core_sock.h"
+#include "pump_core/pump_core_sock.h"
 #include "pump_event/pump_event_config.h"
 #include "pump_event/ev_def.h"
 #include "pump_event/event.h"

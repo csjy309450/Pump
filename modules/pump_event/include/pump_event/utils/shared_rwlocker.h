@@ -4,7 +4,7 @@
 
 #ifndef PUMP_EVENT_SHARED_RWLOCKER_H
 #define PUMP_EVENT_SHARED_RWLOCKER_H
-#include "pump_core/thread/pump_core_rwlocker.h"
+#include "pump_core/pump_core_rwlocker.h"
 #include "pump_memory/smart_ptr/sharedptr.hpp"
 #include "pump_event/pump_event_config.h"
 

@@ -10,7 +10,7 @@
 #include <iostream>
 #include <iomanip>
 
-#include "pump_core/logger/pump_core_logger.h"
+#include "pump_core/pump_core_logger.h"
 #include "pump_memory/smart_ptr/block.hpp"
 #include "pump_memory/smart_ptr/policy.hpp"
 

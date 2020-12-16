@@ -19,8 +19,8 @@
 #define PUMP_CORE_GLOBAL_CTRL_BASE_H
 #include "pump_macro/pump_pre.h"
 #include "pump_core/pump_core_noncopyable.h"
-#include "pump_core/thread/pump_core_rwlocker.h"
-#include "pump_core/logger/pump_core_logger.h"
+#include "pump_core/pump_core_rwlocker.h"
+#include "pump_core/pump_core_logger.h"
 
 #ifdef PUMP_COMPILER_CXX
 namespace Pump

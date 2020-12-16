@@ -22,9 +22,9 @@
 //#elif (defined _WIN32)
 //#include <WinSock2.h>
 //#endif // linux
-#include "pump_core/logger/pump_core_logger.h"
-#include "pump_core/pump_core_api.h"
-#include "pump_core/network/pump_core_sock.h"
+#include "pump_core/pump_core_logger.h"
+#include "pump_core/os_wrapper/pump_core_os_api.h"
+#include "pump_core/pump_core_sock.h"
 #include "pump_event/ev_def.h"
 #include "pump_event/event_collector.h"
 #include "pump_event/event_register.h"

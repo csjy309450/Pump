@@ -3,7 +3,7 @@
 //
 #include <stdlib.h>
 #include "pump_event/event_register.h"
-#include "pump_core/logger/pump_core_logger.h"
+#include "pump_core/pump_core_logger.h"
 #include "pump_event/event_engine.h"
 #include "pump_event/event_collector.h"
 

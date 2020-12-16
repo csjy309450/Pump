@@ -4,7 +4,7 @@
 #ifndef PUMP_EVENT_EVENTENGINE_H
 #define PUMP_EVENT_EVENTENGINE_H
 #include "pump_macro/pump_pre.h"
-#include "pump_core/thread/pump_core_thread.h"
+#include "pump_core/pump_core_thread.h"
 #include "pump_event/pump_event_config.h"
 #include "pump_event/ev_def.h"
 #include "pump_event/event_collector.h"

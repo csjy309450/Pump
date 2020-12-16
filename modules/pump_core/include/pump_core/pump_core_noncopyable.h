@@ -18,7 +18,7 @@
 #ifndef PUMP_CROE_NONCOPYABLE_H
 #define PUMP_CROE_NONCOPYABLE_H
 #include "pump_macro/pump_pre.h"
-#include "pump_core/pump_core_config.h"
+#include "pump_core/os_wrapper/pump_core_os_config.h"
 
 namespace Pump
 {

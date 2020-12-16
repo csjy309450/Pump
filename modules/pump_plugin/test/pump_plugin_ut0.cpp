@@ -1,7 +1,7 @@
 #include <iostream>
 #include "pump_macro/pump_pre.h"
-#include "pump_core/pump_core_api.h"
-#include "pump_core/logger/pump_core_logger.h"
+#include "pump_core/os_wrapper/pump_core_os_api.h"
+#include "pump_core/pump_core_logger.h"
 #include "pump_plugin/pump_pslot.h"
 #include "pump_plugin/pump_plugin_log.h"
 #include "pump_plugin/__pump_plugin_global_ctrl.h"

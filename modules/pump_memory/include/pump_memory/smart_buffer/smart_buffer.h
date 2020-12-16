@@ -22,9 +22,9 @@
 //#include <boost/thread/mutex.hpp>
 //#include <boost/atomic.hpp>
 //#include <boost/scoped_ptr.hpp>
-#include "pump_core/thread/pump_core_mutex.h"
-#include "pump_core/thread/pump_core_atomic_op.hpp"
-#include "pump_core/logger/pump_core_logger.h"
+#include "pump_core/pump_core_mutex.h"
+#include "pump_core/pump_core_atomic_op.hpp"
+#include "pump_core/pump_core_logger.h"
 #include "kmp.h"
 
 //namespace nsp_boost = boost;

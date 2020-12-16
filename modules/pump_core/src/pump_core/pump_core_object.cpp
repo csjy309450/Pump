@@ -15,32 +15,87 @@
  * </table>
  */
 
-#include "pump_core/pump_core_object.h"
 #include <cstddef>
+#include <stdlib.h>
+#include "pump_core/pump_core_object.h"
 
 namespace Pump
 {
 namespace Core
 {
 
-CObjectBase::CObjectBase(CPrimitiveBase * pPrimitive)
-    : m_pPrimitive(pPrimitive) {}
-
 CObjectBase::CObjectBase()
-    : m_pPrimitive(NULL)
-{
+    : m_bNull(PUMP_TRUE)
+    , m_szName("Null")
+    , m_pPrimitive(NULL)
+{}
 
-}
+CObjectBase::CObjectBase(const char* szName, pump_bool_t bIsNull, CPrimitiveBase * pPrimitive)
+    : m_bNull(bIsNull)
+    , m_szName(szName) 
+    , m_pPrimitive(pPrimitive)
+{}
 
 CObjectBase::CObjectBase(const CObjectBase& other)
-    : m_pPrimitive(other.m_pPrimitive)
+    : m_bNull(other.m_bNull)
+    , m_szName(other.m_szName)
+    , m_pPrimitive(other.m_pPrimitive)
 {
 
 }
 
 CObjectBase::~CObjectBase()
 {
+    m_bNull = (PUMP_TRUE);
 }
+
+pump_bool_t CObjectBase::IsNull() const
+{
+    return m_bNull;
+}
+
+void CObjectBase::SetNull(pump_bool_t bIsNull)
+{
+    m_bNull = bIsNull;
+}
+
+pump_bool_t CObjectBase::operator==(const CObjectBase& other)
+{
+    return (::strcmp(other.m_szName, m_szName) == 0);
+}
+
+void* CObjectBase::operator new(size_t size)
+{
+    return malloc(size);
+}
+
+void CObjectBase::operator delete(void* ptr)
+{
+    free(ptr);
+}
+
+//CNonCopyOperator::CNonCopyOperator(const char* szName, pump_bool_t bIsNull, CPrimitiveBase * pPrimitive)
+//    : CObjectBase(szName, bIsNull, pPrimitive)
+//{}
+
+CNonCopyOperator::CNonCopyOperator() {}
+
+CNonCopyOperator::~CNonCopyOperator()
+{}
+
+CNullObject::CNullObject()
+    : CObjectBase()
+{}
+
+//CNonNewOperator::CNonNewOperator(const char* szName, pump_bool_t bIsNull, CPrimitiveBase * pPrimitive)
+//    : CObjectBase(szName, bIsNull, pPrimitive)
+//{}
+
+CNonNewOperator::CNonNewOperator()
+{}
+
+CNonNewOperator::~CNonNewOperator()
+{}
 
 }
 }
