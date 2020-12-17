@@ -18,6 +18,7 @@
 #include "pump_core/pump_core_mutex.h"
 #include "pump_core/pump_core_thread.h"
 #include "pump_core/pump_core_logger.h"
+#include "pump_core/pump_core_app.h"
 #include "pump_memory/smart_ptr/block.hpp"
 #include "pump_memory/smart_ptr/policy.hpp"
 #include "pump_memory/smart_ptr/voidsptr.hpp"
@@ -39,7 +40,7 @@ PTEST_C_SCENE_DEF(PumpMemoryUnitTestScene000,
 public:
     virtual int Init()
     {
-        PTEST_ASSERT((PUMP_CORE_Init() == PUMP_OK), "PUMP_CORE_Init failed 3");
+        PTEST_ASSERT((CApplication::IsInit() == PUMP_OK), "PUMP_CORE_Init failed 3");
         PUMP_CORE_LOG_CONF struLogCong;
         memset(&struLogCong, 0, sizeof(struLogCong));
         struLogCong.bPrintConsole = PUMP_TRUE;
@@ -55,9 +56,10 @@ public:
     }
     virtual int Cleanup()
     {
-        PTEST_ASSERT((PUMP_CORE_Cleanup() == PUMP_OK), "PUMP_CORE_Cleanup failed 1");
         return 0;
     }
+private:
+    CApplication m_app;
 )
 
 PTEST_C_CASE_DEF(PumpMemoryUnitTestCase001, PumpMemoryUnitTestScene000, )

@@ -2,11 +2,13 @@
 #include "pump_macro/pump_pre.h"
 #include "pump_core/os_wrapper/pump_core_os_api.h"
 #include "pump_core/pump_core_logger.h"
+#include "pump_core/pump_core_app.h"
 #include "pump_plugin/pump_pslot.h"
 #include "pump_plugin/pump_plugin_log.h"
 #include "pump_plugin/__pump_plugin_global_ctrl.h"
 #include "pump_test/pump_test.h"
 
+using namespace Pump::Core;
 using namespace Pump::Test;
 
 void Test_CB_WriteLog(
@@ -21,7 +23,7 @@ PTEST_C_SCENE_DEF(PumpPluginScene000,
 public:
     virtual int Init()
     {
-        PTEST_ASSERT((PUMP_CORE_Init() == PUMP_OK), "PUMP_CORE_Init failed 3");
+        PTEST_ASSERT((CApplication::IsInit() == PUMP_OK), "PUMP_CORE_Init failed 3");
         PUMP_CORE_LOG_CONF struLogCong;
         memset(&struLogCong, 0, sizeof(struLogCong));
         struLogCong.pfnLog = Test_CB_WriteLog;
@@ -36,12 +38,12 @@ public:
     {
         PTEST_ASSERT((m_hLog != PUMP_INVALID_HANDLE && m_hLog != NULL), "invalid m_hLog");
         PTEST_ASSERT((PUMP_CORE_LoggerDestroy(m_hLog)), "PUMP_CORE_LoggerDestroy failed");
-        PTEST_ASSERT((PUMP_CORE_Cleanup() == PUMP_OK), "PUMP_CORE_Cleanup failed 1");
         return 0;
     }
     pump_handle_t GetLogHandle() const { return m_hLog; }
 private:
     pump_handle_t m_hLog = NULL;
+    CApplication m_app;
 )
 
 PTEST_C_CASE_DEF(PumpPluginUnitTestCase001, PumpPluginScene000, )
