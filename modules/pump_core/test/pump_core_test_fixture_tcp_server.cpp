@@ -1,9 +1,9 @@
 #include <map>
 #include <utility>
-#include "pump_core/logger/pump_core_logger.h"
-#include "pump_core/pump_core_api.h"
-#include "pump_core/network/pump_core_sock.h"
-#include "pump_core/network/pump_core_multiplex.h"
+#include "pump_core/pump_core_logger.h"
+#include "pump_core/os_wrapper/pump_core_os_api.h"
+#include "pump_core/pump_core_sock.h"
+#include "pump_core/pump_core_multiplex.h"
 
 using namespace Pump;
 using namespace Pump::Core::Net;

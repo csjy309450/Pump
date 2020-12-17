@@ -6,15 +6,15 @@
 #include <unistd.h>
 #elif (defined _WIN32)
 #endif // __linux__
-#include "pump_core/logger/pump_core_logger.h"
-#include "pump_core/network/pump_core_sock.h"
+#include "pump_core/pump_core_logger.h"
+#include "pump_core/pump_core_sock.h"
 #include "pump_event/handle_event/timer_event.h"
 #include "pump_event/handle_event/handle_cap.h"
 #include "pump_event/event_engine.h"
 #include "pump_event/listened_event_mgr.h"
 #include "pump_event/handle_event/handle_event_listener.h"
 #include "pump_event/handle_event/handle_event_container.h"
-#include "pump_core/network/pump_core_multiplex.h"
+#include "pump_core/pump_core_multiplex.h"
 
 namespace Pump
 {

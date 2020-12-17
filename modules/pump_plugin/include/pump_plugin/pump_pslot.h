@@ -2,7 +2,7 @@
 #define PUMP_PSLOT_H
 
 #include "pump_macro/pump_pre.h"
-#include "pump_core/pump_core_types.h"
+#include "pump_core/os_wrapper/pump_core_os_types.h"
 #include "pump_plugin/pump_plugin_config.h"
 #include "pump_plugin/pump_pplug.h"
 

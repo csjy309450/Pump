@@ -5,7 +5,7 @@
 #ifndef PUMP_EVENT_HUB_H
 #define PUMP_EVENT_HUB_H
 #include <map>
-#include "pump_core/thread/pump_core_thread.h"
+#include "pump_core/pump_core_thread.h"
 #include "pump_event/pump_event_config.h"
 #include "pump_event/event_collector.h"
 #include "pump_event/ev_def.h"

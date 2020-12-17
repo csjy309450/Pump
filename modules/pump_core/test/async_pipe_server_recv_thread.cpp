@@ -66,7 +66,7 @@ pump_void_t * CAsyncPipeServerRecvThread::ThreadCallback(pump_void_t * pData)
         else
         {
             //TODO:
-            PUMP_CORE_INFO("[Test] other error, error code: %d, Thread id: %d" , GetLastError() , GetCurrentThreadId());
+            PUMP_CORE_INFO("[Test] other error, error code: %d, Thread id: %d", dwErr, GetCurrentThreadId());
         }
     }
     return PUMP_NULL;

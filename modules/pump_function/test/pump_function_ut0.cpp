@@ -107,7 +107,5 @@ PTEST_C_CASE_DEF(PumpFunctionUnitTestCase003, PumpFunctionUnitTestScene000, )
 }
 
 PTEST_MAIN_BEGINE(int argc, char** argv)
-{
     return getchar();
-}
 PTEST_MAIN_END

@@ -1,8 +1,8 @@
 #pragma once
-#include "pump_core/pump_core_api.h"
-#include "pump_core/logger/pump_core_logger.h"
+#include "pump_core/os_wrapper/pump_core_os_api.h"
+#include "pump_core/pump_core_logger.h"
 #include "pump_core/pump_core_pipe.h"
-#include "pump_core/thread/pump_core_thread.h"
+#include "pump_core/pump_core_thread.h"
 
 #define THREAD_NO 1
 

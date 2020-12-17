@@ -6,8 +6,8 @@
 #define PUMP2_CIRCULARBUFFERINTERFACE_H
 
 #include <cstddef>
-#include "pump_core/thread/pump_core_mutex.h"
-#include "pump_core/pump_core_types.h"
+#include "pump_core/pump_core_mutex.h"
+#include "pump_core/os_wrapper/pump_core_os_types.h"
 
 namespace Pump
 {

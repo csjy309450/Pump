@@ -1,5 +1,5 @@
-#include "pump_core/logger/pump_core_logger.h"
-#include "pump_core/file/pump_core_file.h"
+#include "pump_core/pump_core_logger.h"
+#include "pump_core/pump_core_file.h"
 
 int CheckMsvcCl12()
 {

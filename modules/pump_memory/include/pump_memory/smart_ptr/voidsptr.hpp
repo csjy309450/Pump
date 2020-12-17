@@ -14,7 +14,7 @@
 #if (defined PUMP_HAS_CPP11) 
 #include <cstddef>
 #endif // (defined PUMP_HAS_CPP11)
-#include "pump_core/logger/pump_core_logger.h"
+#include "pump_core/pump_core_logger.h"
 #include "pump_memory/pump_memory_config.h"
 #include "pump_memory/pump_memory_def.h"
 #include "pump_memory/smart_ptr/block.hpp"

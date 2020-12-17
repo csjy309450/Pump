@@ -20,8 +20,8 @@
 #include "pump_macro/pump_pre.h"
 #include <map>
 #include <set>
-#include "pump_core/pump_core_config.h"
-#include "pump_core/pump_core_types.h"
+#include "pump_core/os_wrapper/pump_core_os_config.h"
+#include "pump_core/os_wrapper/pump_core_os_types.h"
 
 namespace Pump
 {

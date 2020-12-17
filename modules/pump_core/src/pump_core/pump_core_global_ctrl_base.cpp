@@ -18,8 +18,8 @@
 #include <set>
 #include "pump_core/pump_core_global_ctrl_base.h"
 #include "pump_core/pump_core_object.h"
-#include "pump_core/thread/pump_core_mutex.h"
-#include "pump_core/logger/pump_core_logger.h"
+#include "pump_core/pump_core_mutex.h"
+#include "pump_core/pump_core_logger.h"
 
 namespace Pump
 {

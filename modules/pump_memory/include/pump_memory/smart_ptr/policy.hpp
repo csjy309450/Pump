@@ -7,9 +7,9 @@
 #include "pump_macro/pump_pre.h"
 #include <utility>
 #include <memory>
-#include "pump_core/logger/pump_core_logger.h"
+#include "pump_core/pump_core_logger.h"
 #include "pump_core/pump_core_noncopyable.h"
-#include "pump_core/thread/pump_core_atomic_op.hpp"
+#include "pump_core/pump_core_atomic_op.hpp"
 #include "pump_function/pump_function.hpp"
 #include "pump_memory/pump_memory_def.h"
 #include "pump_memory/smart_ptr/block.hpp"

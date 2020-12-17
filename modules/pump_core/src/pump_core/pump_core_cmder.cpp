@@ -15,12 +15,12 @@
  * </table>
  */
 
-#include "pump_core/logger/pump_core_logger.h"
+#include "pump_core/pump_core_logger.h"
 #include "pump_core/pump_core_cmder.h"
-#include "pump_core/pump_core_api.h"
+#include "pump_core/os_wrapper/pump_core_os_api.h"
 #include "pump_core/pump_core_string.h"
 #include "pump_core/pump_core_uuid.h"
-#include "pump_core/thread/pump_core_mutex.h"
+#include "pump_core/pump_core_mutex.h"
 #include "pump_core/__pump_core_global_ctrl.h"
 //#include "pump_core/deelx.h"
 

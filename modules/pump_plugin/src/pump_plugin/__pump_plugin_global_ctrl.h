@@ -1,10 +1,10 @@
 #ifndef __PUMP_PLUGIN_GLOBAL_CTRL_H
 #define __PUMP_PLUGIN_GLOBAL_CTRL_H
 #include "pump_macro/pump_pre.h"
-#include "pump_core/pump_core_config.h"
+#include "pump_core/os_wrapper/pump_core_os_config.h"
 #include "pump_core/pump_core_global_ctrl_base.h"
 #include "pump_core/pump_core_global_resouce_keeper.hpp"
-#include "pump_core/logger/pump_core_logger.h"
+#include "pump_core/pump_core_logger.h"
 #include "pump_plugin/pump_plugin_config.h"
 #include "pump_plugin/pump_pslot.h"
 

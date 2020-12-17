@@ -22,9 +22,10 @@
 //#elif (defined _WIN32)
 //#include <WinSock2.h>
 //#endif // linux
-#include "pump_core/logger/pump_core_logger.h"
-#include "pump_core/pump_core_api.h"
-#include "pump_core/network/pump_core_sock.h"
+#include "pump_core/pump_core_logger.h"
+#include "pump_core/os_wrapper/pump_core_os_api.h"
+#include "pump_core/pump_core_sock.h"
+#include "pump_core/pump_core_app.h"
 #include "pump_event/ev_def.h"
 #include "pump_event/event_collector.h"
 #include "pump_event/event_register.h"
@@ -464,9 +465,11 @@ bool test_x()
 
 using namespace TestCase;
 
+CApplication app;
+
 void test_init()
 {
-    PUMP_CORE_Init();
+    CApplication::IsInit();
     PUMP_CORE_LOG_CONF struLogCong;
     memset(&struLogCong, 0, sizeof(struLogCong));
     struLogCong.bPrintConsole = PUMP_TRUE;
@@ -481,7 +484,6 @@ void test_init()
 
 void test_cleanup()
 {
-    PUMP_CORE_Cleanup();
 }
 
 int main(int argc, char** argv)

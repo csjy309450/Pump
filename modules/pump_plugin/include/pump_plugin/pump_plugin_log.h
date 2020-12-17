@@ -1,7 +1,7 @@
 #ifndef PUMP_PLUGIN_LOG_H
 #define PUMP_PLUGIN_LOG_H
 #include "pump_plugin/pump_plugin_config.h"
-#include "pump_core/logger/pump_core_logger.h"
+#include "pump_core/pump_core_logger.h"
 
 #ifdef PUMP_COMPILER_CXX
 #define PUMP_PLUGIN_INFO(form_, ...) ::Pump::Plugin::CPumpPluginLogGuide().WriteLine(PUMP_LOG_INFO, __FILE__,__LINE__, form_,__VA_ARGS__)

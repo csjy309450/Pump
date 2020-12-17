@@ -16,7 +16,7 @@
 
 #include "pump_macro/pump_pre.h"
 #include <cstring>
-#include "pump_core/pump_core_types.h"
+#include "pump_core/os_wrapper/pump_core_os_types.h"
 
 #if (defined PUMP_OS_WINDOWS)
 #define WIN32_LEAN_AND_MEAN

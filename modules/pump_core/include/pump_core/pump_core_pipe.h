@@ -18,7 +18,7 @@
 #ifndef PUMP_CORE_PIPE_H
 #define PUMP_CORE_PIPE_H
 #include "pump_macro/pump_pre.h"
-#include "pump_core/pump_core_types.h"
+#include "pump_core/os_wrapper/pump_core_os_types.h"
 #include "pump_core/pump_core_handle.h"
 
 namespace Pump
