@@ -26,7 +26,7 @@ namespace Event
  * 对外提供注册/注销事件、注册/注销监听器接口
  */
 class PUMP_EVENT_CLASS CEventEngine
-    : public ::Pump::Core::CNonCopyable
+    : public ::Pump::Core::CNonCopyOperator
 {
 public:
     CEventEngine();

@@ -3,7 +3,7 @@
 #include "pump_macro/pump_pre.h"
 #include "pump_core/os_wrapper/pump_core_os_config.h"
 #include "pump_core/os_wrapper/pump_core_os_types.h"
-#include "pump_core/pump_core_noncopyable.h"
+#include "pump_core/pump_core_nonop.h"
 #include "pump_function/pump_function.hpp"
 #include "pump_event/pump_event_config.h"
 
@@ -15,7 +15,7 @@ namespace Event
 class CEventLoop;
 
 class PUMP_EVENT_CLASS CEventHandler
-    : public ::Pump::Core::CNonCopyable
+    : public ::Pump::Core::CNonCopyOperator
 {
 public:
     CEventHandler();

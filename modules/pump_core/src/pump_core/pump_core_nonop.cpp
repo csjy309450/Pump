@@ -15,22 +15,23 @@
  * </table>
  */
 
-#include "pump_core/pump_core_noncopyable.h"
+#include "pump_core/pump_core_nonop.h"
 
 namespace Pump
 {
 namespace Core
 {
 
-CNonCopyable::CNonCopyable() {}
+CNonCopyOperator::CNonCopyOperator() {}
 
-CNonCopyable::~CNonCopyable() {}
+CNonCopyOperator::~CNonCopyOperator()
+{}
 
-CNonCopyable::CNonCopyable(const CNonCopyable &) {}
+CNonNewOperator::CNonNewOperator()
+{}
 
-CNonCopyable::CNonCopyable(const CNonCopyable *) {}
-
-CNonCopyable & CNonCopyable::operator=(const CNonCopyable&) { return *this; }
+CNonNewOperator::~CNonNewOperator()
+{}
 
 }
 }

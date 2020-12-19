@@ -21,7 +21,7 @@
 #include "pump_core/os_wrapper/pump_core_os_config.h"
 #include "pump_core/os_wrapper/pump_core_os_types.h"
 #include "pump_core/os_wrapper/pump_core_os_dllso.h"
-#include "pump_core/pump_core_noncopyable.h"
+#include "pump_core/pump_core_nonop.h"
 
 namespace Pump
 {
@@ -29,7 +29,7 @@ namespace Core
 {
 
 class CDllso
-    : public ::Pump::Core::CNonCopyable
+    : public ::Pump::Core::CNonCopyOperator
 {
 public:
     explicit CDllso(const char* szDllPath);

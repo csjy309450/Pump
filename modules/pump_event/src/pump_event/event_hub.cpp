@@ -14,7 +14,7 @@ namespace Event
 {
 
 class __CEventHub
-    : public Pump::Core::CNonCopyable
+    : public Pump::Core::CNonCopyOperator
 {
 public:
     class __CHubItem

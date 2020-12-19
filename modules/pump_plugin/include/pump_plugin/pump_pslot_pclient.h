@@ -5,7 +5,7 @@
 #include <map>
 #include "pump_core/pump_core_dllso.h"
 #include "pump_core/pump_core_object.h"
-#include "pump_core/pump_core_noncopyable.h"
+#include "pump_core/pump_core_nonop.h"
 #include "pump_plugin/pump_pplug.h"
 #include "pump_plugin/pump_pslot.h"
 
@@ -16,7 +16,7 @@ namespace Plugin
 
 class CPluginClient
     : public ::Pump::Core::CObjectBase
-    , public ::Pump::Core::CNonCopyable
+    , public ::Pump::Core::CNonCopyOperator
 {
 public:
     CPluginClient(pump_module_t m_hModule, const PUMP_PPLUG_META & struPluginMeta);

@@ -18,7 +18,7 @@
 #ifndef PUMP_CORE_RWLOCK_H
 #define PUMP_CORE_RWLOCK_H
 #include "pump_macro/pump_pre.h"
-#include "pump_core/pump_core_noncopyable.h"
+#include "pump_core/pump_core_nonop.h"
 #include "pump_core/pump_core_atomic_op.hpp"
 #include "pump_core/pump_core_mutex.h"
 
@@ -33,7 +33,7 @@ namespace Thread
 //PUMP_TEMP_EXP(Pump::Core::Thread::CAtomicOpGuilder2, <bool>);
 
 class PUMP_CORE_CLASS CRWLocker
-: public Pump::Core::CNonCopyable
+: public Pump::Core::CNonCopyOperator
 {
 public:
 

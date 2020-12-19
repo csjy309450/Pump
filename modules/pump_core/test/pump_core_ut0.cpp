@@ -24,12 +24,12 @@ using namespace Pump::Core::Thread;
 using namespace Pump::Core::Cmder;
 using namespace Pump::Test;
 
-PTEST_C_SCENE_DEF(PumpCoreUnitTestScene000, )
+PTEST_C_SCENE_DEF(PumpCoreUnitTestScene001, )
 
 /**
  * PumpCoreUnitTestCase001 repeatedly init-cleanup.
  */
-PTEST_C_CASE_DEF(PumpCoreUnitTestCase001, PumpCoreUnitTestScene000,)
+PTEST_C_CASE_DEF(PumpCoreUnitTestCase001, PumpCoreUnitTestScene001,)
 {
     PTEST_LOG(comment, "PumpCoreUnitTestCase001 repeatedly init-cleanup");
     {
@@ -45,7 +45,7 @@ PTEST_C_CASE_DEF(PumpCoreUnitTestCase001, PumpCoreUnitTestScene000,)
     return PUMP_OK;
 }
 
-PTEST_C_CASE_DEF(PumpCoreUnitTestCase002, PumpCoreUnitTestScene000,)
+PTEST_C_CASE_DEF(PumpCoreUnitTestCase002, PumpCoreUnitTestScene001,)
 {
     PTEST_LOG(comment, "PumpCoreUnitTestCase002 init logger");
     // uninit call API
@@ -80,7 +80,7 @@ PTEST_C_CASE_DEF(PumpCoreUnitTestCase002, PumpCoreUnitTestScene000,)
     return  PUMP_OK;
 }
 
-PTEST_C_CASE_DEF(PumpCoreUnitTestCase003, PumpCoreUnitTestScene000,)
+PTEST_C_CASE_DEF(PumpCoreUnitTestCase003, PumpCoreUnitTestScene001,)
 {
     PTEST_LOG(comment, "PumpCoreUnitTestCase003 test CMutex");
     CMutex locker;
@@ -89,7 +89,7 @@ PTEST_C_CASE_DEF(PumpCoreUnitTestCase003, PumpCoreUnitTestScene000,)
     return 0;
 }
 
-PTEST_C_CASE_DEF(PumpCoreUnitTestCase004, PumpCoreUnitTestScene000,)
+PTEST_C_CASE_DEF(PumpCoreUnitTestCase004, PumpCoreUnitTestScene001,)
 {
     PTEST_LOG(comment, "PumpCoreUnitTestCase004 test atomic option");
     int a;
@@ -101,7 +101,7 @@ PTEST_C_CASE_DEF(PumpCoreUnitTestCase004, PumpCoreUnitTestScene000,)
     return 0;
 }
 
-PTEST_C_CASE_DEF(PumpCoreUnitTestCase005, PumpCoreUnitTestScene000,)
+PTEST_C_CASE_DEF(PumpCoreUnitTestCase005, PumpCoreUnitTestScene001,)
 {
     PTEST_LOG(comment, "PumpCoreUnitTestCase005 test cmdline parse");
     CCmdParser cmdLine;
@@ -138,7 +138,7 @@ PTEST_C_CASE_DEF(PumpCoreUnitTestCase005, PumpCoreUnitTestScene000,)
     return 0;
 }
 
-PTEST_C_CASE_DEF(PumpCoreUnitTestCase006, PumpCoreUnitTestScene000,)
+PTEST_C_CASE_DEF(PumpCoreUnitTestCase006, PumpCoreUnitTestScene001,)
 {
     PTEST_LOG(comment, "PumpCoreUnitTestCase006 test environment var get/set");
     CEnvironment env;
@@ -157,7 +157,7 @@ PTEST_C_CASE_DEF(PumpCoreUnitTestCase006, PumpCoreUnitTestScene000,)
     return 0;
 }
 
-PTEST_C_CASE_DEF(PumpCoreUnitTestCase007, PumpCoreUnitTestScene000,)
+PTEST_C_CASE_DEF(PumpCoreUnitTestCase007, PumpCoreUnitTestScene001,)
 {
     PTEST_LOG(comment, "PumpCoreUnitTestCase007 test environment data set");
     CEnvironment env;
@@ -210,7 +210,7 @@ private:
 };
 
 #ifdef PUMP_CORE_HAVA_GLOG
-PTEST_C_CASE_DEF(PumpCoreUnitTestCase008, PumpCoreUnitTestScene000, )
+PTEST_C_CASE_DEF(PumpCoreUnitTestCase008, PumpCoreUnitTestScene001, )
 {
     PTEST_LOG(comment, "PumpCoreUnitTestCase008 test multi thread log <glog>");
     PTEST_ASSERT((PUMP_CORE_Init() == PUMP_OK), "PUMP_CORE_Init failed 3");
@@ -243,7 +243,7 @@ PTEST_C_CASE_DEF(PumpCoreUnitTestCase008, PumpCoreUnitTestScene000, )
 }
 #endif // PUMP_CORE_HAVA_GLOG
 
-PTEST_C_CASE_DEF(PumpCoreUnitTestCase009, PumpCoreUnitTestScene000, )
+PTEST_C_CASE_DEF(PumpCoreUnitTestCase009, PumpCoreUnitTestScene001, )
 {
     PTEST_LOG(comment, "PumpCoreUnitTestCase009 test multi thread log <text>");
     {
@@ -280,7 +280,7 @@ PTEST_C_CASE_DEF(PumpCoreUnitTestCase009, PumpCoreUnitTestScene000, )
 typedef void(*fnTEST_API_Function1)();
 typedef void(*fnTEST_API_Function2)();
 
-PTEST_C_CASE_DEF(PumpCoreUnitTestCase010, PumpCoreUnitTestScene000, )
+PTEST_C_CASE_DEF(PumpCoreUnitTestCase010, PumpCoreUnitTestScene001, )
 {
     PTEST_LOG(comment, "PumpCoreUnitTestCase010 test load dll");
     pump_module_t hModule = PUMP_CORE_LoadDSo("E:/VMware/YZ/Pre-Research/dyanamic_load_dll/Debug/entry.dll");
@@ -300,7 +300,7 @@ pump_pvoid_t PUMP_CALLBACK My_ThreadPool_WorkRoutine(pump_pvoid_t pData)
     return NULL;
 }
 
-PTEST_C_CASE_DEF(PumpCoreUnitTestCase011, PumpCoreUnitTestScene000, )
+PTEST_C_CASE_DEF(PumpCoreUnitTestCase011, PumpCoreUnitTestScene001, )
 {
     PTEST_LOG(comment, "PumpCoreUnitTestCase011 test thread pool");
     {
@@ -342,7 +342,7 @@ void Test_CB_WriteLog (
     printf("[TestLog] %s\n", szMessage);
 }
 
-PTEST_C_CASE_DEF(PumpCoreUnitTestCase012, PumpCoreUnitTestScene000, )
+PTEST_C_CASE_DEF(PumpCoreUnitTestCase012, PumpCoreUnitTestScene001, )
 {
     PTEST_LOG(comment, "PumpCoreUnitTestCase012 test user log api");
     {
@@ -389,7 +389,7 @@ private:
     pump_bool_t m_bStop = FALSE;
 };
 
-PTEST_C_CASE_DEF(PumpCoreUnitTestCase013, PumpCoreUnitTestScene000, )
+PTEST_C_CASE_DEF(PumpCoreUnitTestCase013, PumpCoreUnitTestScene001, )
 {
     PTEST_LOG(comment, "PumpCoreUnitTestCase013 test muti-thread init cleanup");
     std::vector<CTestThreadInitCleanup *> vecThread;
@@ -405,6 +405,93 @@ PTEST_C_CASE_DEF(PumpCoreUnitTestCase013, PumpCoreUnitTestScene000, )
     {
         vecThread[i]->Stop();
         delete vecThread[i];
+    }
+    return 0;
+}
+
+class CTestPrivate
+    : public CObjectPrivateBase
+{
+public:
+    CTestPrivate(int a)
+        : CObjectPrivateBase()
+        , m_a(a)
+    {
+
+    }
+    ~CTestPrivate()
+    {
+
+    }
+    int GetA() const
+    {
+        return m_a;
+    }
+private:
+    int m_a;
+};
+
+class CTestObject
+    : public CObjectBase
+{
+public:
+    CTestObject(int a)
+        : CObjectBase("CObjectBase", PUMP_FALSE, new (PUMP_CORE_ALLOC_MEMPOLL)CTestPrivate(a))
+    {
+
+    }
+    ~CTestObject()
+    {
+        delete m_pPrimitive;
+    }
+    PUMP_CORE_ALLOC_TYPE GetPrivAllocType() const
+    {
+        return m_pPrimitive->GetAllocType();
+    }
+    size_t GetPrivSize() const
+    {
+        return m_pPrimitive->GetSize();
+    }
+    int GetPrivA() const
+    {
+        CTestPrivate * m_priv = (CTestPrivate *)m_pPrimitive;
+        return m_priv->GetA();
+    }
+};
+
+PTEST_C_CASE_DEF(PumpCoreUnitTestCase014, PumpCoreUnitTestScene001, )
+{
+    PTEST_LOG(comment, "PumpCoreUnitTestCase014 test public object");
+    std::vector<CTestObject *> vecObject;
+    int nTestBatch = 50;
+    for (int i = 0; i < nTestBatch; ++i)
+    {
+        CTestObject * pobj = new CTestObject(i);
+        vecObject.push_back(pobj);
+    }
+    for (int i = 0; i < nTestBatch; ++i)
+    {
+        PTEST_ASSERT((vecObject[i]->GetSize() == sizeof(CTestObject)), "size not match 1");
+        PTEST_ASSERT((vecObject[i]->GetPrivSize() == sizeof(CTestPrivate)), "priv size not match 1");
+        PTEST_ASSERT((vecObject[i]->GetAllocType() == PUMP_CORE_ALLOC_BUILDIN), "AllocType not match 1");
+        PTEST_ASSERT((vecObject[i]->GetPrivAllocType() == PUMP_CORE_ALLOC_MEMPOLL), "AllocType not match 1");
+        PTEST_ASSERT((vecObject[i]->GetPrivA() == i), "A not match 1");
+        delete vecObject[i];
+    }
+    vecObject.clear();
+    for (int i = 0; i < nTestBatch; ++i)
+    {
+        CTestObject * pobj = new (PUMP_CORE_ALLOC_MEMPOLL)CTestObject(i);
+        vecObject.push_back(pobj);
+    }
+    for (int i = 0; i < nTestBatch; ++i)
+    {
+        PTEST_ASSERT((vecObject[i]->GetSize() == sizeof(CTestObject)), "size not match 2");
+        PTEST_ASSERT((vecObject[i]->GetPrivSize() == sizeof(CTestPrivate)), "priv size not match 2");
+        PTEST_ASSERT((vecObject[i]->GetAllocType() == PUMP_CORE_ALLOC_MEMPOLL), "AllocType not match 2");
+        PTEST_ASSERT((vecObject[i]->GetPrivAllocType() == PUMP_CORE_ALLOC_MEMPOLL), "AllocType not match 2");
+        PTEST_ASSERT((vecObject[i]->GetPrivA() == i), "A not match 2");
+        delete vecObject[i];
     }
     return 0;
 }

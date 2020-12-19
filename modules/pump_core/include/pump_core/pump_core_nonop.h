@@ -25,15 +25,23 @@ namespace Pump
 namespace Core
 {
 
-class PUMP_CORE_CLASS CNonCopyable
+class PUMP_CORE_CLASS CNonCopyOperator
 {
 public:
-  CNonCopyable();
-  virtual ~CNonCopyable();
+    CNonCopyOperator();
+    virtual ~CNonCopyOperator();
 private:
-  CNonCopyable(const CNonCopyable&);
-  CNonCopyable(const CNonCopyable*);
-  CNonCopyable & operator=(const CNonCopyable&);
+    CNonCopyOperator(const CNonCopyOperator&);
+    CNonCopyOperator & operator=(const CNonCopyOperator&);
+};
+
+class PUMP_CORE_CLASS CNonNewOperator
+{
+public:
+    CNonNewOperator();
+    virtual ~CNonNewOperator();
+private:
+    void* operator new(size_t size);
 };
 
 }

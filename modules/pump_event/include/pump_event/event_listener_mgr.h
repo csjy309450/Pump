@@ -5,7 +5,7 @@
 #ifndef PUMP_EVENT_EVENTLISTENERMGR_H
 #define PUMP_EVENT_EVENTLISTENERMGR_H
 #include <vector>
-#include "pump_core/pump_core_noncopyable.h"
+#include "pump_core/pump_core_nonop.h"
 #include "pump_core/pump_core_rwlocker.h"
 #include "pump_event/pump_event_config.h"
 #include "pump_event/ev_def.h"
@@ -24,7 +24,7 @@ namespace Event
 const unsigned short g_maxEvListner = 10;
 
 class PUMP_EVENT_CLASS CEventListenerMgr
-    : public Pump::Core::CNonCopyable
+    : public Pump::Core::CNonCopyOperator
 {
 public:
     class CListenerItem

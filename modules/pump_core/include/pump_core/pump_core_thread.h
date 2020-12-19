@@ -33,7 +33,7 @@ namespace Thread
 #define PUMP_INVALID_THREAD (-1)
 
 class PUMP_CORE_CLASS CThread 
-    : public ::Pump::Core::CNonCopyable
+    : public ::Pump::Core::CNonCopyOperator
 {
 public:
     typedef enum tagPUMP_THREAD_TYPE
@@ -61,7 +61,7 @@ private:
     static pump_void_t * PUMP_CALLBACK __ThreadCallbackCore(pump_void_t * pData);
 private:
     pump_void_t * m_pData;
-    ::Pump::Core::CPrimitiveBase * m_pPrimitive;
+    ::Pump::Core::CObjectPrivateBase * m_pPrimitive;
     PUMP_THREAD_TYPE m_emType;
 };
 

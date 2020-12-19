@@ -31,7 +31,7 @@ namespace Thread
 {
 
 class __CThreadPrimitive
-    : public ::Pump::Core::CPrimitiveBase
+    : public ::Pump::Core::CObjectPrivateBase
 {
 public:
     friend class CThread;
@@ -52,7 +52,7 @@ public:
 };
 
 __CThreadPrimitive::__CThreadPrimitive()
-    : ::Pump::Core::CPrimitiveBase()
+    : ::Pump::Core::CObjectPrivateBase()
     , m_TID((unsigned long int)PUMP_INVALID_THREAD)
 {
 
@@ -189,7 +189,7 @@ private:
 CThread::CThread()
     : m_pData(PUMP_NULL)
 #ifdef PUMP_CORE_HAVE_BOOST
-    , m_pPrimitive(new(std::nothrow)__CBoostThreadPrimitive())
+    , m_pPrimitive(new __CBoostThreadPrimitive())
     , m_emType(CThread::PUMP_THREAD_BOOST)
 #else
     ,m_pPrimitive(PUMP_NULL)
@@ -206,7 +206,7 @@ CThread::CThread()
 CThread::CThread(pump_void_t * pData)
     : m_pData(pData)
 #ifdef PUMP_CORE_HAVE_BOOST
-    , m_pPrimitive(new(std::nothrow)__CBoostThreadPrimitive())
+    , m_pPrimitive(new __CBoostThreadPrimitive())
     , m_emType(CThread::PUMP_THREAD_BOOST)
 #else
     , m_pPrimitive(PUMP_NULL)
@@ -230,7 +230,7 @@ CThread::CThread(PUMP_THREAD_TYPE emType, pump_void_t * pData)
 #ifdef PUMP_CORE_HAVE_BOOST
     case CThread::PUMP_THREAD_BOOST:
     {
-        __CBoostThreadPrimitive * pPrimitive = new (std::nothrow)__CBoostThreadPrimitive();
+        __CBoostThreadPrimitive * pPrimitive = new __CBoostThreadPrimitive();
         if (pPrimitive)
         {
             pPrimitive->Bind(CThread::__ThreadCallbackCore, pData);

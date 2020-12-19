@@ -8,7 +8,7 @@
 #include <utility>
 #include <memory>
 #include "pump_core/pump_core_logger.h"
-#include "pump_core/pump_core_noncopyable.h"
+#include "pump_core/pump_core_nonop.h"
 #include "pump_core/pump_core_atomic_op.hpp"
 #include "pump_function/pump_function.hpp"
 #include "pump_memory/pump_memory_def.h"
@@ -50,7 +50,7 @@ namespace Memory {
 *       Policy对Block有销毁权限
 */
 class Policy
-    : public Pump::Core::CNonCopyable {
+    : public Pump::Core::CNonCopyOperator {
 public:
     /**
     * @var m_px

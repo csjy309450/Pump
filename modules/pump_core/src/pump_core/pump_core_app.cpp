@@ -69,5 +69,10 @@ pump_bool_t CApplication::IsInit()
     return (s_nCount > 0 ? PUMP_TRUE : PUMP_FALSE);
 }
 
+pump_int32_t SetLogger(CLogRecorderBase * plogger)
+{
+    return ::Pump::Core::__CPumpCoreGlobalCtrl::SetLogger((pump_handle_t)plogger);
+}
+
 }
 }

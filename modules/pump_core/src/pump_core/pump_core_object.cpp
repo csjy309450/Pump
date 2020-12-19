@@ -18,11 +18,87 @@
 #include <cstddef>
 #include <stdlib.h>
 #include "pump_core/pump_core_object.h"
+#include "pump_core/pump_core_allocator.h"
 
 namespace Pump
 {
 namespace Core
 {
+
+CObjectPrivateBase::CObjectPrivateBase() 
+{
+}
+
+CObjectPrivateBase::~CObjectPrivateBase() {}
+
+PUMP_CORE_ALLOC_TYPE CObjectPrivateBase::GetAllocType() const
+{
+    return m_emType;
+}
+
+size_t CObjectPrivateBase::GetSize() const
+{
+    return m_size;
+}
+
+void* CObjectPrivateBase::operator new(size_t size)
+{
+    CObjectPrivateBase *ptr = (CObjectPrivateBase *)malloc(size);
+    if (ptr)
+    {
+        *(PUMP_CORE_ALLOC_TYPE *)&(ptr->m_emType) = PUMP_CORE_ALLOC_BUILDIN;
+        *(size_t *)&(ptr->m_size) = size;
+    }
+    return ptr;
+}
+
+void* CObjectPrivateBase::operator new(size_t size, PUMP_CORE_ALLOC_TYPE emType)
+{
+    switch (emType)
+    {
+    case PUMP_CORE_ALLOC_MEMPOLL:
+    {
+        CObjectPrivateBase *ptr = (CObjectPrivateBase *)CAllocator::New(size);
+        if (ptr)
+        {
+            *(PUMP_CORE_ALLOC_TYPE *)&(ptr->m_emType) = PUMP_CORE_ALLOC_MEMPOLL;
+            *(size_t *)&(ptr->m_size) = size;
+        }
+        return ptr;
+    }
+    case PUMP_CORE_ALLOC_BUILDIN:
+    default:
+    {
+        CObjectPrivateBase *ptr = (CObjectPrivateBase *)malloc(size);
+        if (ptr)
+        {
+            *(PUMP_CORE_ALLOC_TYPE *)&(ptr->m_emType) = PUMP_CORE_ALLOC_BUILDIN;
+            *(size_t *)&(ptr->m_size) = size;
+        }
+        return ptr;
+    }
+    }
+    return NULL;
+}
+
+void CObjectPrivateBase::operator delete(void* ptr)
+{
+    if (ptr)
+    {
+        CObjectPrivateBase * pPirv = (CObjectPrivateBase *)ptr;
+        switch (pPirv->GetAllocType())
+        {
+        case PUMP_CORE_ALLOC_MEMPOLL:
+            CAllocator::Delete(ptr, pPirv->GetSize());
+            break;
+        case PUMP_CORE_ALLOC_BUILDIN:
+        default:
+        {
+            free(ptr);
+        }
+        }
+    }
+}
 
 CObjectBase::CObjectBase()
     : m_bNull(PUMP_TRUE)
@@ -30,7 +106,7 @@ CObjectBase::CObjectBase()
     , m_pPrimitive(NULL)
 {}
 
-CObjectBase::CObjectBase(const char* szName, pump_bool_t bIsNull, CPrimitiveBase * pPrimitive)
+CObjectBase::CObjectBase(const char* szName, pump_bool_t bIsNull, CObjectPrivateBase * pPrimitive)
     : m_bNull(bIsNull)
     , m_szName(szName) 
     , m_pPrimitive(pPrimitive)
@@ -66,36 +142,79 @@ pump_bool_t CObjectBase::operator==(const CObjectBase& other)
 
 void* CObjectBase::operator new(size_t size)
 {
-    return malloc(size);
+    CObjectBase *ptr = (CObjectBase *)malloc(size);
+    if (ptr)
+    {
+        *(PUMP_CORE_ALLOC_TYPE *)&(ptr->m_emType) = PUMP_CORE_ALLOC_BUILDIN;
+        *(size_t *)&(ptr->m_size) = size;
+    }
+    return ptr;
+}
+
+void* CObjectBase::operator new(size_t size, PUMP_CORE_ALLOC_TYPE emType)
+{
+    switch (emType)
+    {
+    case PUMP_CORE_ALLOC_MEMPOLL:
+    {
+        CObjectBase *ptr = (CObjectBase *)CAllocator::New(size);
+        if (ptr)
+        {
+            *(PUMP_CORE_ALLOC_TYPE *)&(ptr->m_emType) = PUMP_CORE_ALLOC_MEMPOLL;
+            *(size_t *)&(ptr->m_size) = size;
+        }
+        return ptr;
+    }
+    case PUMP_CORE_ALLOC_BUILDIN:
+    default:
+    {
+        CObjectBase *ptr = (CObjectBase *)malloc(size);
+        if (ptr)
+        {
+            *(PUMP_CORE_ALLOC_TYPE *)&(ptr->m_emType) = PUMP_CORE_ALLOC_BUILDIN;
+            *(size_t *)&(ptr->m_size) = size;
+        }
+        return ptr;
+    }
+    }
+    return NULL;
 }
 
 void CObjectBase::operator delete(void* ptr)
 {
-    free(ptr);
+    if (ptr)
+    {
+        CObjectBase * pPirv = (CObjectBase *)ptr;
+        switch (pPirv->GetAllocType())
+        {
+        case PUMP_CORE_ALLOC_MEMPOLL:
+            CAllocator::Delete(ptr, pPirv->GetSize());
+            break;
+        case PUMP_CORE_ALLOC_BUILDIN:
+        default:
+        {
+            free(ptr);
+        }
+        }
+    }
 }
 
-//CNonCopyOperator::CNonCopyOperator(const char* szName, pump_bool_t bIsNull, CPrimitiveBase * pPrimitive)
-//    : CObjectBase(szName, bIsNull, pPrimitive)
-//{}
+PUMP_CORE_ALLOC_TYPE CObjectBase::GetAllocType() const
+{
+    return m_emType;
+}
 
-CNonCopyOperator::CNonCopyOperator() {}
-
-CNonCopyOperator::~CNonCopyOperator()
-{}
+size_t CObjectBase::GetSize() const
+{
+    return m_size;
+}
 
 CNullObject::CNullObject()
     : CObjectBase()
 {}
 
-//CNonNewOperator::CNonNewOperator(const char* szName, pump_bool_t bIsNull, CPrimitiveBase * pPrimitive)
-//    : CObjectBase(szName, bIsNull, pPrimitive)
-//{}
-
-CNonNewOperator::CNonNewOperator()
-{}
-
-CNonNewOperator::~CNonNewOperator()
-{}
+CObjectMgrBase::CObjectMgrBase() {}
+CObjectMgrBase::~CObjectMgrBase() {}
 
 }
 }
