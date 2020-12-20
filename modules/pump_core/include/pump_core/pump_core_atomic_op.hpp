@@ -19,7 +19,7 @@
 #define PUMP_CORE_ATOMIC_OP_H
 #include "pump_macro/pump_pre.h"
 #include "pump_core/os_wrapper/pump_core_os_config.h"
-#include "pump_core/pump_core_noncopyable.h"
+#include "pump_core/pump_core_nonop.h"
 #include "pump_core/pump_core_mutex.h"
 
 namespace Pump

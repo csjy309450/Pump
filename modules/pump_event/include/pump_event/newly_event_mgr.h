@@ -22,7 +22,7 @@ class CEvent;
  * @brief 新增事件管理器
  */
 class PUMP_EVENT_CLASS CNewlyEventMgr
-    : public ::Pump::Core::CNonCopyable
+    : public ::Pump::Core::CNonCopyOperator
     , public ::Pump::Memory::circular_buffer_interface< std::list< CEvent* > >
 {
 public:
@@ -56,7 +56,7 @@ private:
 };
 
 class PUMP_EVENT_CLASS CNewlyEvMgrGuiderForInner
-    : public ::Pump::Core::CNonCopyable
+    : public ::Pump::Core::CNonCopyOperator
 {
 public:
     explicit CNewlyEvMgrGuiderForInner(CNewlyEventMgr &);

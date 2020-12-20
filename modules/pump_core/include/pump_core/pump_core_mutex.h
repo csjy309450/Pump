@@ -21,7 +21,7 @@
 #include "pump_core/os_wrapper/pump_core_os_config.h"
 #include "pump_core/os_wrapper/pump_core_os_types.h"
 #include "pump_core/os_wrapper/pump_core_os_mutex.h"
-#include "pump_core/pump_core_noncopyable.h"
+#include "pump_core/pump_core_nonop.h"
 #include "pump_core/pump_core_object.h"
 
 namespace Pump

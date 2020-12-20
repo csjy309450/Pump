@@ -20,7 +20,7 @@ class CEventCollector;
 class CNewlyEvMgrGuiderForInner;
 
 class PUMP_EVENT_CLASS CEventRegister
-    : public ::Pump::Core::CNonCopyable
+    : public ::Pump::Core::CNonCopyOperator
 {
 public:
     explicit CEventRegister(CEventEngine *pEvEngine);

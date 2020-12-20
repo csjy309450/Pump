@@ -27,7 +27,7 @@
 #include "pump_core/os_wrapper/pump_core_os_config.h"
 #include "pump_core/os_wrapper/pump_core_os_types.h"
 #include "pump_core/pump_core_global_resouce_keeper.hpp"
-#include "pump_core/pump_core_noncopyable.h"
+#include "pump_core/pump_core_nonop.h"
 #include "pump_core/pump_core_mutex.h"
 
 typedef enum tagPUMP_CORE_LOG_LEVEL
@@ -147,7 +147,7 @@ private:
  * @brief The base class of log recorder, writing log message to file.
  */
 class PUMP_CORE_CLASS CLogRecorderBase
-    : public CNonCopyable
+    : public CNonCopyOperator
 {
 public:
     CLogRecorderBase();
@@ -215,7 +215,7 @@ public:
 };
 
 class PUMP_CORE_CLASS CLogGuideBase
-    : public CNonCopyable
+    : public CNonCopyOperator
 {
 public:
     CLogGuideBase();

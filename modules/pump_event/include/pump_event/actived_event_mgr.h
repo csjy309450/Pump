@@ -5,7 +5,7 @@
 #define PUMP_EVENT_ACTIVEDEVENTMGR_H
 
 #include <list>
-#include "pump_core/pump_core_noncopyable.h"
+#include "pump_core/pump_core_nonop.h"
 #include "pump_core/pump_core_mutex.h"
 #include "pump_memory/smart_buffer/circular_buffer_interface.hpp"
 #include "pump_event/ev_def.h"
@@ -13,7 +13,7 @@
 #include "pump_event/event_container.h"
 
 //using namespace Pump::Memory;
-//class Pump::Core::CNonCopyable;
+//class Pump::Core::CNonCopyOperator;
 //class Pump::Event::CActivedEventPriorQueue;
 //class Pump::Memory::circular_buffer_interface<Pump::Event::CActivedEventPriorQueue>;
 
@@ -29,12 +29,12 @@ namespace Event
  */
 PUMP_IMPLEMENT
 class CActivedEventPriorQueue
-    : public ::Pump::Core::CNonCopyable,
+    : public ::Pump::Core::CNonCopyOperator,
     public Pump::Event::CMultidimEventContainer
 {
 public:
     class CActivedEventContainer
-        : public ::Pump::Core::CNonCopyable,
+        : public ::Pump::Core::CNonCopyOperator,
         public Pump::Event::CUnidimEventContainer
     {
     public:
@@ -98,7 +98,7 @@ private:
 };
 
 class CActivedEventMgr
-    : public ::Pump::Core::CNonCopyable
+    : public ::Pump::Core::CNonCopyOperator
     , public ::Pump::Memory::circular_buffer_interface<CActivedEventPriorQueue>
 {
 public:

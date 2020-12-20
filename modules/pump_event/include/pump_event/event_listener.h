@@ -24,7 +24,7 @@ class CEventListenerMgr;
  */
 PUMP_ABSTRACT
 class PUMP_EVENT_CLASS CEventListener
-    : public ::Pump::Core::CNonCopyable
+    : public ::Pump::Core::CNonCopyOperator
 {
     friend CEventListenerMgr;
 public:

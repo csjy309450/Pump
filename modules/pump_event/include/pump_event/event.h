@@ -7,7 +7,7 @@
 #include "pump_macro/pump_pre.h"
 #include "pump_event/pump_event_config.h"
 #include <string>
-#include "pump_core/pump_core_noncopyable.h"
+#include "pump_core/pump_core_nonop.h"
 #include "pump_event/ev_def.h"
 #include "pump_event/event_handler.h"
 
@@ -28,7 +28,7 @@ class CEventEngine;
  * 回调在CEvent的派生类中定义.
  */
 class PUMP_EVENT_CLASS CEvent
-    : public Pump::Core::CNonCopyable
+    : public Pump::Core::CNonCopyOperator
 {
 public:
     /**

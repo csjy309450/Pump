@@ -14,7 +14,7 @@
 #include <time.h>
 #endif // (defined __linux__)
 
-#include "pump_core/pump_core_noncopyable.h"
+#include "pump_core/pump_core_nonop.h"
 #include "pump_core/pump_core_logger.h"
 
 //namespace nsp_std = ::std;
@@ -51,7 +51,7 @@ namespace Memory {
         * 注：此对象的每一个实例描述一块内存区域，必是堆上对象，且保证进程内全局唯一性
         */
         class Block
-            : public Pump::Core::CNonCopyable {
+            : public Pump::Core::CNonCopyOperator {
         public:
             size_t block_segsz_;        //! 段的大小（以字节为单位）
             size_t block_usesz_;        //! 有效占用大小（以字节为单位）

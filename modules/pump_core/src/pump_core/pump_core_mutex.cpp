@@ -159,7 +159,7 @@ namespace Core
 namespace Thread
 {
 class CMutexPrimitive
-    : public CPrimitiveBase
+    : public CObjectPrivateBase
 {
 public:
     virtual void Lock() = 0;
@@ -169,10 +169,10 @@ public:
 
 #ifdef PUMP_CORE_HAVE_BOOST
 class CBoostMutexPrimitive
-    : public CPrimitiveBase
+    : public CObjectPrivateBase
 {
 public:
-    CBoostMutexPrimitive() : CPrimitiveBase(), m_mux() {}
+    CBoostMutexPrimitive() : CObjectPrivateBase(), m_mux() {}
     virtual void Lock()
     {
         m_mux.lock();
@@ -191,11 +191,11 @@ private:
 #endif // PUMP_CORE_HAVE_BOOST
 
 class CBuildinMutexPrimitive
-    : public CPrimitiveBase
+    : public CObjectPrivateBase
 {
 public:
     CBuildinMutexPrimitive() 
-        : CPrimitiveBase() 
+        : CObjectPrivateBase() 
     {
        pump_int32_t ret = PUMP_CORE_MutexCreate(&m_mux);
     }
@@ -221,9 +221,9 @@ private:
 
 CMutex::CMutex()
 #ifdef PUMP_CORE_HAVE_BOOST
-    : CObjectBase("CMutex",PUMP_FALSE, new(std::nothrow) CBoostMutexPrimitive())
+    : CObjectBase("CMutex",PUMP_FALSE,  new CBoostMutexPrimitive())
 #else
-    : CObjectBase("CMutex",PUMP_FALSE, new(std::nothrow) CBuildinMutexPrimitive())
+    : CObjectBase("CMutex",PUMP_FALSE,  new CBuildinMutexPrimitive())
 #endif // PUMP_CORE_HAVE_BOOST
 {
     

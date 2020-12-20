@@ -4,6 +4,7 @@
 #include "pump_core/pump_core_config.h"
 #include "pump_core/pump_core_object.h"
 #include "pump_core/pump_core_mutex.h"
+#include "pump_core/pump_core_logger.h"
 
 namespace Pump
 {
@@ -18,6 +19,7 @@ public:
     CApplication();
     virtual ~CApplication();
     static pump_bool_t IsInit();
+    static pump_int32_t SetLogger(CLogRecorderBase * plogger);
 private:
     static ::Pump::Core::Thread::CMutex s_csCount;
     static pump_int32_t s_nCount;
