@@ -48,10 +48,12 @@ public:
 
     PUMP_CORE_ALLOC_TYPE GetAllocType() const;
     size_t GetSize() const;
+    pump_bool_t IsHeap() const;
 public:
     void* operator new(size_t size);
     void* operator new(size_t size, PUMP_CORE_ALLOC_TYPE emType);
     void operator delete(void* ptr);
+    void operator delete(void* ptr, PUMP_CORE_ALLOC_TYPE emType);
 private:
     PUMP_CORE_ALLOC_TYPE m_emType;
     size_t m_size;
@@ -68,12 +70,14 @@ public:
 public:
     virtual pump_bool_t IsNull() const;
     virtual void SetNull(pump_bool_t bIsNull);
+    pump_bool_t IsHeap() const;
     pump_bool_t operator==(const CObjectBase& other);
 
 public:
     void* operator new(size_t size);
     void* operator new(size_t size, PUMP_CORE_ALLOC_TYPE emType);
     void operator delete(void* ptr);
+    void operator delete(void* ptr, PUMP_CORE_ALLOC_TYPE emType);
     PUMP_CORE_ALLOC_TYPE GetAllocType() const;
     size_t GetSize() const;
 private:
