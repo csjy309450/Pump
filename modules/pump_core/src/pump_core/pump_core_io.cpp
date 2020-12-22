@@ -15,6 +15,17 @@ CStreamBufferBase::CStreamBufferBase(const char * name, CObjectPrivateBase * pri
 CStreamBufferBase::~CStreamBufferBase()
 {}
 
+CStreamBase::CStreamBase(const char * name, CObjectPrivateBase * priv)
+    : CObjectBase(name, PUMP_FALSE, priv)
+{
+
+}
+
+CStreamBase::~CStreamBase()
+{
+
+}
+
 class __CStringBufferPriv
     : public CObjectPrivateBase
 {
@@ -39,6 +50,23 @@ public:
         }
     }
 
+    __CStringBufferPriv(const __CStringBufferPriv & other)
+        : CObjectPrivateBase()
+        , m_size(other.m_size)
+        , m_capacity(other.m_capacity)
+        , m_roll(other.m_roll)
+    {
+        for (std::vector<unsigned char*>::const_iterator it = other.m_buffer.cbegin(); it != other.m_buffer.cend(); ++it)
+        {
+            unsigned char * p = (unsigned char *)CAllocator::New(m_roll);
+            if (p)
+            {
+                memcpy(p, *it, m_roll);
+                m_buffer.push_back(p);
+            }
+        }
+    }
+
     ~__CStringBufferPriv()
     {
         for (std::vector<unsigned char*>::iterator it = m_buffer.begin(); it!=m_buffer.end(); ++it)
@@ -51,6 +79,9 @@ public:
         }
         m_buffer.clear();
     }
+
+private:
+    __CStringBufferPriv & operator=(const __CStringBufferPriv & other);
 
 private:
     std::vector<unsigned char*> m_buffer;
@@ -67,6 +98,12 @@ CStringBuffer::CStringBuffer()
 
 CStringBuffer::CStringBuffer(SizeType rollSize, SizeType capacity)
     : CStreamBufferBase("CStringBuffer", new(PUMP_CORE_ALLOC_MEMPOLL)__CStringBufferPriv(rollSize, capacity))
+{
+
+}
+
+CStringBuffer::CStringBuffer(const CStringBuffer & other)
+    : CStreamBufferBase("CStringBuffer", new(PUMP_CORE_ALLOC_MEMPOLL)__CStringBufferPriv(*(__CStringBufferPriv*)other.m_pPrimitive))
 {
 
 }
@@ -121,6 +158,28 @@ void CStringBuffer::Seek(SizeType pos)
 {
 }
 
+class __CStringPriv
+    : public CObjectPrivateBase
+{
+public:
+    friend class CString;
+public:
+    __CStringPriv() {}
+
+private:
+    CStringBuffer m_strBuffer;
+};
+
+CString::CString()
+    : CStreamBase("CStreamBase", new(PUMP_CORE_ALLOC_MEMPOLL)__CStringPriv())
+{
+
+}
+
+CString::~CString()
+{
+    delete m_pPrimitive;
+}
 
 }
 }
