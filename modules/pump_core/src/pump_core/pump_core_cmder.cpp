@@ -50,9 +50,17 @@ CCmderClient::~CCmderClient()
     this->Close();
 }
 
-pump_int32_t CCmderClient::Open()
+pump_int32_t CCmderClient::Open(const char* szPipeName)
 {
-    std::string strPipeName, strUUID = __CPumpCoreGlobalCtrl::GetCmdSessionMgr() ? __CPumpCoreGlobalCtrl::GetCmdSessionMgr()->CmdServerGetUUID() : "";
+    std::string strPipeName, strUUID;
+    if (szPipeName!=NULL)
+    {
+        strUUID = szPipeName;
+    }
+    else
+    {
+        strUUID = __CPumpCoreGlobalCtrl::GetCmdSessionMgr() ? __CPumpCoreGlobalCtrl::GetCmdSessionMgr()->CmdServerGetUUID() : "";
+    }
     if (strUUID.empty())
     {
         return PUMP_ERROR;
@@ -414,6 +422,7 @@ pump_int32_t CCmderServer::Open()
         return PUMP_ERROR;
     }
     strPipeName = kCmdNamePipeIn + strUUID;
+    PUMP_CORE_INFO("cmd uuid: %s", strPipeName.c_str());
     m_pHPipeOut = CPipeHandle::CreateNamedPipeServer(
         strPipeName.c_str()
         , CPipeHandle::PUMP_PIPE_DEPLEX

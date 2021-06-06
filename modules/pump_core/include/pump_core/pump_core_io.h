@@ -77,11 +77,15 @@ public:
     virtual void* GetPtr();
     virtual const void* GetCPtr() const;
     virtual SizeType GetBufferSize() const;
+    virtual int SetBufferSize(SizeType n, unsigned char ch = 0);
     virtual SizeType GetBufferRollSize() const;
     virtual SizeType GetBufferCapacity() const;
     virtual void Clear();
     virtual void Fill(const void* ptr);
     virtual void Seek(SizeType pos);
+    virtual void* Anchor(SizeType pos);
+public:
+    static const unsigned int BufferItemSize = sizeof(char);
 };
 
 /**
@@ -92,8 +96,8 @@ class PUMP_CORE_CLASS CString
 {
 public:
     typedef size_t SizeType;
-    typedef char& ReferenceType;
-    typedef const char& ConstReferenceType;
+    typedef char* ReferenceType;
+    typedef const char* ConstReferenceType;
 public:
     CString();
     explicit CString(const CString& str);
@@ -110,13 +114,8 @@ public:
     CString & operator+(const CString& lhs);
     CString & operator+(const char* lhs);
 
-    virtual CStreamBufferBase * GetBuffer() { return NULL; }
-    virtual const CStreamBufferBase * GetCBuffer() const { return NULL; }
-    virtual void SetBuffer(const CStreamBufferBase * pbuffer) {}
-
     SizeType Size() const;
-    SizeType Length() const;
-    void Resize(SizeType n);
+    int Resize(SizeType n, unsigned char ch=0);
     SizeType Capacity() const;
     void Clear();
     // CStringBuffer ShallowClone() const; // TODO 20201222 CStringBuffer need adding counter feature.
@@ -179,6 +178,11 @@ public:
     int Compare(const char* s) const;
     int Compare(SizeType pos, SizeType len, const char* s) const;
     int Compare(SizeType pos, SizeType len, const char* s, SizeType n) const;
+
+private:
+    virtual CStreamBufferBase * GetBuffer() { return NULL; }
+    virtual const CStreamBufferBase * GetCBuffer() const { return NULL; }
+    virtual void SetBuffer(const CStreamBufferBase * pbuffer) {}
 public:
     static const size_t npos = -1;
 };
