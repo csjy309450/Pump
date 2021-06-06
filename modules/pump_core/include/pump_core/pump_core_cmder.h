@@ -103,7 +103,7 @@ private:
 public:
     CCmderClient();
     ~CCmderClient();
-    pump_int32_t Open();
+    pump_int32_t Open(const char* szPipeName=NULL);
     pump_int32_t Close();
     pump_int32_t Write(const char * szBuff, pump_uint32_t dwSize);
 private:

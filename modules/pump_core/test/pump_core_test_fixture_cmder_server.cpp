@@ -1,6 +1,7 @@
 #include "pump_core/pump_core_logger.h"
 #include "pump_core/pump_core_cmder.h"
 #include "pump_core/pump_core_thread.h"
+#include "pump_core/pump_core_app.h"
 #include "pump_core/os_wrapper/pump_core_os_api.h"
 
 class CThxCmdServer
@@ -20,12 +21,18 @@ CThxCmdServer g_thxCmdServer;
 
 int test_logger()
 {
+    static ::Pump::Core::CApplication app;
     PUMP_CORE_LOG_CONF struLogCong;
     memset(&struLogCong, 0, sizeof(struLogCong));
-    strcpy(struLogCong.szFilePath, "");
+    struLogCong.bPrintConsole = PUMP_TRUE;
+    struLogCong.bWriteFile = PUMP_TRUE;
     struLogCong.emLogLevel = PUMP_LOG_INFO;
-    //PUMP_CORE_InitLogger(&struLogCong);
-    PUMP_CORE_INFO("-------test begin-------");
+    strcpy(struLogCong.szFilePath, "yz_log");
+    struLogCong.emLogLevel = PUMP_LOG_INFO;
+    pump_handle_t hLog = PUMP_CORE_LoggerCreate();
+    PUMP_CORE_LoggerConfig(hLog, &struLogCong);
+    PUMP_CORE_InjectLocalLogger(hLog);
+    PUMP_CORE_INFO("-------cmd server-------");
     return  0;
 }
 

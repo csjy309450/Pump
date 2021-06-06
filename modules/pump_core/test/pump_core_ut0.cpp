@@ -15,6 +15,7 @@
 #include "pump_core/pump_core_dllso.h"
 #include "pump_core/pump_core_thread_pool.h"
 #include "pump_core/pump_core_app.h"
+#include "pump_core/pump_core_io.h"
 #include "pump_test/pump_test.h"
 
 using namespace Pump;
@@ -493,6 +494,26 @@ PTEST_C_CASE_DEF(PumpCoreUnitTestCase014, PumpCoreUnitTestScene001, )
         PTEST_ASSERT((vecObject[i]->GetPrivA() == i), "A not match 2");
         delete vecObject[i];
     }
+    return 0;
+}
+
+PTEST_C_CASE_DEF(PumpCoreUnitTestCase015, PumpCoreUnitTestScene001, )
+{
+    PTEST_LOG(comment, "PumpCoreUnitTestCase015 test CStringBuffer");
+    CStringBuffer buff0;
+    CStringBuffer buff1(128, 1024);
+    PTEST_ASSERT((buff0.GetBufferSize() == 0), "size not match 1");
+    PTEST_ASSERT((buff0.GetBufferRollSize() == 128), "roll not match 1");
+    PTEST_ASSERT((buff0.GetBufferCapacity() == 0), "cap not match 1");
+    PTEST_ASSERT((buff1.GetBufferSize() == 0), "size not match 2");
+    PTEST_ASSERT((buff1.GetBufferRollSize() == 128), "roll not match 2");
+    PTEST_ASSERT((buff1.GetBufferCapacity() == 1024), "cap not match 2");
+
+    CStringBuffer buff2(buff1);
+    PTEST_ASSERT((buff2.GetBufferSize() == 0), "size not match 3");
+    PTEST_ASSERT((buff2.GetBufferRollSize() == 128), "roll not match 3");
+    PTEST_ASSERT((buff2.GetBufferCapacity() == 1024), "cap not match 3");
+    PTEST_ASSERT((buff2.GetCPtr() != buff1.GetCPtr()), "ptr match 3");
     return 0;
 }
 

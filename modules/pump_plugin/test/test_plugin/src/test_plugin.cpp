@@ -1,9 +1,10 @@
 // dyanamic_load_dll.cpp : 定义控制台应用程序的入口点。
 //
 
-#include "pump_core/pump_core_api.h"
+#include "pump_core/os_wrapper/pump_core_os_api.h"
+#include "pump_core/pump_core_app.h"
 #include "pump_core/pump_core_string.h"
-#include "pump_core/thread/pump_core_thread.h"
+#include "pump_core/pump_core_thread.h"
 #include "pump_plugin/pump_plugin_config.h"
 #define PUMP_PPLUG_BUILD_DLL 1
 #include "pump_plugin/pump_pplug.h"
@@ -59,13 +60,13 @@ private:
     pump_bool_t m_bStop;
 };
 
+static ::Pump::Core::CApplication kApp;
 static CMainThread thxMain;
 static CMemoryLeackTest * ptest = NULL;
 
 static int PUMP_PPLUG_FNAME(test_plugin, Init)()
 {
     PUMP_PLUGIN_INFO("%s in", PUMP_PLUGIN_TOSTR(PUMP_PPLUG_FNAME(test_plugin, Init)));
-    PUMP_CORE_Init(); 
     ptest = new CMemoryLeackTest();
     return 0;
 }
@@ -74,7 +75,6 @@ static int PUMP_PPLUG_FNAME(test_plugin, Cleanup)()
 {
     PUMP_PLUGIN_INFO("%s in", PUMP_PLUGIN_TOSTR(PUMP_PPLUG_FNAME(test_plugin, Cleanup)));
     thxMain.Stop();
-    PUMP_CORE_Cleanup();
     delete ptest;
     return 0;
 }

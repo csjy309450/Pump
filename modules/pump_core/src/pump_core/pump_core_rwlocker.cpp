@@ -94,6 +94,7 @@ void CRWLocker::writeUnlock()
     } else
     {
         m_muxWrite.Unlock();
+        m_muxWrite.Unlock();
     }
 }
     

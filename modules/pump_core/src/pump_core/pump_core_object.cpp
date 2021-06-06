@@ -25,7 +25,7 @@ namespace Pump
 namespace Core
 {
 
-CObjectPrivateBase::CObjectPrivateBase() 
+CObjectPrivateBase::CObjectPrivateBase()
 {
 }
 
@@ -39,6 +39,11 @@ PUMP_CORE_ALLOC_TYPE CObjectPrivateBase::GetAllocType() const
 size_t CObjectPrivateBase::GetSize() const
 {
     return m_size;
+}
+
+pump_bool_t CObjectPrivateBase::IsHeap() const
+{
+    return (m_emType == PUMP_CORE_ALLOC_BUILDIN || m_emType == PUMP_CORE_ALLOC_MEMPOLL);
 }
 
 void* CObjectPrivateBase::operator new(size_t size)
@@ -100,6 +105,25 @@ void CObjectPrivateBase::operator delete(void* ptr)
     }
 }
 
+void CObjectPrivateBase::operator delete(void* ptr, PUMP_CORE_ALLOC_TYPE emType)
+{
+    if (ptr)
+    {
+        CObjectPrivateBase * pPirv = (CObjectPrivateBase *)ptr;
+        switch (pPirv->GetAllocType())
+        {
+        case PUMP_CORE_ALLOC_MEMPOLL:
+            CAllocator::Delete(ptr, pPirv->GetSize());
+            break;
+        case PUMP_CORE_ALLOC_BUILDIN:
+        default:
+        {
+            free(ptr);
+        }
+        }
+    }
+}
+
 CObjectBase::CObjectBase()
     : m_bNull(PUMP_TRUE)
     , m_szName("Null")
@@ -108,7 +132,7 @@ CObjectBase::CObjectBase()
 
 CObjectBase::CObjectBase(const char* szName, pump_bool_t bIsNull, CObjectPrivateBase * pPrimitive)
     : m_bNull(bIsNull)
-    , m_szName(szName) 
+    , m_szName(szName)
     , m_pPrimitive(pPrimitive)
 {}
 
@@ -133,6 +157,11 @@ pump_bool_t CObjectBase::IsNull() const
 void CObjectBase::SetNull(pump_bool_t bIsNull)
 {
     m_bNull = bIsNull;
+}
+
+pump_bool_t CObjectBase::IsHeap() const
+{
+    return (m_emType == PUMP_CORE_ALLOC_BUILDIN || m_emType == PUMP_CORE_ALLOC_MEMPOLL);
 }
 
 pump_bool_t CObjectBase::operator==(const CObjectBase& other)
@@ -181,6 +210,25 @@ void* CObjectBase::operator new(size_t size, PUMP_CORE_ALLOC_TYPE emType)
 }
 
 void CObjectBase::operator delete(void* ptr)
+{
+    if (ptr)
+    {
+        CObjectBase * pPirv = (CObjectBase *)ptr;
+        switch (pPirv->GetAllocType())
+        {
+        case PUMP_CORE_ALLOC_MEMPOLL:
+            CAllocator::Delete(ptr, pPirv->GetSize());
+            break;
+        case PUMP_CORE_ALLOC_BUILDIN:
+        default:
+        {
+            free(ptr);
+        }
+        }
+    }
+}
+
+void CObjectBase::operator delete(void* ptr, PUMP_CORE_ALLOC_TYPE emType)
 {
     if (ptr)
     {
