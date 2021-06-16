@@ -2,6 +2,8 @@
 #include "pump_ac/jsoncpp/json.h"
 #include "pump_ac/pump_ac_document.h"
 
+using namespace ::Pump::Ac;
+
 Json::Value __json_parse(const std::string & strBody)
 {
     Json::Reader objReader;
@@ -57,14 +59,48 @@ int test_json_parse2()
     std::string strBody1 =
         "{\n"
         "    \"key1\" : 12,\n"
-        "    \"key2\" : \"string\"\n"
+        "    \"key2\" : \"string\",\n"
+        "    \"key3\" : {\n"
+        "       \"a\": 1"
+        "   }\n"
         "}\n";
     ::Pump::Ac::CDocument doc(::Pump::Ac::PUMP_DOC_JSON);
     doc.parse(strBody1.c_str(), strBody1.size());
     ::Pump::Ac::CNode * pRoot = doc.root();
-    ::Pump::Ac::CNode * pSon = pRoot->getFirstSonNode();
-    pump_int64_t value = pSon->getValueAsInt();
-    printf("type=%d, name=%s, value=%ld\n", pSon->getType(), pSon->getName(), pSon->getValueAsInt());
+    if (pRoot->getType() == ::Pump::Ac::CNode::PUMP_NODE_OBJECT) {
+        ::Pump::Ac::CNode * key1 = CNode::GetFirstSonNode(pRoot);
+        if (key1->getType() == ::Pump::Ac::CNode::PUMP_NODE_INT)
+        {
+            pump_int64_t value = key1->getValueAsInt();
+            printf("type=%d, name=%s, value=%ld\n", key1->getType(), key1->getName(), key1->getValueAsInt());
+        }
+        if (CNode::GetParentNode(key1) == pRoot)
+        {
+            printf("GetParentNode succ.\n");
+        }
+        if (CNode::GetPreBrother(key1) == NULL)
+        {
+            printf("GetPreBrother succ.\n");
+        }
+
+        CNode * key2 = CNode::GetPostBrother(key1);
+        CNode * key3 = CNode::GetPostBrother(key2);
+        if (CNode::GetPostBrother(key3) == NULL)
+        {
+            printf("GetPostBrother succ.\n");
+        }
+
+        CNode * a = CNode::GetFirstSonNode(key3);
+        if (a->getType() == ::Pump::Ac::CNode::PUMP_NODE_INT)
+        {
+            pump_int64_t value = a->getValueAsInt();
+            printf("type=%d, name=%s, value=%ld\n", a->getType(), a->getName(), a->getValueAsInt());
+        }
+        printf("destroy key3\n");
+        CNode::DestroyNode(key3);
+        printf("destroy root\n");
+        CNode::DestroyNode(pRoot);
+    }
     return 0;
 }
 

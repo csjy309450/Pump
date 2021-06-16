@@ -1,5 +1,5 @@
-#ifndef PUMP_AC_PARSER
-#define PUMP_AC_PARSER
+#ifndef PUMP_AC_DESERIALIZER
+#define PUMP_AC_DESERIALIZER
 
 #include "pump_ac/jsoncpp/json.h"
 #include "pump_ac/pump_ac_document.h"
@@ -10,21 +10,23 @@ namespace Pump
 namespace Ac
 {
 
-class CParserBase
+class CDeserializer
 {
 public:
-    CParserBase();
-    ~CParserBase();
+    CDeserializer();
+    ~CDeserializer();
     virtual pump_int32_t parse(const char * szBuff, size_t iSize) = 0;
     virtual CNode * root() = 0;
+    virtual std::string dump() = 0;
 };
 
-class CJsonParser
-    : public CParserBase
+class CJsonDeserializer
+    : public CDeserializer
 {
 public:
     virtual pump_int32_t parse(const char * szBuff, size_t iSize);
     virtual CNode * root();
+    virtual std::string dump();
 private:
     Json::Reader m_jsonReader;
     Json::Value m_jsonRoot;
@@ -33,5 +35,5 @@ private:
 }
 }
 
-#endif // PUMP_AC_PARSER
+#endif // PUMP_AC_DESERIALIZER
 

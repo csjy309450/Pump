@@ -1,3 +1,4 @@
+#include <list>
 #include "pump_ac/pump_ac_node.h"
 #include "pump_ac/jsoncpp/json.h"
 
@@ -170,12 +171,95 @@ public:
 };
 
 //////////////////////////////////////////////////////////////////////////
+// __CNodeRelation
+//////////////////////////////////////////////////////////////////////////
+
+class __CNodeRelation
+{
+public:
+    __CNodeRelation()
+        : m_pParentNode(NULL)
+        , m_pPreBrother(NULL)
+        , m_pPostBrother(NULL)
+    {
+
+    }
+
+    class __PredRemove {
+    public:
+        __PredRemove(CNode * p)
+            : pRemove(p)
+        {
+
+        }
+        bool operator() (CNode * x) {
+            return pRemove == x;
+        }
+    private:
+        CNode * pRemove;
+    };
+
+    ~__CNodeRelation() 
+    {
+        for (std::list<CNode *>::iterator it = m_vecSonNode.begin(); it != m_vecSonNode.end();++it)
+        {
+            delete (*it);
+        }
+        m_vecSonNode.clear();
+    }
+    void setParentNode(CNode * pNode)
+    {
+        m_pParentNode = pNode;
+    }
+    CNode * getParentNode()
+    {
+        return m_pParentNode;
+    }
+
+    void removeFromParentSon(CNode * p)
+    {
+        m_pParentNode->m_pRelation->m_vecSonNode.remove_if(__PredRemove(p));
+    }
+
+    void setPreBrother(CNode * pNode)
+    {
+        m_pPreBrother = pNode;
+    }
+    CNode * getPreBrother()
+    {
+        return m_pPreBrother;
+    }
+    void setPostBrother(CNode * pNode)
+    {
+        m_pPostBrother = pNode;
+    }
+    CNode * getPostBrother()
+    {
+        return m_pPostBrother;
+    }
+    void addSonNode(CNode * pNode)
+    {
+        m_vecSonNode.push_back(pNode);
+    }
+    CNode * getFirstSonNode()
+    {
+        return m_vecSonNode.front();
+    }
+private:
+    CNode * m_pParentNode; /// not owner, don't free.
+    CNode * m_pPreBrother; /// not owner, don't free.
+    CNode * m_pPostBrother; /// not owner, don't free.
+    std::list<CNode *> m_vecSonNode; /// owner, free when this free.
+};
+
+//////////////////////////////////////////////////////////////////////////
 // CNode
 //////////////////////////////////////////////////////////////////////////
 
 CNode::CNode()
     : m_emType(CNode::PUMP_NODE_NULL)
     , m_pValue(NULL)
+    , m_pRelation(NULL)
 {
 }
 
@@ -185,6 +269,7 @@ CNode::CNode(PUMP_NODE_TYPE emType
     , __CNodeValue * pValue)
     : m_emType(emType)
     , m_pValue(pValue)
+    , m_pRelation(new __CNodeRelation())
 {
     memset(m_key, 0, sizeof(m_key));
     if (key && iSize > 0)
@@ -196,7 +281,14 @@ CNode::CNode(PUMP_NODE_TYPE emType
 CNode::~CNode()
 {
     if (m_pValue)
+    {
         delete m_pValue;
+    }
+    if (m_pRelation)
+    {
+        delete m_pRelation;
+    }
+    printf("delete %s\n", m_key);
 }
 
 const char * CNode::getName() const
@@ -207,15 +299,6 @@ const char * CNode::getName() const
 CNode::PUMP_NODE_TYPE CNode::getType() const
 {
     return m_emType;
-}
-
-CNode * CNode::getParentNode()
-{
-    if (m_pValue)
-    {
-        return m_pValue->getParentNode();
-    }
-    return NULL;
 }
 
 pump_int64_t CNode::getValueAsInt() const
@@ -249,40 +332,79 @@ void CNode::setValueFromString(const char* value, pump_size_t iSize)
 {
 }
 
-CNode * CNode::getFirstSonNode()
+CNode * CNode::__getParentNode()
+{
+    if (m_pRelation)
+    {
+        return this->m_pRelation->getParentNode();
+    }
+    return NULL;
+}
+
+CNode * CNode::__getFirstSonNode()
 {
     CNode * pNode = NULL;
+    CNode * pPreNode = NULL;
     if (m_pValue && this->getType() == CNode::PUMP_NODE_OBJECT)
     {
         switch (m_pValue->m_type)
         {
         case PUMP_NODE_VALUE_JSON:
-            Json::Value & pJson = (*(Json::Value *)(m_pValue->m_pValue)).get(0);
-            if (pJson.isIntegral())
+        {
+            for (size_t i = 0; i < (*(Json::Value *)(m_pValue->m_pValue)).size(); ++i)
             {
-                pNode = new CNode(CNode::PUMP_NODE_INT, pJson.getName().c_str(), pJson.getName().size(),
-                    CNode::CreateNodeValue(PUMP_NODE_VALUE_JSON, &pJson));
+                Json::Value & pJson = (*(Json::Value *)(m_pValue->m_pValue)).get(i);
+                if (pJson.isIntegral())
+                {
+                    pNode = new CNode(CNode::PUMP_NODE_INT, pJson.getName().c_str(), pJson.getName().size(),
+                        CNode::CreateNodeValue(PUMP_NODE_VALUE_JSON, &pJson));
+                }
+                else if (pJson.isDouble())
+                {
+                    pNode = new CNode(CNode::PUMP_NODE_FLOAT, pJson.getName().c_str(), pJson.getName().size(),
+                        CNode::CreateNodeValue(PUMP_NODE_VALUE_JSON, &pJson));
+                }
+                else if (pJson.isArray())
+                {
+                    pNode = new CNode(CNode::PUMP_NODE_ARRAY, pJson.getName().c_str(), pJson.getName().size(),
+                        CNode::CreateNodeValue(PUMP_NODE_VALUE_JSON, &pJson));
+                }
+                else if (pJson.isBool())
+                {
+                    pNode = new CNode(CNode::PUMP_NODE_BOOL, pJson.getName().c_str(), pJson.getName().size(),
+                        CNode::CreateNodeValue(PUMP_NODE_VALUE_JSON, &pJson));
+                }
+                else if (pJson.isObject())
+                {
+                    pNode = new CNode(CNode::PUMP_NODE_OBJECT, pJson.getName().c_str(), pJson.getName().size(),
+                        CNode::CreateNodeValue(PUMP_NODE_VALUE_JSON, &pJson));
+                }
+                else if (pJson.isNull())
+                {
+                    pNode = new CNode(CNode::PUMP_NODE_NULL, pJson.getName().c_str(), pJson.getName().size(),
+                        CNode::CreateNodeValue(PUMP_NODE_VALUE_JSON, &pJson));
+                }
+                else if (pJson.isString())
+                {
+                    pNode = new CNode(CNode::PUMP_NODE_STR, pJson.getName().c_str(), pJson.getName().size(),
+                        CNode::CreateNodeValue(PUMP_NODE_VALUE_JSON, &pJson));
+                }
+                pNode->m_pRelation->setParentNode(this);
+                this->m_pRelation->addSonNode(pNode);
+                if (pPreNode)
+                {
+                    pNode->m_pRelation->setPreBrother(pPreNode);
+                    pPreNode->m_pRelation->setPostBrother(pNode);
+                }
+                pPreNode = pNode;
             }
-            else
-            {
-            }
-            break;
+        } break;
         }
     }
-    return pNode;
+    return this->m_pRelation->getFirstSonNode();
 }
 
-CNode * CNode::getLastSonNode()
-{
-    return NULL;
-}
-
-CNode * CNode::getNextSonNode()
-{
-    return NULL;
-}
-
-CNode * CNode::getPrevSonNode()
+CNode * CNode::__getLastSonNode()
 {
     return NULL;
 }
@@ -290,6 +412,63 @@ CNode * CNode::getPrevSonNode()
 __CNodeValue * CNode::CreateNodeValue(PUMP_NODE_VALUE_TYPE type, void* pValue)
 {
     return new __CNodeValue(type, pValue);
+}
+
+void CNode::DestroyNode(CNode * pNode)
+{
+    if (pNode)
+    {
+        if (pNode->m_pRelation && pNode->m_pRelation->getParentNode())
+        {
+            pNode->m_pRelation->removeFromParentSon(pNode);
+        }
+        delete pNode;
+    }
+}
+
+CNode * CNode::GetFirstSonNode(CNode * pNode)
+{
+    if (pNode)
+    {
+        return pNode->__getFirstSonNode();
+    }
+    return NULL;
+}
+
+CNode * CNode::GetLastSonNode(CNode * pNode)
+{
+    if (pNode)
+    {
+        return pNode->__getLastSonNode();
+    }
+    return NULL;
+}
+
+CNode * CNode::GetPreBrother(CNode * pNode)
+{
+    if (pNode && pNode->m_pRelation)
+    {
+        return pNode->m_pRelation->getPreBrother();
+    }
+    return NULL;
+}
+
+CNode * CNode::GetPostBrother(CNode * pNode)
+{
+    if (pNode && pNode->m_pRelation)
+    {
+        return pNode->m_pRelation->getPostBrother();
+    }
+    return NULL;
+}
+
+CNode * CNode::GetParentNode(CNode * pNode)
+{
+    if (pNode)
+    {
+        return pNode->__getParentNode();
+    }
+    return NULL;
 }
 
 }

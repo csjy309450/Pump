@@ -1,5 +1,5 @@
 #include "pump_ac/pump_ac_document.h"
-#include "pump_ac/__pump_ac_parserbase.h"
+#include "pump_ac/__pump_ac_deserializer.h"
 
 namespace Pump
 {
@@ -24,7 +24,7 @@ public:
         switch (m_emDocType)
         {
         case  PUMP_DOC_JSON:
-            m_pParser = new CJsonParser();
+            m_pParser = new CJsonDeserializer();
         }
     }
 
@@ -52,7 +52,7 @@ public:
 
 private:
     PUMP_DOC_TYPE m_emDocType;
-    CParserBase * m_pParser;
+    CDeserializer * m_pParser;
 };
 
 CDocument::CDocument()

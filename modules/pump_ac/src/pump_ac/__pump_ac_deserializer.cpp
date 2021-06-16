@@ -1,20 +1,20 @@
-#include "pump_ac/__pump_ac_parserbase.h"
+#include "pump_ac/__pump_ac_deserializer.h"
 
 namespace Pump
 {
 namespace Ac
 {
 
-CParserBase::CParserBase()
+CDeserializer::CDeserializer()
 {
 }
 
 
-CParserBase::~CParserBase()
+CDeserializer::~CDeserializer()
 {
 }
 
-pump_int32_t CJsonParser::parse(const char * szBuff, size_t iSize)
+pump_int32_t CJsonDeserializer::parse(const char * szBuff, size_t iSize)
 {
     try
     {
@@ -26,7 +26,12 @@ pump_int32_t CJsonParser::parse(const char * szBuff, size_t iSize)
     return 0;
 }
 
-CNode * CJsonParser::root()
+std::string CJsonDeserializer::dump()
+{
+    return "";
+}
+
+CNode * CJsonDeserializer::root()
 {
     CNode * pNode = new CNode(CNode::PUMP_NODE_OBJECT, NULL, 0, 
         CNode::CreateNodeValue(PUMP_NODE_VALUE_JSON, &m_jsonRoot));
