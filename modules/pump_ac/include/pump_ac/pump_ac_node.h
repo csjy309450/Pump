@@ -26,16 +26,19 @@ public:
     friend class __CNodeValue;
     friend class __CNodeRelation;
     friend class CJsonDeserializer;
+    friend class CDeserializer;
+    friend class CDocument;
 public:
     typedef enum tagPUMP_NODE_TYPE
     {
-        PUMP_NODE_NULL = 0,
+        PUMP_NODE_WITNESS = 0,
+        PUMP_NODE_NULL,
         PUMP_NODE_INT,
         PUMP_NODE_FLOAT,
         PUMP_NODE_STR,
         PUMP_NODE_BOOL,
         PUMP_NODE_ARRAY,
-        PUMP_NODE_OBJECT
+        PUMP_NODE_OBJECT,
     } PUMP_NODE_TYPE;
 public:
     const char * getName() const;
@@ -57,7 +60,7 @@ public:
     static CNode * CreateSonNodeString(const char* value, size_t iSize);
     static CNode * CreateSonNodeObject();
     static CNode * CreateSonNodeArray();
-    static void DestroyNode(CNode * pNode); // TODO remove all it son node
+    static void DestroyNode(CNode * pNode); // remove all son nodes
 protected:
     CNode();
     CNode(PUMP_NODE_TYPE emType, const char * key, pump_size_t iSize, __CNodeValue * pValue = NULL);
@@ -69,7 +72,9 @@ private:
 
     CNode * __getParentNode();
     CNode * __getFirstSonNode();
+    void __refreshSonNodes();
     CNode * __getLastSonNode();
+    void __addSonNodeList(CNode * pNode);
 protected:
     char m_key[64];
     PUMP_NODE_TYPE m_emType;

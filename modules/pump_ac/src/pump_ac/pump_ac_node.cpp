@@ -243,7 +243,19 @@ public:
     }
     CNode * getFirstSonNode()
     {
+        if (m_vecSonNode.empty())
+        {
+            return NULL;
+        }
         return m_vecSonNode.front();
+    }
+    CNode * getLastSonNode()
+    {
+        if (m_vecSonNode.empty())
+        {
+            return NULL;
+        }
+        return m_vecSonNode.back();
     }
 private:
     CNode * m_pParentNode; /// not owner, don't free.
@@ -341,7 +353,7 @@ CNode * CNode::__getParentNode()
     return NULL;
 }
 
-CNode * CNode::__getFirstSonNode()
+void CNode::__refreshSonNodes()
 {
     CNode * pNode = NULL;
     CNode * pPreNode = NULL;
@@ -401,12 +413,30 @@ CNode * CNode::__getFirstSonNode()
         } break;
         }
     }
+}
+
+CNode * CNode::__getFirstSonNode()
+{
+    if (!this->m_pRelation->getFirstSonNode())
+    {
+        this->__refreshSonNodes();
+    }
     return this->m_pRelation->getFirstSonNode();
 }
 
 CNode * CNode::__getLastSonNode()
 {
-    return NULL;
+    if (!this->m_pRelation->getLastSonNode())
+    {
+        this->__refreshSonNodes();
+    }
+    return this->m_pRelation->getLastSonNode();
+}
+
+void CNode::__addSonNodeList(CNode * pNode)
+{
+    pNode->m_pRelation->setParentNode(this);
+    this->m_pRelation->addSonNode(pNode);
 }
 
 __CNodeValue * CNode::CreateNodeValue(PUMP_NODE_VALUE_TYPE type, void* pValue)

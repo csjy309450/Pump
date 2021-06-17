@@ -18,6 +18,9 @@ public:
     virtual pump_int32_t parse(const char * szBuff, size_t iSize) = 0;
     virtual CNode * root() = 0;
     virtual std::string dump() = 0;
+
+protected:
+    CNode* m_pRoot;
 };
 
 class CJsonDeserializer

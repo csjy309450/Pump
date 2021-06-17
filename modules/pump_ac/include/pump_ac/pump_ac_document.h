@@ -27,13 +27,11 @@ class PUMP_AC_CLASS CDocument
 public:
     CDocument();
     CDocument(PUMP_DOC_TYPE emDocType);
+    virtual ~CDocument();
 
     pump_int32_t parse(const char * szBuff, size_t iSize);
-
     CNode * root();
     CNode * get(const char* szXPath, size_t iSize);
-
-    virtual ~CDocument();
 };
 
 }

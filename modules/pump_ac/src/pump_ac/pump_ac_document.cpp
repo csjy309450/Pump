@@ -96,5 +96,10 @@ CNode * CDocument::root()
     return NULL;
 }
 
+void CDocument::free()
+{
+
+}
+
 }
 }
