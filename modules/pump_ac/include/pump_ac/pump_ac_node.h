@@ -2,6 +2,7 @@
 #define PUMP_AC_NODE
 
 #include "pump_macro/pump_pre.h"
+#include <string>
 #include "pump_core/os_wrapper/pump_core_os_types.h"
 #include "pump_ac/AC_Types.h"
 
@@ -28,6 +29,7 @@ public:
     friend class CJsonDeserializer;
     friend class CDeserializer;
     friend class CDocument;
+    friend class CDocumentPrivare;
 public:
     typedef enum tagPUMP_NODE_TYPE
     {

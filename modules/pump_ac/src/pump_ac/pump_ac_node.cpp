@@ -1,5 +1,6 @@
 #include <list>
 #include "pump_ac/pump_ac_node.h"
+#include "pump_ac/pump_ac_type.h"
 #include "pump_ac/jsoncpp/json.h"
 
 namespace Pump
@@ -300,7 +301,6 @@ CNode::~CNode()
     {
         delete m_pRelation;
     }
-    printf("delete %s\n", m_key);
 }
 
 const char * CNode::getName() const
@@ -368,8 +368,9 @@ void CNode::__refreshSonNodes()
                 Json::Value & pJson = (*(Json::Value *)(m_pValue->m_pValue)).get(i);
                 if (pJson.isIntegral())
                 {
-                    pNode = new CNode(CNode::PUMP_NODE_INT, pJson.getName().c_str(), pJson.getName().size(),
-                        CNode::CreateNodeValue(PUMP_NODE_VALUE_JSON, &pJson));
+                    //pNode = new CNode(CNode::PUMP_NODE_INT, pJson.getName().c_str(), pJson.getName().size(),
+                    //    CNode::CreateNodeValue(PUMP_NODE_VALUE_JSON, &pJson));
+                    pNode = new CInteger(PUMP_NODE_VALUE_JSON, pJson.getName().c_str(), pJson.getName().size(), &pJson);
                 }
                 else if (pJson.isDouble())
                 {
@@ -441,7 +442,19 @@ void CNode::__addSonNodeList(CNode * pNode)
 
 __CNodeValue * CNode::CreateNodeValue(PUMP_NODE_VALUE_TYPE type, void* pValue)
 {
-    return new __CNodeValue(type, pValue);
+    switch (type)
+    {
+    case PUMP_NODE_VALUE_BUILDIN:
+    {
+        return new __CNodeValue(type);
+    } break;
+    case PUMP_NODE_VALUE_JSON:
+    {
+        return new __CNodeValue(type, pValue);
+    } break;
+    default:
+        return NULL;
+    }
 }
 
 void CNode::DestroyNode(CNode * pNode)

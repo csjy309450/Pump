@@ -31,7 +31,8 @@ public:
 
     pump_int32_t parse(const char * szBuff, size_t iSize);
     CNode * root();
-    CNode * get(const char* szXPath, size_t iSize);
+    CNode * find(const char* szXPath, size_t iSize);
+    std::string dump() const;
 };
 
 }

@@ -8,8 +8,14 @@ namespace Ac
 
 class CNode;
 
+CDeserializer::CDeserializer(CNode** pRoot)
+    : m_pRoot(pRoot)
+{
+
+}
+
 CDeserializer::CDeserializer()
-    : m_pRoot(new CNode(CNode::PUMP_NODE_WITNESS, NULL, 0, NULL))
+    : m_pRoot(NULL)
 {
 }
 
@@ -18,10 +24,13 @@ CDeserializer::~CDeserializer()
 {
     if (m_pRoot)
     {
-        CNode::DestroyNode(m_pRoot);
         m_pRoot = NULL;
     }
 }
+
+CJsonDeserializer::CJsonDeserializer(CNode** pRoot)
+    : CDeserializer(pRoot)
+{}
 
 pump_int32_t CJsonDeserializer::parse(const char * szBuff, size_t iSize)
 {
@@ -32,25 +41,30 @@ pump_int32_t CJsonDeserializer::parse(const char * szBuff, size_t iSize)
     catch (Json::Exception & e)
     {
     }
+    this->__root();
     return 0;
 }
 
-std::string CJsonDeserializer::dump()
+CNode * CJsonDeserializer::__root()
 {
-    return "";
-}
-
-CNode * CJsonDeserializer::root()
-{
-    CNode * pNode = CNode::GetFirstSonNode(m_pRoot);
+    if (!m_pRoot)
+    {
+        return NULL;
+    }
+    CNode * pNode = CNode::GetFirstSonNode(*m_pRoot);
     if (pNode)
     {
         return pNode;
     }
     pNode = new CNode(CNode::PUMP_NODE_OBJECT, NULL, 0,
         CNode::CreateNodeValue(PUMP_NODE_VALUE_JSON, &m_jsonRoot));
-    m_pRoot->__addSonNodeList(pNode);
+    (*m_pRoot)->__addSonNodeList(pNode);
     return pNode;
+}
+
+std::string CJsonDeserializer::dump()
+{
+    return m_jsonRoot.toStyledString();
 }
 
 }

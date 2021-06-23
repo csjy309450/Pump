@@ -1,31 +1,23 @@
-//#ifndef PUMP_AC_TYPE
-//#define PUMP_AC_TYPE
-//
-//#include <string>
-//#include "pump_core/pump_core_object.h"
-//
-//namespace Pump
-//{
-//namespace Ac
-//{
-//
-//class CSerializable
-//    : public ::Pump::Core::CObjectBase
-//{
-//public:
-//    CSerializable();
-//    ~CSerializable();
-//    virtual std::string dump() = 0;
-//};
-//
-//class CInteger
-//    : public CSerializable
-//{
-//public:
-//    CInteger();
-//    ~CInteger();
-//    virtual std::string dump();
-//};
+#ifndef PUMP_AC_TYPE
+#define PUMP_AC_TYPE
+
+#include <string>
+#include "pump_core/pump_core_object.h"
+#include "pump_ac/pump_ac_node.h"
+
+namespace Pump
+{
+namespace Ac
+{
+
+class CInteger
+    : public ::Pump::Ac::CNode
+{
+public:
+    CInteger(PUMP_NODE_VALUE_TYPE type, const char* szName, size_t iSize, void* pValue); ///< xml and json
+    CInteger(const char* szName, size_t iSize, pump_int64_t iValue);
+    ~CInteger();
+};
 //
 //class CFloat
 //    : public CSerializable
@@ -71,9 +63,9 @@
 //    ~CArray();
 //    virtual std::string dump();
 //};
-//
-//}
-//}
-//#endif // PUMP_AC_TYPE
-//
-//
+
+}
+}
+#endif // PUMP_AC_TYPE
+
+

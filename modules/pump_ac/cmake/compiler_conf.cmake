@@ -45,8 +45,7 @@ elseif(${CMAKE_GENERATOR} MATCHES "Visual Studio")
     if(${pump_ac_BUILD_FLAG} MATCHES "shared")
         set(pump_ac_INNER_COMPILE_FLAG ${pump_ac_INNER_COMPILE_FLAG}
             -DPUMP_AC_BUILD_DLL 
-            -DPUMP_CORE_BUILD_DLL
-            -DLIBXML_SCHEMAS_ENABLED
+            -DPUMP_CORE_USING_DLL
             -DLIBXML_STATIC)
     endif()
     if(${CMAKE_GENERATOR} STREQUAL "Visual Studio 14 2015")

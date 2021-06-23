@@ -27,7 +27,7 @@ if(${pump_ac_BUILD_FLAG} MATCHES "static")
         ${pump_ac_INNER_SRCS}
         )
     target_include_directories(pump_ac_sll PRIVATE ${pump_ac_INNER_INCLUDE_DIR})
-    target_compile_definitions(pump_ac_sll PRIVATE PUMP_HTTP_BUILD_SLL=1)
+    target_compile_definitions(pump_ac_sll PRIVATE )
     target_compile_options(pump_ac_sll PRIVATE ${pump_ac_INNER_COMPILE_FLAG})
     set_target_properties(pump_ac_sll PROPERTIES OUTPUT_NAME ${pump_ac_INNER_SLIB_NAME})
     set_target_properties(pump_ac_sll PROPERTIES FOLDER "pump_ac/target")
