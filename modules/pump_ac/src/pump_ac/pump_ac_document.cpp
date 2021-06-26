@@ -65,7 +65,13 @@ public:
         {
             m_pParser->__root();
         }
-        return CNode::GetFirstSonNode(m_pRoot);
+        CNode * pNode = CNode::GetFirstSonNode(m_pRoot);
+        if (!pNode)
+        {
+            return pNode;
+        }
+        CNode::GetFirstSonNode(pNode);
+        return pNode;
     }
 
     std::string dump() 

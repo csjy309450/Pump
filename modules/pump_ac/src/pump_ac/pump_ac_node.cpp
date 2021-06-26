@@ -238,6 +238,10 @@ public:
     {
         return m_pPostBrother;
     }
+    size_t getSonNodeSize() const
+    {
+        return m_vecSonNode.size();
+    }
     void addSonNode(CNode * pNode)
     {
         m_vecSonNode.push_back(pNode);
@@ -342,6 +346,15 @@ const char* CNode::getValueAsString() const
 
 void CNode::setValueFromString(const char* value, pump_size_t iSize)
 {
+}
+
+size_t CNode::size() const
+{
+    if (m_pRelation)
+    {
+        return this->m_pRelation->getSonNodeSize();
+    }
+    return 0;
 }
 
 CNode * CNode::__getParentNode()
@@ -512,6 +525,53 @@ CNode * CNode::GetParentNode(CNode * pNode)
         return pNode->__getParentNode();
     }
     return NULL;
+}
+
+CNode * CNode::CreateSonNodeInteger(CNode * pNode, const char* szName, size_t iSize, pump_int64_t iValue)
+{
+    if (!pNode || !szName || iSize==0)
+    {
+        return NULL;
+    }
+    CNode * pNewNode = NULL;
+    switch (pNode->m_pValue->m_type)
+    {
+    case PUMP_NODE_VALUE_JSON:
+    {
+        Json::Value * pjNode = (Json::Value *)pNode->m_pValue->m_pValue;
+        if (!pjNode || !pjNode->isObject())
+        {
+            break;
+        }
+        Json::Value jNode(iValue);
+        jNode.setName(std::string(szName));
+        pjNode->resolveReference(szName) = (jNode);
+        Json::Value * pNewJNode = pjNode->findByName(szName, iSize);
+        if (!pNewJNode)
+        {
+            break;
+        }
+        pNewNode = new CInteger(PUMP_NODE_VALUE_JSON, szName, iSize, pNewJNode);
+        if (!pNewNode)
+        {
+            break;
+        }
+        pNode->__addNewSonNode(pNewNode);
+    } break;
+    }
+    return pNewNode;
+}
+
+void CNode::__addNewSonNode(CNode * pNode)
+{
+    pNode->m_pRelation->setParentNode(this);
+    this->m_pRelation->addSonNode(pNode);
+    CNode * pPreNode = this->m_pRelation->getLastSonNode();
+    if (pPreNode)
+    {
+        pNode->m_pRelation->setPreBrother(pPreNode);
+        pPreNode->m_pRelation->setPostBrother(pNode);
+    }
 }
 
 }

@@ -31,6 +31,9 @@ class CJsonSerializer
 public:
     explicit CJsonSerializer(CNode** pRoot);
     virtual std::string dump();
+private:
+    std::string __dumpInt(CNode * pNode);
+    std::string __dumpObject(CNode * pNode);
 };
 
 }

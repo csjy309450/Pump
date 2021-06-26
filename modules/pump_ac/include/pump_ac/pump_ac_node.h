@@ -51,17 +51,18 @@ public:
     void setValueFromFloat(pump_float64_t value);
     const char* getValueAsString() const;
     void setValueFromString(const char* value, pump_size_t iSize);
+    size_t size() const;
 
     static CNode * GetParentNode(CNode * pNode);
     static CNode * GetPreBrother(CNode * pNode);
     static CNode * GetPostBrother(CNode * pNode);
     static CNode * GetFirstSonNode(CNode * pNode);
     static CNode * GetLastSonNode(CNode * pNode);
-    static CNode * CreateSonNodeInteger(pump_int64_t value);
-    static CNode * CreateSonNodeFloat(pump_float64_t value);
-    static CNode * CreateSonNodeString(const char* value, size_t iSize);
-    static CNode * CreateSonNodeObject();
-    static CNode * CreateSonNodeArray();
+    static CNode * CreateSonNodeInteger(CNode * pNode, const char* szName, size_t iSize, pump_int64_t iValue = 0);
+    static CNode * CreateSonNodeFloat(CNode * pNode, pump_float64_t value);
+    static CNode * CreateSonNodeString(CNode * pNode, const char* value, size_t iSize);
+    static CNode * CreateSonNodeObject(CNode * pNode);
+    static CNode * CreateSonNodeArray(CNode * pNode);
     static void DestroyNode(CNode * pNode); // remove all son nodes
 protected:
     CNode();
@@ -77,6 +78,7 @@ private:
     void __refreshSonNodes();
     CNode * __getLastSonNode();
     void __addSonNodeList(CNode * pNode);
+    void __addNewSonNode(CNode * pNode);
 protected:
     char m_key[64];
     PUMP_NODE_TYPE m_emType;

@@ -3527,6 +3527,17 @@ Value const* Value::find(char const* key, char const* cend) const
   if (it == value_.map_->end()) return NULL;
   return &(*it).second;
 }
+Value * Value::findByName(char const* key, size_t isize)
+{
+    JSON_ASSERT_MESSAGE(
+        type_ == nullValue || type_ == objectValue,
+        "in Json::Value::find(key, end, found): requires objectValue or nullValue");
+    if (type_ == nullValue) return NULL;
+    CZString actualKey(key, isize, CZString::noDuplication);
+    ObjectValues::iterator it = value_.map_->find(actualKey);
+    if (it == value_.map_->end()) return NULL;
+    return &(*it).second;
+}
 const Value& Value::operator[](const char* key) const
 {
   Value const* found = find(key, key + strlen(key));
