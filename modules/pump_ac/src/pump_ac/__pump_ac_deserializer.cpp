@@ -40,6 +40,7 @@ pump_int32_t CJsonDeserializer::parse(const char * szBuff, size_t iSize)
     }
     catch (Json::Exception & e)
     {
+        return -1;
     }
     this->__root();
     return 0;

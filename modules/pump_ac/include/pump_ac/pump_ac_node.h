@@ -57,6 +57,7 @@ public:
     static CNode * GetPreBrother(CNode * pNode);
     static CNode * GetPostBrother(CNode * pNode);
     static CNode * GetFirstSonNode(CNode * pNode);
+    static CNode * GetSonNodeByName(CNode * pNode, const char* szName, size_t iSize);
     static CNode * GetLastSonNode(CNode * pNode);
     static CNode * CreateSonNodeInteger(CNode * pNode, const char* szName, size_t iSize, pump_int64_t iValue = 0);
     static CNode * CreateSonNodeFloat(CNode * pNode, pump_float64_t value);

@@ -254,6 +254,23 @@ public:
         }
         return m_vecSonNode.front();
     }
+    CNode * getSonNodeByName(const char* szName, size_t iSize)
+    {
+        if (m_vecSonNode.empty())
+        {
+            return NULL;
+        }
+        CNode * pNode = NULL;
+        for (std::list<CNode *>::iterator it = m_vecSonNode.begin(); it != m_vecSonNode.end(); ++it)
+        {
+            if (strcmp((*it)->getName(), szName) == 0)
+            {
+                pNode = (*it);
+                break;
+            }
+        }
+        return pNode;
+    }
     CNode * getLastSonNode()
     {
         if (m_vecSonNode.empty())
@@ -487,6 +504,15 @@ CNode * CNode::GetFirstSonNode(CNode * pNode)
     if (pNode)
     {
         return pNode->__getFirstSonNode();
+    }
+    return NULL;
+}
+
+CNode * CNode::GetSonNodeByName(CNode * pNode, const char* szName, size_t iSize)
+{
+    if (pNode)
+    {
+        return pNode->m_pRelation->getSonNodeByName(szName, iSize);
     }
     return NULL;
 }
