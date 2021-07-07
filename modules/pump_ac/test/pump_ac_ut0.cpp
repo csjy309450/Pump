@@ -89,7 +89,7 @@ PTEST_C_CASE_DEF(PumpAcUnitTestCase000, PumpAcScene000, )
     doc.parse(strBody1.c_str(), strBody1.size());
     PTEST_LOG(msg, "%s", doc.dump().c_str());
 
-    for (int i = 0; i < 100; ++i)
+    for (int i = 0; i < 10; ++i)
     {
         PTEST_LOG(msg, "******* test batch %d **********", i);
         {
@@ -144,10 +144,34 @@ PTEST_C_CASE_DEF(PumpAcUnitTestCase001, PumpAcScene000, )
         ::Pump::Ac::CNode * key1 = CNode::GetFirstSonNode(pRoot);
         PTEST_ASSERT((pRoot->getType() == CNode::PUMP_NODE_OBJECT), "root not object");
         const char * szNewNodeName = "NewNode";
-        PTEST_ASSERT((pRoot->size() == 3), "size error");
+        PTEST_ASSERT((pRoot->getSonNodeCount() == 3), "size error");
         CNode::CreateSonNodeInteger(pRoot, szNewNodeName, strlen(szNewNodeName), 1024);
         PTEST_LOG(msg, "%s", doc.dump().c_str());
-        PTEST_ASSERT((pRoot->size() == 4), "size error");
+        PTEST_ASSERT((pRoot->getSonNodeCount() == 4), "size error");
+    }
+    return PUMP_OK;
+}
+
+PTEST_C_CASE_DEF(PumpAcUnitTestCase002, PumpAcScene000, )
+{
+    PTEST_LOG(comment, "PumpAcUnitTestCase002 test network init & cleanup");
+    std::string strBody1 =
+        "{"
+        "    \"key1\" : 12,"
+        "    \"key2\" : \"string\","
+        "    \"key3\" : {"
+        "       \"a\": 1.2"
+        "   },"
+        "    \"key4\" : null,"
+        "}";
+    {
+        ::Pump::Ac::CDocument doc(::Pump::Ac::PUMP_DOC_JSON);
+        doc.parse(strBody1.c_str(), strBody1.size());
+        PTEST_LOG(msg, "%s", doc.dump().c_str());
+        ::Pump::Ac::CNode * pRoot = doc.root();
+        PTEST_ASSERT((pRoot->getType() == CNode::PUMP_NODE_OBJECT), "root not object");
+        ::Pump::Ac::CNode * key4 = CNode::GetLastSonNode(pRoot);
+        PTEST_ASSERT((key4->getType() == CNode::PUMP_NODE_NULL), "key4 not null");
     }
     return PUMP_OK;
 }

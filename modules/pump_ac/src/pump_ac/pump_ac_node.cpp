@@ -365,13 +365,48 @@ void CNode::setValueFromString(const char* value, pump_size_t iSize)
 {
 }
 
-size_t CNode::size() const
+size_t CNode::getSonNodeCount() const
 {
     if (m_pRelation)
     {
         return this->m_pRelation->getSonNodeSize();
     }
     return 0;
+}
+
+pump_bool_t CNode::isObject() const
+{
+    return this->getType() == CNode::PUMP_NODE_NULL;
+}
+
+pump_bool_t CNode::isArray() const
+{
+    return this->getType() == CNode::PUMP_NODE_ARRAY;
+}
+
+pump_bool_t CNode::isInteger() const
+{
+    return this->getType() == CNode::PUMP_NODE_INT;
+}
+
+pump_bool_t CNode::isFloat() const
+{
+    return this->getType() == CNode::PUMP_NODE_FLOAT;
+}
+
+pump_bool_t CNode::isNull() const
+{
+    return this->getType() == CNode::PUMP_NODE_NULL;
+}
+
+pump_bool_t CNode::isString() const
+{
+    return this->getType() == CNode::PUMP_NODE_STR;
+}
+
+pump_bool_t CNode::isBoolean() const
+{
+    return this->getType() == CNode::PUMP_NODE_BOOL;
 }
 
 CNode * CNode::__getParentNode()
@@ -506,6 +541,27 @@ CNode * CNode::GetFirstSonNode(CNode * pNode)
         return pNode->__getFirstSonNode();
     }
     return NULL;
+}
+
+CNode * CNode::GetSonNodeByIndex(CNode * pNode, size_t iIndx)
+{
+    CNode * pWork = NULL;
+    if (!pNode || iIndx > pNode->getSonNodeCount())
+    {
+        return pWork;
+    }
+    size_t tiIndx = 0;
+    pWork = pNode->__getFirstSonNode();
+    while (pWork)
+    {
+        if (tiIndx == iIndx)
+        {
+            break;
+        }
+        pWork = CNode::GetPostBrother(pWork);
+        tiIndx++;
+    }
+    return pWork;
 }
 
 CNode * CNode::GetSonNodeByName(CNode * pNode, const char* szName, size_t iSize)

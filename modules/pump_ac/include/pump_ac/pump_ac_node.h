@@ -51,11 +51,19 @@ public:
     void setValueFromFloat(pump_float64_t value);
     const char* getValueAsString() const;
     void setValueFromString(const char* value, pump_size_t iSize);
-    size_t size() const;
+    size_t getSonNodeCount() const;
+    pump_bool_t isObject() const;
+    pump_bool_t isArray() const;
+    pump_bool_t isInteger() const;
+    pump_bool_t isFloat() const;
+    pump_bool_t isNull() const;
+    pump_bool_t isString() const;
+    pump_bool_t isBoolean() const;
 
     static CNode * GetParentNode(CNode * pNode);
     static CNode * GetPreBrother(CNode * pNode);
     static CNode * GetPostBrother(CNode * pNode);
+    static CNode * GetSonNodeByIndex(CNode * pNode, size_t iIndx);
     static CNode * GetFirstSonNode(CNode * pNode);
     static CNode * GetSonNodeByName(CNode * pNode, const char* szName, size_t iSize);
     static CNode * GetLastSonNode(CNode * pNode);
