@@ -207,7 +207,7 @@ pump_void_t * CCmderClient::CThxRead::ThreadCallback(pump_void_t * pData)
                         std::string::size_type pos = strBuff.find((pClient->m_strLastCmd).c_str());
                         if (pos != std::string::npos)
                         {
-                            strBuff = strBuff.substr(pos, strBuff.size() - pClient->m_strLastCmd.size());
+                            strBuff = strBuff.substr(pos + pClient->m_strLastCmd.size(), strBuff.size() - pClient->m_strLastCmd.size());
                         }
                         pClient->ReadCallback(PUMP_CMDER_CLIENT_CB_BEGIN, pClient->m_strLastCmd.c_str(), pClient->m_strLastCmd.size(), NULL);
                     }
