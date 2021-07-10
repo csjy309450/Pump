@@ -3065,6 +3065,44 @@ const char* Value::asCString() const {
   return this_str;
 }
 
+void Value::fromCString(const char* value, size_t iSize) {
+    switch (type_) {
+    case stringValue:
+        if (value_.string_)
+        {
+            releasePrefixedStringValue(value_.string_);
+        }
+        value_.string_ = duplicateAndPrefixStringValue(value, iSize);
+        break;
+    case uintValue:
+        break;
+    case realValue:
+        break;
+    default:
+        break;
+    }
+    JSON_FAIL_MESSAGE("Value is not convertible to Int64.");
+}
+
+void Value::fromString(std::string & value) {
+    switch (type_) {
+    case stringValue:
+        if (value_.string_)
+        {
+            releasePrefixedStringValue(value_.string_);
+        }
+        value_.string_ = duplicateAndPrefixStringValue(value.c_str(), value.size());
+        break;
+    case uintValue:
+        break;
+    case realValue:
+        break;
+    default:
+        break;
+    }
+    JSON_FAIL_MESSAGE("Value is not convertible to Int64.");
+}
+
 #if JSONCPP_USING_SECURE_MEMORY
 unsigned Value::getCStringLength() const {
   JSON_ASSERT_MESSAGE(type_ == stringValue,
@@ -3200,7 +3238,7 @@ void Value::fromInt64(Value::Int64 value) {
     case realValue:
         JSON_ASSERT_MESSAGE(InRange(value_.real_, minInt64, maxInt64),
             "double out of Int64 range");
-        value_.real_ = value;
+        value_.real_ = (double)value;
         break;
     default:
         break;
@@ -3423,7 +3461,10 @@ Value& Value::operator[](ArrayIndex index) {
 
   ObjectValues::value_type defaultValue(key, nullRef);
   defaultValue.second.setParent(this);
-  defaultValue.second.setName(JSONCPP_STRING(key.data()));
+  if (key.data() != NULL)
+  {
+      defaultValue.second.setName(JSONCPP_STRING(key.data()));
+  }
   it = value_.map_->insert(it, defaultValue);
   return (*it).second;
 }
@@ -3601,7 +3642,7 @@ void Value::setName(const JSONCPP_STRING & strName)
 Value & Value::get(unsigned int index) const
 {
     JSON_ASSERT_MESSAGE(
-        type_ == nullValue || type_ == objectValue,
+        type_ == nullValue || type_ == objectValue || type_ == arrayValue,
         "in Json::Value::resolveReference(key, end): requires objectValue");
     JSON_ASSERT_MESSAGE((index >= 0 && index < value_.map_->size()), "in Json::Value::resolveReference(index): invalid index");
     ObjectValues::iterator it = value_.map_->begin();

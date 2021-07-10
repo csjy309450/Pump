@@ -121,7 +121,7 @@ public:
                 }
                 catch (Json::Exception & e)
                 {
-                	
+                    (e);
                 }
             }
         } break;
@@ -148,7 +148,7 @@ public:
                 }
                 catch (Json::Exception & e)
                 {
-
+                    (e);
                 }
             }
         } break;
@@ -156,11 +156,60 @@ public:
             break;
         }
     }
-
     pump_float64_t getValueAsFloat() const;
     void setValueFromFloat(pump_float64_t value);
-    const char* getValueAsString() const;
-    void setValueFromString(const char* value, pump_size_t iSize);
+    const char* getValueAsString() const
+    {
+        const char* value = NULL;
+        switch (m_type)
+        {
+        case PUMP_NODE_VALUE_BUILDIN:
+            break;
+        case PUMP_NODE_VALUE_JSON:
+        {
+            if (__JSON_VALUE)
+            {
+                // [TODO] process exception
+                try
+                {
+                    value = __JSON_VALUE->asCString();
+                }
+                catch (Json::Exception & e)
+                {
+                    (e);
+                }
+            }
+        } break;
+        default:
+            break;
+        }
+        return value;
+    }
+    void setValueFromString(const char* value, pump_size_t iSize)
+    {
+        switch (m_type)
+        {
+        case PUMP_NODE_VALUE_BUILDIN:
+            break;
+        case PUMP_NODE_VALUE_JSON:
+        {
+            if (__JSON_VALUE)
+            {
+                // [TODO] process exception
+                try
+                {
+                    __JSON_VALUE->fromCString(value, (size_t)iSize);
+                }
+                catch (Json::Exception & e)
+                {
+                    (e);
+                }
+            }
+        } break;
+        default:
+            break;
+        }
+    }
     CNode * getFirstSonNode();
     CNode * getLastSonNode();
     CNode * getNextSonNode();
@@ -358,25 +407,37 @@ void CNode::setValueFromFloat(pump_float64_t value)
 
 const char* CNode::getValueAsString() const
 {
+    if (m_pValue)
+    {
+        return m_pValue->getValueAsString();
+    }
     return NULL;
 }
 
 void CNode::setValueFromString(const char* value, pump_size_t iSize)
 {
+    if (m_pValue)
+    {
+        m_pValue->setValueFromString(value, iSize);
+    }
 }
 
-size_t CNode::getSonNodeCount() const
+size_t CNode::getSonNodeCount()
 {
-    if (m_pRelation)
+    const CNode * pWork = this->__getFirstSonNode();
+    if (pWork)
     {
-        return this->m_pRelation->getSonNodeSize();
+        if (m_pRelation)
+        {
+            return this->m_pRelation->getSonNodeSize();
+        }
     }
     return 0;
 }
 
 pump_bool_t CNode::isObject() const
 {
-    return this->getType() == CNode::PUMP_NODE_NULL;
+    return this->getType() == CNode::PUMP_NODE_OBJECT;
 }
 
 pump_bool_t CNode::isArray() const
@@ -422,7 +483,7 @@ void CNode::__refreshSonNodes()
 {
     CNode * pNode = NULL;
     CNode * pPreNode = NULL;
-    if (m_pValue && this->getType() == CNode::PUMP_NODE_OBJECT)
+    if (m_pValue && (this->isObject() || this->isArray()))
     {
         switch (m_pValue->m_type)
         {
@@ -568,7 +629,11 @@ CNode * CNode::GetSonNodeByName(CNode * pNode, const char* szName, size_t iSize)
 {
     if (pNode)
     {
-        return pNode->m_pRelation->getSonNodeByName(szName, iSize);
+        CNode * pWork = pNode->__getFirstSonNode();
+        if (pWork)
+        {
+            return pNode->m_pRelation->getSonNodeByName(szName, iSize);
+        }
     }
     return NULL;
 }
@@ -577,7 +642,11 @@ CNode * CNode::GetLastSonNode(CNode * pNode)
 {
     if (pNode)
     {
-        return pNode->__getLastSonNode();
+        CNode * pWork = pNode->__getFirstSonNode();
+        if (pWork)
+        {
+            return pNode->__getLastSonNode();
+        }
     }
     return NULL;
 }

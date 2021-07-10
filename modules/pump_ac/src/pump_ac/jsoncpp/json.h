@@ -771,6 +771,8 @@ public:
       int compare(const Value& other) const;
 
       const char* asCString() const; ///< Embedded zeroes could cause you trouble!
+      void fromString(std::string & value);
+      void fromCString(const char* value, size_t iSize);
 #if JSONCPP_USING_SECURE_MEMORY
       unsigned getCStringLength() const; //Allows you to understand the length of the CString
 #endif

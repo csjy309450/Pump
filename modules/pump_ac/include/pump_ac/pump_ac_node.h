@@ -51,7 +51,7 @@ public:
     void setValueFromFloat(pump_float64_t value);
     const char* getValueAsString() const;
     void setValueFromString(const char* value, pump_size_t iSize);
-    size_t getSonNodeCount() const;
+    size_t getSonNodeCount();
     pump_bool_t isObject() const;
     pump_bool_t isArray() const;
     pump_bool_t isInteger() const;

@@ -619,7 +619,6 @@ pump_int32_t CPumpCoreLogGuide::WriteLine(
     const char* szFormate,
     ...)
 {
-    std::string strMsg;
     CLogData logData;
     logData.SetLevel(emLevel);
     //logData.SetSrcPos(szFile);
@@ -705,7 +704,11 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_LoggerConfig(pump_handle_t hL
     return ((::Pump::Core::CLogRecorderBase *)hLog)->SetConfig(*pConf);
 }
 
-PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_LoggerWrite(pump_handle_t hLog, const char* szFormat, ...)
+PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_LoggerWrite(pump_handle_t hLog,
+    PUMP_CORE_LOG_LEVEL emLevel,
+    const char* szFile,
+    unsigned int nLine,
+    const char* szFormat, ...)
 {
     if (!::Pump::Core::__CPumpCoreGlobalCtrl::IsInit())
     {
@@ -717,5 +720,38 @@ PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_LoggerWrite(pump_handle_t hLo
         // error: param error.
         return PUMP_ERROR;
     }
+    ::Pump::Core::CLogData logData;
+    logData.SetLevel(emLevel);
+    //logData.SetSrcPos(szFile);
+    va_list argv;
+    va_start(argv, szFormat);
+    logData.SetMessage(emLevel, szFile, nLine, szFormat, argv);
+    va_end(argv);
+    ((::Pump::Core::CLogRecorderBase *)hLog)->WriteLine(logData);
+    return PUMP_OK;
+}
+
+PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_LoggerWriteExt(
+    pump_handle_t hLog,
+    PUMP_CORE_LOG_LEVEL emLevel,
+    const char* szFile,
+    unsigned int nLine,
+    const char* szFormat,
+    va_list argv)
+{
+    if (!::Pump::Core::__CPumpCoreGlobalCtrl::IsInit())
+    {
+        // error: need init.
+        return PUMP_ERROR;
+    }
+    if (hLog == PUMP_NULL || !szFormat)
+    {
+        // error: param error.
+        return PUMP_ERROR;
+    }
+    ::Pump::Core::CLogData logData;
+    logData.SetLevel(emLevel);
+    logData.SetMessage(emLevel, szFile, nLine, szFormat, argv);
+    ((::Pump::Core::CLogRecorderBase *)hLog)->WriteLine(logData);
     return PUMP_OK;
 }

@@ -56,6 +56,10 @@ public:
 
     pump_int32_t parse(const char * szBuff, size_t iSize)
     {
+        if (!m_pParser)
+        {
+            return PUMP_ERROR;
+        }
         return m_pParser->parse(szBuff, iSize);
     }
 
