@@ -81,7 +81,19 @@ typedef struct tagPUMP_CORE_LOG_CONF
 PUMP_CORE_API pump_handle_t PUMP_CALLBACK PUMP_CORE_LoggerCreate(PUMP_CORE_LOG_RECORED_TYPE emType = PUMP_CORE_LOG_RECORED_DEFAULT);
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_LoggerDestroy(pump_handle_t hLog);
 PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_LoggerConfig(pump_handle_t hLog, const LPPUMP_CORE_LOG_CONF pConf);
-PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_LoggerWrite(pump_handle_t hLog, const char* szFormat, ...);
+PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_LoggerWrite(
+    pump_handle_t hLog, 
+    PUMP_CORE_LOG_LEVEL emLevel, 
+    const char* szFile,
+    unsigned int nLine, 
+    const char* szFormat, ...);
+PUMP_CORE_API pump_int32_t PUMP_CALLBACK PUMP_CORE_LoggerWriteExt(
+    pump_handle_t hLog,
+    PUMP_CORE_LOG_LEVEL emLevel,
+    const char* szFile,
+    unsigned int nLine,
+    const char* szFormat, 
+    va_list argv);
 
 #ifdef PUMP_COMPILER_CXX
 #define PUMP_CORE_INFO(form_, ...) ::Pump::Core::CPumpCoreLogGuide().WriteLine(PUMP_LOG_INFO, __FILE__,__LINE__, form_,__VA_ARGS__)
