@@ -21,6 +21,23 @@
 #define TEST_UNIQUE_PRE_NAME PUMP_CONF_TEST_PRE
 #endif // PUMP_CONF_TEST_PRE
 
+// pump_test version info
+#ifndef PUMP_TEST_VERSION_MAJOR
+#   define PUMP_TEST_VERSION_MAJOR 0
+#endif // !PUMP_TEST_VERSION_MAJOR
+#ifndef PUMP_TEST_VERSION_MINOR
+#   define PUMP_TEST_VERSION_MINOR 0
+#endif // !PUMP_TEST_VERSION_MINOR
+#ifndef PUMP_TEST_VERSION_PATCH
+#   define PUMP_TEST_VERSION_PATCH 9
+#endif // !PUMP_TEST_VERSION_PATCH
+#ifndef PUMP_TEST_VERSION_BUILD
+#   define PUMP_TEST_VERSION_BUILD 0
+#endif // !PUMP_TEST_VERSION_BUILD
+#define __PUMP_TEST_VERSION_STR(str_) #str_
+#define __PUMP_TEST_VERJOIN(major_,minor_,patch_,build_) __PUMP_TEST_VERSION_STR(major_.minor_.patch_.build_)
+#define PUMP_TEST_VERSION __PUMP_TEST_VERJOIN(PUMP_TEST_VERSION_MAJOR,PUMP_TEST_VERSION_MINOR,PUMP_TEST_VERSION_PATCH,PUMP_TEST_VERSION_BUILD)
+
 #define PTEST_Printf(_format, ...) CGlobalTestSceneMgr::GetGlobalTestMgr()->OutPut(_format, __VA_ARGS__)
 
 #define PTEST_G_FN_DEF(indx_,...) INTER_PTEST_G_FN_DEF(indx_, __VA_ARGS__)

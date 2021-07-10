@@ -517,6 +517,13 @@ PTEST_C_CASE_DEF(PumpCoreUnitTestCase015, PumpCoreUnitTestScene001, )
     return 0;
 }
 
+PTEST_C_CASE_DEF(PumpCoreUnitTestCase016, PumpCoreUnitTestScene001, )
+{
+    PTEST_LOG(comment, "PumpCoreUnitTestCase016 test CStringBuffer");
+    PTEST_LOG(log, "%s", PUMP_CORE_VERSION);
+    return 0;
+}
+
 PTEST_MAIN_BEGINE(int argc, char** argv)
     return getchar();
 PTEST_MAIN_END
