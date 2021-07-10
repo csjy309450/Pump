@@ -158,6 +158,37 @@ public:
     }
     pump_float64_t getValueAsFloat() const;
     void setValueFromFloat(pump_float64_t value);
+    pump_bool_t getValueAsBool() const
+    {
+        bool value = false;
+        switch (m_type)
+        {
+        case PUMP_NODE_VALUE_BUILDIN:
+            break;
+        case PUMP_NODE_VALUE_JSON:
+        {
+            if (__JSON_VALUE)
+            {
+                // [TODO] process exception
+                try
+                {
+                    value = __JSON_VALUE->asBool();
+                }
+                catch (Json::Exception & e)
+                {
+                    (e);
+                }
+            }
+        } break;
+        default:
+            break;
+        }
+        return (value?PUMP_TRUE:PUMP_FALSE);
+    }
+    void setValueFromBool(pump_bool_t value)
+    {
+
+    }
     const char* getValueAsString() const
     {
         const char* value = NULL;
@@ -403,6 +434,20 @@ pump_float64_t CNode::getValueAsFloat() const
 
 void CNode::setValueFromFloat(pump_float64_t value)
 {
+}
+
+pump_bool_t CNode::getValueAsBool() const
+{
+    if (m_pValue)
+    {
+        return m_pValue->getValueAsBool();
+    }
+    return PUMP_FALSE;
+}
+
+void CNode::setValueFromBool(pump_bool_t value)
+{
+
 }
 
 const char* CNode::getValueAsString() const

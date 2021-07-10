@@ -45,13 +45,17 @@ public:
 public:
     const char * getName() const;
     PUMP_NODE_TYPE getType() const;
+    size_t getSonNodeCount();
+
     pump_int64_t getValueAsInt() const;
     void setValueFromInt(pump_int64_t value);
     pump_float64_t getValueAsFloat() const;
     void setValueFromFloat(pump_float64_t value);
+    pump_bool_t getValueAsBool() const;
+    void setValueFromBool(pump_bool_t value);
     const char* getValueAsString() const;
     void setValueFromString(const char* value, pump_size_t iSize);
-    size_t getSonNodeCount();
+
     pump_bool_t isObject() const;
     pump_bool_t isArray() const;
     pump_bool_t isInteger() const;

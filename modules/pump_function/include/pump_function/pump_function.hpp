@@ -4,6 +4,23 @@
 #include <iostream>
 #include <vector>
 
+// pump_function version info
+#ifndef PUMP_FUNCTION_VERSION_MAJOR
+#   define PUMP_FUNCTION_VERSION_MAJOR 0
+#endif // !PUMP_FUNCTION_VERSION_MAJOR
+#ifndef PUMP_FUNCTION_VERSION_MINOR
+#   define PUMP_FUNCTION_VERSION_MINOR 0
+#endif // !PUMP_FUNCTION_VERSION_MINOR
+#ifndef PUMP_FUNCTION_VERSION_PATCH
+#   define PUMP_FUNCTION_VERSION_PATCH 9
+#endif // !PUMP_FUNCTION_VERSION_PATCH
+#ifndef PUMP_FUNCTION_VERSION_BUILD
+#   define PUMP_FUNCTION_VERSION_BUILD 0
+#endif // !PUMP_FUNCTION_VERSION_BUILD
+#define __PUMP_FUNCTION_VERSION_STR(str_) #str_
+#define __PUMP_FUNCTION_VERJOIN(major_,minor_,patch_,build_) __PUMP_FUNCTION_VERSION_STR(major_.minor_.patch_.build_)
+#define PUMP_FUNCTION_VERSION __PUMP_FUNCTION_VERJOIN(PUMP_FUNCTION_VERSION_MAJOR,PUMP_FUNCTION_VERSION_MINOR,PUMP_FUNCTION_VERSION_PATCH,PUMP_FUNCTION_VERSION_BUILD)
+
 #define PUMP_GFN_TYPE(ret_, argv_) ret_(*)argv_
 #define PUMP_MFN_TYPE(class_,ret_, argv_) ret_(class_::*)argv_
 #define PUMP_GFN(ret_, argv_) Pump::Function::CFunction<PUMP_GFN_TYPE(ret_, argv_)>
